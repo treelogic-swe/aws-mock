@@ -1,4 +1,4 @@
 aws-mock
 ========
 
-A lightweight Java-based mock of essential AWS services.
+A lightweight, very modular Java-based mock of essential AWS services, for testing purposes.  
