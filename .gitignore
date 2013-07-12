@@ -13,7 +13,7 @@ build/
 bin/
 private_doc/
 
-# Project Facets
+# Project artifacts
 .classpath
 .project
 .settings
