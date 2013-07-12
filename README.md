@@ -1,19 +1,43 @@
 aws-mock
 ========
 
-A lightweight, very modular Java-based mock of essential AWS services, for testing purposes.
+A lightweight, very modular Java-based mock of essential AWS services, works with official aws-sdk, or thrid-party tools such as elasticfox, generally for testing purposes.
 
-###Note ###
-For now we implemented only a few interfaces for Amazon ec2: runInstances, stopInstances, startInstances, terminateInstances and describeInstances.   
+For now we implemented only a few interfaces of Amazon EC2: 
+- runInstances
+- stopInstances
+- startInstances
+- terminateInstances
+- describeInstances
 
-### To build ###
-Before building from source, you must first generate the Java stubs under com.tlswe.awsmock.ec2.cxf_generated, by running Apache-CXF's wsdl2java: 
-`wsdl2java -verbose -d src/main/java -p com.tlswe.awsmock.ec2.cxf_generated -autoNameResolution -server -impl -frontend jaxws21 src/third_party/ec2-2013-02-01.wsdl`
+This mock of EC2 could be helpful for testing your applications with which you need to simulate large amount of dummy EC2 instances. 
+
+
+### To Build
+Before first time of building from source, you must generate the Java stubs under `com.tlswe.awsmock.ec2.cxf_generated`, by running [Apache-CXF](http://cxf.apache.org/)'s wsdl2java tool: 
+```
+wsdl2java -verbose -d src/main/java -p com.tlswe.awsmock.ec2.cxf_generated \
+-autoNameResolution -server -frontend jaxws21 src/third_party/ec2-2013-02-01.wsdl
+```
 
 And then build the war file: 
-    `gradle war`
+```
+gradle war
+```
 
-### TODO ###
-Convert the stuff in cxf_generated into a gradle dependency (as a dependency of sub project). 
+### Usage
+
+Deploy the war to your servlet container and in your code with **aws-sdk**, just point the ec2 endpoint to such as:
+```
+http://localhost:8080/aws-mock/ec2-endpoint/
+```
+
+### Tips
+For eclipse users, `gradle cleanEclipse eclipse` can initialize the ready-to-import eclipse project artifacts. 
+
+
+### To-do List
+- Organize the web service Java stub jar generating with CXF into a gradle dependency for other parts of builds (probably as a dependent gradle sub project). 
+- Persistence of mock objects for recovering after service restarts. 
 
 
