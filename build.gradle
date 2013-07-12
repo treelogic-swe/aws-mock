@@ -1,0 +1,47 @@
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse-wtp'
+
+version = '0.1'
+
+sourceCompatibility = '1.6'
+targetCompatibility = '1.6'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    providedCompile 'javax.servlet:servlet-api:2.5'
+    compile 'org.apache.commons:commons-lang3:3.1'
+    compile 'commons-logging:commons-logging:1.1.3'
+    compile 'log4j:log4j:1.2.17'
+}
+
+eclipse {
+    classpath {
+        containers.clear()
+        containers.add('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6')
+        containers.add('org.eclipse.jst.j2ee.internal.web.container')
+    }
+}
+
+task sourcesJar(type:Jar, dependsOn:classes){
+    classifier = 'sources'
+    // from sourceSets.main.allSource
+    from sourceSets.main.allJava.srcDirs
+    include "**/*.java"
+}
+
+task javadocJar(type: Jar) {
+        classifier = "javadoc"
+        from javadoc
+    }
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+
+
