@@ -37,7 +37,7 @@ For eclipse users, `gradle cleanEclipse eclipse` can initialize the ready-to-imp
 
 
 ### To-do List
-- Organize the web service Java stub jar generating with CXF into a gradle dependency for other parts of builds (probably as a dependent gradle sub project). 
+- Organize the web service Java stub jar generating with CXF into a gradle dependency for other parts of builds (probably as a dependent gradle sub project).  
 - Persistence of mock objects for recovering after service restarts. 
-
+- Clean up terminated mock instances after a pre-defined period (as genuine EC2 does). 
 
