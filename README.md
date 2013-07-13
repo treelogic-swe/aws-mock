@@ -17,7 +17,7 @@ This mock of EC2 could be helpful for testing your applications with which you n
 Before first time of building from source, you must generate the Java stubs under `com.tlswe.awsmock.ec2.cxf_generated`, by running [Apache-CXF](http://cxf.apache.org/)'s wsdl2java tool: 
 ```
 wsdl2java -verbose -d src/main/java -p com.tlswe.awsmock.ec2.cxf_generated \
--autoNameResolution -server -frontend jaxws21 src/third_party/ec2-2013-02-01.wsdl
+-autoNameResolution -impl -server -frontend jaxws21 src/third_party/ec2-2013-02-01.wsdl
 ```
 
 And then build the war file: 
