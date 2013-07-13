@@ -103,9 +103,7 @@ public class MockEc2Controller {
                 previousState.setName(instance.getInstanceState().getName());
                 stateChange.setPreviousState(previousState);
 
-                if (instance.getInstanceState().equals(MockEc2Instance.InstanceState.STOPPED)) {
-                    instance.start();
-                }
+                instance.start();
 
                 InstanceStateType newState = new InstanceStateType();
                 newState.setCode(instance.getInstanceState().getCode());
@@ -135,9 +133,7 @@ public class MockEc2Controller {
                 previousState.setName(instance.getInstanceState().getName());
                 stateChange.setPreviousState(previousState);
 
-                if (instance.getInstanceState().equals(MockEc2Instance.InstanceState.STOPPED)) {
-                    instance.stop();
-                }
+                instance.stop();
 
                 InstanceStateType newState = new InstanceStateType();
                 newState.setCode(instance.getInstanceState().getCode());
@@ -167,9 +163,7 @@ public class MockEc2Controller {
                 previousState.setName(instance.getInstanceState().getName());
                 stateChange.setPreviousState(previousState);
 
-                if (instance.getInstanceState().equals(MockEc2Instance.InstanceState.STOPPED)) {
-                    instance.terminate();
-                }
+                instance.terminate();
 
                 InstanceStateType newState = new InstanceStateType();
                 newState.setCode(instance.getInstanceState().getCode());

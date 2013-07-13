@@ -221,6 +221,10 @@ public class MockEc2Instance {
         return stopping;
     }
 
+    public boolean isTerminated() {
+        return terminated;
+    }
+
     public boolean start() {
         if (running || booting || stopping || terminated) {
             return false;
@@ -234,19 +238,25 @@ public class MockEc2Instance {
 
     public boolean stop() {
 
-        if (!running || booting || stopping) {
-            return false;
-        } else {
+        if (booting || running) {
             timerCounter = 0;
             stopping = true;
+            booting = false;
             return true;
+        } else {
+            return false;
         }
 
     }
 
-    public void terminate() {
+    public boolean terminate() {
 
-        terminated = true;
+        if (!terminated) {
+            terminated = true;
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
@@ -256,8 +266,9 @@ public class MockEc2Instance {
     // }
 
     public InstanceState getInstanceState() {
-        return isBooting() ? InstanceState.PENDING : (isStopping() ? InstanceState.STOPPING
-                : (isRunning() ? InstanceState.RUNNING : InstanceState.STOPPED));
+        return isTerminated() ? InstanceState.TERMINATED : (isBooting() ? InstanceState.PENDING
+                : (isStopping() ? InstanceState.STOPPING
+                        : (isRunning() ? InstanceState.RUNNING : InstanceState.STOPPED)));
     }
 
     public String getImageId() {
