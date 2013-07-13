@@ -15,6 +15,7 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateChangeSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateType;
 import com.tlswe.awsmock.ec2.cxf_generated.PlacementResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.ReservationInfoType;
@@ -22,14 +23,16 @@ import com.tlswe.awsmock.ec2.cxf_generated.ReservationSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.RunInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.TerminateInstancesResponseType;
 import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 import com.tlswe.awsmock.ec2.util.JAXBUtil;
 
 public class MockEC2QueryHandler {
 
-    private static final String MOCK_EC2_INSTANCE_CLASS_NAME = PropertiesUtils
-            .getProperty("ec2.instance.class");
+    private static final String MOCK_EC2_INSTANCE_CLASS_NAME = PropertiesUtils.getProperty("ec2.instance.class");
 
     /**
      * 
@@ -37,8 +40,7 @@ public class MockEC2QueryHandler {
      * @param writer
      * @return
      */
-    public static boolean writeReponse(Map<String, String[]> queryParams,
-            final Writer writer) {
+    public static boolean writeReponse(Map<String, String[]> queryParams, final Writer writer) {
 
         if (null == queryParams || queryParams.size() == 0) {
 
@@ -63,16 +65,11 @@ public class MockEC2QueryHandler {
             if ("DescribeInstances".equals(action[0])) {
 
                 // put all the instanceIDs into a set
-
                 Set<String> instanceIDs = parseInstanceIDs(queryParams);
 
                 try {
-                    writer.write(JAXBUtil.marshall(
-                            describeInstances(instanceIDs),
-                            "DescribeInstancesResponse", version[0]));
-                    // JAXBUtil.marshall3(
-                    // MockEC2QueryHandler.describeInstances(instanceIDs),
-                    // writer);
+                    writer.write(JAXBUtil.marshall(describeInstances(instanceIDs), "DescribeInstancesResponse",
+                            version[0]));
                 } catch (JAXBException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -89,10 +86,8 @@ public class MockEC2QueryHandler {
                 int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
 
                 try {
-                    writer.write(JAXBUtil.marshall(
-                            runInstances(imageID, instanceType, minCount,
-                                    maxCount), "RunInstancesResponse",
-                            version[0]));
+                    writer.write(JAXBUtil.marshall(runInstances(imageID, instanceType, minCount, maxCount),
+                            "RunInstancesResponse", version[0]));
                     // JAXBUtil.marshall3(
                     // MockEC2QueryHandler.describeInstances(instanceIDs),
                     // writer);
@@ -106,10 +101,44 @@ public class MockEC2QueryHandler {
 
             } else if ("StartInstances".equals(action[0])) {
 
+                // put all the instanceIDs into a set
+                Set<String> instanceIDs = parseInstanceIDs(queryParams);
+
+                try {
+                    writer.write(JAXBUtil.marshall(startInstances(instanceIDs), "StartInstancesResponse", version[0]));
+                } catch (JAXBException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
             } else if ("StopInstances".equals(action[0])) {
+                Set<String> instanceIDs = parseInstanceIDs(queryParams);
 
+                try {
+                    writer.write(JAXBUtil.marshall(stopInstances(instanceIDs), "StopInstancesResponse", version[0]));
+                } catch (JAXBException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             } else if ("TerminateInstances".equals(action[0])) {
+                Set<String> instanceIDs = parseInstanceIDs(queryParams);
 
+                try {
+                    writer.write(JAXBUtil.marshall(terminateInstances(instanceIDs), "TerminateInstancesResponse",
+                            version[0]));
+                } catch (JAXBException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             } else {
                 // unsupported action
             }
@@ -123,14 +152,12 @@ public class MockEC2QueryHandler {
 
     }
 
-    private static Set<String> parseInstanceIDs(
-            final Map<String, String[]> queryParams) {
+    private static Set<String> parseInstanceIDs(final Map<String, String[]> queryParams) {
         Set<String> ret = new TreeSet<String>();
 
         Set<Map.Entry<String, String[]>> entries = queryParams.entrySet();
         for (Map.Entry<String, String[]> entry : entries) {
-            if (null != entry && null != entry.getKey()
-                    && entry.getKey().matches("InstanceId\\.(\\d)+")) {
+            if (null != entry && null != entry.getKey() && entry.getKey().matches("InstanceId\\.(\\d)+")) {
                 if (null != entry.getValue() && entry.getValue().length > 0) {
                     ret.add(entry.getValue()[0]);
                 }
@@ -139,8 +166,7 @@ public class MockEC2QueryHandler {
         return ret;
     }
 
-    private static DescribeInstancesResponseType describeInstances_bad(
-            Set<String> instanceIDs) {
+    private static DescribeInstancesResponseType describeInstances_bad(Set<String> instanceIDs) {
 
         DescribeInstancesResponseType ret = new DescribeInstancesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
@@ -153,8 +179,7 @@ public class MockEC2QueryHandler {
 
         MockEc2Controller.getAllMockEc2Instances();
 
-        Collection<MockEc2Instance> instances = MockEc2Controller
-                .describeInstances(instanceIDs);
+        Collection<MockEc2Instance> instances = MockEc2Controller.describeInstances(instanceIDs);
 
         for (MockEc2Instance instance : instances) {
 
@@ -164,7 +189,8 @@ public class MockEC2QueryHandler {
                 instItem.setInstanceId(instance.getInstanceID());
 
                 InstanceStateType st = new InstanceStateType();
-                st.setName(instance.getStatusName());
+                st.setCode(instance.getInstanceState().getCode());
+                st.setName(instance.getInstanceState().getName());
 
                 instItem.setInstanceState(st);
 
@@ -182,8 +208,7 @@ public class MockEC2QueryHandler {
 
     }
 
-    private static DescribeInstancesResponseType describeInstances(
-            Set<String> instanceIDs) {
+    private static DescribeInstancesResponseType describeInstances(Set<String> instanceIDs) {
 
         DescribeInstancesResponseType ret = new DescribeInstancesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
@@ -191,8 +216,7 @@ public class MockEC2QueryHandler {
 
         MockEc2Controller.getAllMockEc2Instances();
 
-        Collection<MockEc2Instance> instances = MockEc2Controller
-                .describeInstances(instanceIDs);
+        Collection<MockEc2Instance> instances = MockEc2Controller.describeInstances(instanceIDs);
 
         for (MockEc2Instance instance : instances) {
 
@@ -214,12 +238,12 @@ public class MockEC2QueryHandler {
                 instItem.setInstanceId(instance.getInstanceID());
 
                 PlacementResponseType placement = new PlacementResponseType();
-                placement.setAvailabilityZone(PropertiesUtils
-                        .getProperty("ec2.placement"));
+                placement.setAvailabilityZone(PropertiesUtils.getProperty("ec2.placement"));
                 instItem.setPlacement(placement);
 
                 InstanceStateType st = new InstanceStateType();
-                st.setName(instance.getStatusName());
+                st.setCode(instance.getInstanceState().getCode());
+                st.setName(instance.getInstanceState().getName());
 
                 instItem.setInstanceState(st);
 
@@ -239,8 +263,14 @@ public class MockEC2QueryHandler {
 
     }
 
-    private static RunInstancesResponseType runInstances(String imageId,
-            String instanceType, /* Set<String> securityGroups, */int minCount,
+    private static RunInstancesResponseType runInstances(String imageId, String instanceType, /*
+                                                                                               * Set
+                                                                                               * <
+                                                                                               * String
+                                                                                               * >
+                                                                                               * securityGroups
+                                                                                               * ,
+                                                                                               */int minCount,
             int maxCount) {
 
         RunInstancesResponseType ret = new RunInstancesResponseType();
@@ -249,8 +279,7 @@ public class MockEC2QueryHandler {
 
         Class<? extends MockEc2Instance> clazzOfEc2Instance = null;
         try {
-            clazzOfEc2Instance = (Class<? extends MockEc2Instance>) Class
-                    .forName(MOCK_EC2_INSTANCE_CLASS_NAME);
+            clazzOfEc2Instance = (Class<? extends MockEc2Instance>) Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME);
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -258,8 +287,10 @@ public class MockEC2QueryHandler {
 
         List<MockEc2Instance> newInstances = null;
         try {
-            newInstances = MockEc2Controller.runInstances(clazzOfEc2Instance,
-                    imageId, instanceType, /* securityGroups, */
+            newInstances = MockEc2Controller.runInstances(clazzOfEc2Instance, imageId, instanceType, /*
+                                                                                                      * securityGroups
+                                                                                                      * ,
+                                                                                                      */
                     minCount, maxCount);
         } catch (MockEc2Exception e) {
             // TODO Auto-generated catch block
@@ -277,7 +308,8 @@ public class MockEC2QueryHandler {
             riit.setImageId(i.getImageId());
             riit.setInstanceType(i.getInstanceType());
             InstanceStateType state = new InstanceStateType();
-            state.setName(i.getStatusName());
+            state.setCode(i.getInstanceState().getCode());
+            state.setName(i.getInstanceState().getName());
             riit.setInstanceState(state);
             riit.setDnsName(i.getPubDns());
 
@@ -289,6 +321,34 @@ public class MockEC2QueryHandler {
 
         return ret;
 
+    }
+
+    private static StartInstancesResponseType startInstances(Set<String> instanceIDs) {
+        StartInstancesResponseType ret = new StartInstancesResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+        InstanceStateChangeSetType changeSet = new InstanceStateChangeSetType();
+        changeSet.getItem().addAll(MockEc2Controller.startInstances(instanceIDs));
+        ret.setInstancesSet(changeSet);
+        return ret;
+
+    }
+
+    private static StopInstancesResponseType stopInstances(Set<String> instanceIDs) {
+        StopInstancesResponseType ret = new StopInstancesResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+        InstanceStateChangeSetType changeSet = new InstanceStateChangeSetType();
+        changeSet.getItem().addAll(MockEc2Controller.stopInstances(instanceIDs));
+        ret.setInstancesSet(changeSet);
+        return ret;
+    }
+
+    private static TerminateInstancesResponseType terminateInstances(Set<String> instanceIDs) {
+        TerminateInstancesResponseType ret = new TerminateInstancesResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+        InstanceStateChangeSetType changeSet = new InstanceStateChangeSetType();
+        changeSet.getItem().addAll(MockEc2Controller.terminateInstances(instanceIDs));
+        ret.setInstancesSet(changeSet);
+        return ret;
     }
 
     /**

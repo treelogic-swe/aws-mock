@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateChangeType;
+import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateType;
 import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 
@@ -23,42 +25,33 @@ public class MockEc2Controller {
      */
     private static Map<String, MockEc2Instance> _allMockEc2Instances = new ConcurrentHashMap<String, MockEc2Instance>();
 
-    public static Collection<MockEc2Instance> describeInstances(
-            Set<String> instanceIDs) {
+    public static Collection<MockEc2Instance> describeInstances(Set<String> instanceIDs) {
         if (null == instanceIDs || instanceIDs.size() == 0) {
             return _allMockEc2Instances.values();
         } else {
-            Collection<MockEc2Instance> ret = new ArrayList<MockEc2Instance>();
-            for (String instanceID : instanceIDs) {
-                ret.add(getMockEc2Instance(instanceID));
-            }
-            return ret;
+            return getInstances(instanceIDs);
         }
     }
 
-    public static <T extends MockEc2Instance> List<T> runInstances(
-            Class<? extends T> clazz, String imageId, String instanceType,
-            /* Set<String> securityGroups, */int minCount, int maxCount)
-            throws MockEc2Exception {
+    public static <T extends MockEc2Instance> List<T> runInstances(Class<? extends T> clazz, String imageId,
+            String instanceType,
+            /* Set<String> securityGroups, */int minCount, int maxCount) throws MockEc2Exception {
 
         if (!MockEc2Instance.InstanceType.containsByName(instanceType)) {
             throw new MockEc2Exception("illegal instance type: " + instanceType);
         }
 
         if (maxCount > MAX_RUN_INSTANCE_COUNT_AT_A_TIME) {
-            throw new MockEc2Exception("you can not request to run more than "
-                    + MAX_RUN_INSTANCE_COUNT_AT_A_TIME
+            throw new MockEc2Exception("you can not request to run more than " + MAX_RUN_INSTANCE_COUNT_AT_A_TIME
                     + " instances at a time!");
         }
 
         if (minCount < 1) {
-            throw new MockEc2Exception(
-                    "you should request to run at least 1 instance!");
+            throw new MockEc2Exception("you should request to run at least 1 instance!");
         }
 
         if (minCount > maxCount) {
-            throw new MockEc2Exception(
-                    "minCount should not be greater than maxCount!");
+            throw new MockEc2Exception("minCount should not be greater than maxCount!");
         }
 
         List<T> ret = new ArrayList<T>();
@@ -78,11 +71,8 @@ public class MockEc2Controller {
                                 + ", please make sure sure this class extends com.tlswe.awsmock.ec2.model.MockEc2Instance and has a public constructor with no parameters. ",
                         e);
             } catch (IllegalAccessException e) {
-                throw new MockEc2Exception(
-                        "failed to access constructor of "
-                                + clazz.getName()
-                                + ", please make sure the constructor with no parameters is public. ",
-                        e);
+                throw new MockEc2Exception("failed to access constructor of " + clazz.getName()
+                        + ", please make sure the constructor with no parameters is public. ", e);
             }
             inst.setImageId(imageId);
             inst.setInstanceType(instanceType);
@@ -98,35 +88,99 @@ public class MockEc2Controller {
 
     }
 
-    public static boolean startInstances(String instID) {
+    public static List<InstanceStateChangeType> startInstances(Set<String> instanceIDs) {
 
-        MockEc2Instance inst = _allMockEc2Instances.get(instID);
-        if (null != inst) {
-            return inst.startup();
-        } else {
-            return false;
+        List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
+
+        Collection<MockEc2Instance> instances = getInstances(instanceIDs);
+        for (MockEc2Instance instance : instances) {
+            if (null != instance) {
+                InstanceStateChangeType stateChange = new InstanceStateChangeType();
+                stateChange.setInstanceId(instance.getInstanceID());
+
+                InstanceStateType previousState = new InstanceStateType();
+                previousState.setCode(instance.getInstanceState().getCode());
+                previousState.setName(instance.getInstanceState().getName());
+                stateChange.setPreviousState(previousState);
+
+                if (instance.getInstanceState().equals(MockEc2Instance.InstanceState.STOPPED)) {
+                    instance.start();
+                }
+
+                InstanceStateType newState = new InstanceStateType();
+                newState.setCode(instance.getInstanceState().getCode());
+                newState.setName(instance.getInstanceState().getName());
+                stateChange.setCurrentState(newState);
+
+                ret.add(stateChange);
+            }
         }
+
+        return ret;
 
     }
 
-    public static boolean stopInstances(String instID) {
+    public static List<InstanceStateChangeType> stopInstances(Set<String> instanceIDs) {
 
-        MockEc2Instance inst = _allMockEc2Instances.get(instID);
-        if (null != inst) {
-            return inst.shutdown();
-        } else {
-            return false;
+        List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
+
+        Collection<MockEc2Instance> instances = getInstances(instanceIDs);
+        for (MockEc2Instance instance : instances) {
+            if (null != instance) {
+                InstanceStateChangeType stateChange = new InstanceStateChangeType();
+                stateChange.setInstanceId(instance.getInstanceID());
+
+                InstanceStateType previousState = new InstanceStateType();
+                previousState.setCode(instance.getInstanceState().getCode());
+                previousState.setName(instance.getInstanceState().getName());
+                stateChange.setPreviousState(previousState);
+
+                if (instance.getInstanceState().equals(MockEc2Instance.InstanceState.STOPPED)) {
+                    instance.stop();
+                }
+
+                InstanceStateType newState = new InstanceStateType();
+                newState.setCode(instance.getInstanceState().getCode());
+                newState.setName(instance.getInstanceState().getName());
+                stateChange.setCurrentState(newState);
+
+                ret.add(stateChange);
+            }
         }
+
+        return ret;
 
     }
 
-    public static void terminateInstances(String instID) {
+    public static List<InstanceStateChangeType> terminateInstances(Set<String> instanceIDs) {
 
-        MockEc2Instance inst = _allMockEc2Instances.get(instID);
-        if (null != inst) {
-            inst.terminate();
-            _allMockEc2Instances.remove(instID);
+        List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
+
+        Collection<MockEc2Instance> instances = getInstances(instanceIDs);
+        for (MockEc2Instance instance : instances) {
+            if (null != instance) {
+                InstanceStateChangeType stateChange = new InstanceStateChangeType();
+                stateChange.setInstanceId(instance.getInstanceID());
+
+                InstanceStateType previousState = new InstanceStateType();
+                previousState.setCode(instance.getInstanceState().getCode());
+                previousState.setName(instance.getInstanceState().getName());
+                stateChange.setPreviousState(previousState);
+
+                if (instance.getInstanceState().equals(MockEc2Instance.InstanceState.STOPPED)) {
+                    instance.terminate();
+                }
+
+                InstanceStateType newState = new InstanceStateType();
+                newState.setCode(instance.getInstanceState().getCode());
+                newState.setName(instance.getInstanceState().getName());
+                stateChange.setCurrentState(newState);
+
+                ret.add(stateChange);
+            }
         }
+
+        return ret;
 
     }
 
@@ -136,6 +190,14 @@ public class MockEc2Controller {
 
     public static MockEc2Instance getMockEc2Instance(String instanceID) {
         return _allMockEc2Instances.get(instanceID);
+    }
+
+    private static Collection<MockEc2Instance> getInstances(Set<String> instanceIDs) {
+        Collection<MockEc2Instance> ret = new ArrayList<MockEc2Instance>();
+        for (String instanceID : instanceIDs) {
+            ret.add(getMockEc2Instance(instanceID));
+        }
+        return ret;
     }
 
     // /**
