@@ -12,11 +12,9 @@ public class MockEc2Instance {
     // private static Log _log = LogFactory.getLog(MockEc2Instance.class);
 
     public enum InstanceType {
-        T1_MICRO("t1.micro"), M1_SMALL("m1.small"), M1_MEDIUM("m1.medium"), M1_LARGE(
-                "m1.large"), M1_XLARGE("m1.xlarge"), M2_XLARGE("m2.xlarge"), M2_2XLARGE(
-                "m2.2xlarge"), M2_4XLARGE("m2.4xlarge"), C1_MEDIUM("c1.medium"), C1_XLARGE(
-                "c1.xlarge"), CC1_4XLARGE("cc1.4xlarge"), CC2_8XLARGE(
-                "cc2.8xlarge"), CG1_4XLARGE("cg1.4xlarge"), HI1_4XLARGE(
+        T1_MICRO("t1.micro"), M1_SMALL("m1.small"), M1_MEDIUM("m1.medium"), M1_LARGE("m1.large"), M1_XLARGE("m1.xlarge"), M2_XLARGE(
+                "m2.xlarge"), M2_2XLARGE("m2.2xlarge"), M2_4XLARGE("m2.4xlarge"), C1_MEDIUM("c1.medium"), C1_XLARGE(
+                "c1.xlarge"), CC1_4XLARGE("cc1.4xlarge"), CC2_8XLARGE("cc2.8xlarge"), CG1_4XLARGE("cg1.4xlarge"), HI1_4XLARGE(
                 "hi1.4xlarge");
 
         private String name;
@@ -37,6 +35,29 @@ public class MockEc2Instance {
                 }
             }
             return false;
+        }
+
+    }
+
+    public enum InstanceState {
+
+        PENDING(0, "pending"), RUNNING(16, "running"), SHUTTING_DOWN(32, " shutting-down"), TERMINATED(48, "terminated"), STOPPING(
+                64, "stopping"), STOPPED(80, "stopped");
+
+        private int code;
+        private String name;
+
+        private InstanceState(int code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getName() {
+            return name;
         }
 
     }
@@ -89,6 +110,8 @@ public class MockEc2Instance {
     protected boolean stopping = false;
     protected boolean terminated = false;
 
+    // protected InstanceState instanceState = InstanceState.PENDING;
+
     protected String pubDns = null;
 
     protected Timer timer = new Timer(true);
@@ -125,16 +148,13 @@ public class MockEc2Instance {
 
                             try {
                                 Thread.sleep(MIN_BOOT_TIME_MILLS
-                                        + _random.nextInt(MAX_BOOT_TIME_MILLS
-                                                - MIN_BOOT_TIME_MILLS));
+                                        + _random.nextInt(MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS));
                             } catch (InterruptedException e) {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
 
-                            pubDns = "mock-ec2-"
-                                    + UUID.randomUUID().toString()
-                                            .toLowerCase() + ".amazon.com";
+                            pubDns = "mock-ec2-" + UUID.randomUUID().toString().toLowerCase() + ".amazon.com";
 
                             booting = false;
 
@@ -144,9 +164,7 @@ public class MockEc2Instance {
 
                             try {
                                 Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
-                                        + _random
-                                                .nextInt(MAX_SHUTDOWN_TIME_MILLS
-                                                        - MIN_SHUTDOWN_TIME_MILLS));
+                                        + _random.nextInt(MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS));
                             } catch (InterruptedException e) {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
@@ -162,8 +180,7 @@ public class MockEc2Instance {
 
                         }
 
-                        if (timerCounter >= HEARTBEAT_INTERVAL_MILLIS
-                                / TIMER_INTERVAL_MILLIS) {
+                        if (timerCounter >= HEARTBEAT_INTERVAL_MILLIS / TIMER_INTERVAL_MILLIS) {
 
                             timerCounter = 0;
 
@@ -204,8 +221,12 @@ public class MockEc2Instance {
         return stopping;
     }
 
-    public boolean startup() {
-        if (running || booting || stopping) {
+    public boolean isTerminated() {
+        return terminated;
+    }
+
+    public boolean start() {
+        if (running || booting || stopping || terminated) {
             return false;
         } else {
             timerCounter = 0;
@@ -215,27 +236,39 @@ public class MockEc2Instance {
         }
     }
 
-    public boolean shutdown() {
+    public boolean stop() {
 
-        if (!running || booting || stopping) {
-            return false;
-        } else {
+        if (booting || running) {
             timerCounter = 0;
             stopping = true;
+            booting = false;
             return true;
+        } else {
+            return false;
         }
 
     }
 
-    public void terminate() {
+    public boolean terminate() {
 
-        terminated = true;
+        if (!terminated) {
+            terminated = true;
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
-    public String getStatusName() {
-        return isBooting() ? "pending" : (isStopping() ? "stopping"
-                : (isRunning() ? "running" : "stopped"));
+    // public String getStatusName() {
+    // return isBooting() ? "pending" : (isStopping() ? "stopping" :
+    // (isRunning() ? "running" : "stopped"));
+    // }
+
+    public InstanceState getInstanceState() {
+        return isTerminated() ? InstanceState.TERMINATED : (isBooting() ? InstanceState.PENDING
+                : (isStopping() ? InstanceState.STOPPING
+                        : (isRunning() ? InstanceState.RUNNING : InstanceState.STOPPED)));
     }
 
     public String getImageId() {
