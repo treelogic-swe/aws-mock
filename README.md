@@ -1,7 +1,7 @@
 aws-mock
 ========
 
-A lightweight, very modular Java-based mock of essential AWS services, works with official aws-sdk, or thrid-party tools such as elasticfox, generally for testing purposes.
+A lightweight, very modular Java-based mock of essential AWS services, works with official aws-sdk, or third-party tools such as elasticfox, generally for testing purposes.
 
 For now we implemented only a few interfaces of Amazon EC2: 
 - runInstances
