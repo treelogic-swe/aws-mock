@@ -166,48 +166,6 @@ public class MockEC2QueryHandler {
         return ret;
     }
 
-    private static DescribeInstancesResponseType describeInstances_bad(Set<String> instanceIDs) {
-
-        DescribeInstancesResponseType ret = new DescribeInstancesResponseType();
-        ret.setRequestId(UUID.randomUUID().toString());
-        ReservationSetType resSet = new ReservationSetType();
-        ReservationInfoType resInfo1 = new ReservationInfoType();
-        resInfo1.setOwnerId("mock-owner");
-        resSet.getItem().add(resInfo1);
-
-        RunningInstancesSetType instsSet = new RunningInstancesSetType();
-
-        MockEc2Controller.getAllMockEc2Instances();
-
-        Collection<MockEc2Instance> instances = MockEc2Controller.describeInstances(instanceIDs);
-
-        for (MockEc2Instance instance : instances) {
-
-            if (null != instance) {
-
-                RunningInstancesItemType instItem = new RunningInstancesItemType();
-                instItem.setInstanceId(instance.getInstanceID());
-
-                InstanceStateType st = new InstanceStateType();
-                st.setCode(instance.getInstanceState().getCode());
-                st.setName(instance.getInstanceState().getName());
-
-                instItem.setInstanceState(st);
-
-                instsSet.getItem().add(instItem);
-
-            }
-
-        }
-
-        resInfo1.setInstancesSet(instsSet);
-
-        ret.setReservationSet(resSet);
-
-        return ret;
-
-    }
-
     private static DescribeInstancesResponseType describeInstances(Set<String> instanceIDs) {
 
         DescribeInstancesResponseType ret = new DescribeInstancesResponseType();
@@ -246,6 +204,9 @@ public class MockEC2QueryHandler {
                 st.setName(instance.getInstanceState().getName());
 
                 instItem.setInstanceState(st);
+                instItem.setImageId(instance.getImageId());
+                instItem.setInstanceType(instance.getInstanceType());
+                instItem.setDnsName(instance.getPubDns());
 
                 instsSet.getItem().add(instItem);
 
@@ -263,15 +224,8 @@ public class MockEC2QueryHandler {
 
     }
 
-    private static RunInstancesResponseType runInstances(String imageId, String instanceType, /*
-                                                                                               * Set
-                                                                                               * <
-                                                                                               * String
-                                                                                               * >
-                                                                                               * securityGroups
-                                                                                               * ,
-                                                                                               */int minCount,
-            int maxCount) {
+    @SuppressWarnings("unchecked")
+    private static RunInstancesResponseType runInstances(String imageId, String instanceType, int minCount, int maxCount) {
 
         RunInstancesResponseType ret = new RunInstancesResponseType();
 
