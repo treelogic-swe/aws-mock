@@ -11,7 +11,7 @@ public class MockEc2Instance {
 
     // private static Log _log = LogFactory.getLog(MockEc2Instance.class);
 
-    public enum InstanceType {
+    public static enum InstanceType {
         T1_MICRO("t1.micro"), M1_SMALL("m1.small"), M1_MEDIUM("m1.medium"), M1_LARGE("m1.large"), M1_XLARGE("m1.xlarge"), M2_XLARGE(
                 "m2.xlarge"), M2_2XLARGE("m2.2xlarge"), M2_4XLARGE("m2.4xlarge"), C1_MEDIUM("c1.medium"), C1_XLARGE(
                 "c1.xlarge"), CC1_4XLARGE("cc1.4xlarge"), CC2_8XLARGE("cc2.8xlarge"), CG1_4XLARGE("cg1.4xlarge"), HI1_4XLARGE(
@@ -39,7 +39,7 @@ public class MockEc2Instance {
 
     }
 
-    public enum InstanceState {
+    public static enum InstanceState {
 
         PENDING(0, "pending"), RUNNING(16, "running"), SHUTTING_DOWN(32, " shutting-down"), TERMINATED(48, "terminated"), STOPPING(
                 64, "stopping"), STOPPED(80, "stopped");
