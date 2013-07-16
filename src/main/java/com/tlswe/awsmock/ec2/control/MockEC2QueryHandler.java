@@ -12,6 +12,9 @@ import java.util.UUID;
 import javax.xml.bind.JAXBException;
 
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseItemType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupSetType;
@@ -132,6 +135,16 @@ public class MockEC2QueryHandler {
                 try {
                     writer.write(JAXBUtil.marshall(terminateInstances(instanceIDs), "TerminateInstancesResponse",
                             version[0]));
+                } catch (JAXBException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            } else if ("DescribeImages".equals(action[0])) {
+                try {
+                    writer.write(JAXBUtil.marshall(describeImages(), "DescribeImagesResponse", version[0]));
                 } catch (JAXBException e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
@@ -302,6 +315,19 @@ public class MockEC2QueryHandler {
         InstanceStateChangeSetType changeSet = new InstanceStateChangeSetType();
         changeSet.getItem().addAll(MockEc2Controller.terminateInstances(instanceIDs));
         ret.setInstancesSet(changeSet);
+        return ret;
+    }
+
+    private static DescribeImagesResponseType describeImages() {
+        DescribeImagesResponseType ret = new DescribeImagesResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+        DescribeImagesResponseInfoType info = new DescribeImagesResponseInfoType();
+        DescribeImagesResponseItemType item = new DescribeImagesResponseItemType();
+        item.setImageId("ami-12345678");
+
+        info.getItem().add(item);
+        ret.setImagesSet(info);
+
         return ret;
     }
 
