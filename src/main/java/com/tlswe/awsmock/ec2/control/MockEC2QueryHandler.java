@@ -37,6 +37,15 @@ public class MockEC2QueryHandler {
 
     private static final String MOCK_EC2_INSTANCE_CLASS_NAME = PropertiesUtils.getProperty("ec2.instance.class");
 
+    private static final PlacementResponseType _defaultMockPlacement = new PlacementResponseType();
+
+    private static final Set<String> _mockAMIs = new TreeSet<String>();
+
+    static {
+        _defaultMockPlacement.setAvailabilityZone(PropertiesUtils.getProperty("ec2.placement"));
+        _mockAMIs.addAll(PropertiesUtils.getPropertiesByPrefix("predefined.mock.ami."));
+    }
+
     /**
      * 
      * @param queryParams
@@ -208,9 +217,10 @@ public class MockEC2QueryHandler {
                 RunningInstancesItemType instItem = new RunningInstancesItemType();
                 instItem.setInstanceId(instance.getInstanceID());
 
-                PlacementResponseType placement = new PlacementResponseType();
-                placement.setAvailabilityZone(PropertiesUtils.getProperty("ec2.placement"));
-                instItem.setPlacement(placement);
+                // PlacementResponseType placement = new
+                // PlacementResponseType();
+                // placement.setAvailabilityZone(PropertiesUtils.getProperty("ec2.placement"));
+                instItem.setPlacement(_defaultMockPlacement);
 
                 InstanceStateType st = new InstanceStateType();
                 st.setCode(instance.getInstanceState().getCode());
@@ -254,11 +264,8 @@ public class MockEC2QueryHandler {
 
         List<MockEc2Instance> newInstances = null;
         try {
-            newInstances = MockEc2Controller.runInstances(clazzOfEc2Instance, imageId, instanceType, /*
-                                                                                                      * securityGroups
-                                                                                                      * ,
-                                                                                                      */
-                    minCount, maxCount);
+            newInstances = MockEc2Controller
+                    .runInstances(clazzOfEc2Instance, imageId, instanceType, minCount, maxCount);
         } catch (MockEc2Exception e) {
             // TODO Auto-generated catch block
 
@@ -269,18 +276,19 @@ public class MockEC2QueryHandler {
 
         for (MockEc2Instance i : newInstances) {
 
-            RunningInstancesItemType riit = new RunningInstancesItemType();
+            RunningInstancesItemType instItem = new RunningInstancesItemType();
 
-            riit.setInstanceId(i.getInstanceID());
-            riit.setImageId(i.getImageId());
-            riit.setInstanceType(i.getInstanceType());
+            instItem.setInstanceId(i.getInstanceID());
+            instItem.setImageId(i.getImageId());
+            instItem.setInstanceType(i.getInstanceType());
             InstanceStateType state = new InstanceStateType();
             state.setCode(i.getInstanceState().getCode());
             state.setName(i.getInstanceState().getName());
-            riit.setInstanceState(state);
-            riit.setDnsName(i.getPubDns());
+            instItem.setInstanceState(state);
+            instItem.setDnsName(i.getPubDns());
+            instItem.setPlacement(_defaultMockPlacement);
 
-            instSet.getItem().add(riit);
+            instSet.getItem().add(instItem);
 
         }
 
@@ -322,10 +330,11 @@ public class MockEC2QueryHandler {
         DescribeImagesResponseType ret = new DescribeImagesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
         DescribeImagesResponseInfoType info = new DescribeImagesResponseInfoType();
-        DescribeImagesResponseItemType item = new DescribeImagesResponseItemType();
-        item.setImageId("ami-12345678");
-
-        info.getItem().add(item);
+        for (String ami : _mockAMIs) {
+            DescribeImagesResponseItemType item = new DescribeImagesResponseItemType();
+            item.setImageId(ami);
+            info.getItem().add(item);
+        }
         ret.setImagesSet(info);
 
         return ret;
