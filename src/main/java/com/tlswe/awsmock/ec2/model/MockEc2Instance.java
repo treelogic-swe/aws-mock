@@ -7,6 +7,8 @@ import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import com.tlswe.awsmock.common.util.PropertiesUtils;
+
 public class MockEc2Instance {
 
     // private static Log _log = LogFactory.getLog(MockEc2Instance.class);
@@ -63,43 +65,44 @@ public class MockEc2Instance {
     }
 
     /**
+     * 10 seconds
+     */
+    protected static final int TIMER_INTERVAL_MILLIS = 10 * 1000;
+
+    /**
      * 
      */
     protected static Random _random = new Random();
 
     /**
-     * 25 seconds
+     * 
      */
-    protected static final int MIN_BOOT_TIME_MILLS = 25 * 1000;
+    protected static final long MIN_BOOT_TIME_MILLS = Integer.parseInt(PropertiesUtils
+            .getProperty("instance.min.boot.time.seconds")) * 1000L;
 
     /**
-     * 75 seconds
+     * 
      */
-    protected static final int MAX_BOOT_TIME_MILLS = 75 * 1000;
+    protected static final long MAX_BOOT_TIME_MILLS = Integer.parseInt(PropertiesUtils
+            .getProperty("instance.max.boot.time.seconds")) * 1000L;
 
     /**
-     * 10 seconds
+     * 
      */
-    protected static final int MIN_SHUTDOWN_TIME_MILLS = 10 * 1000;
+    protected static final long MIN_SHUTDOWN_TIME_MILLS = Integer.parseInt(PropertiesUtils
+            .getProperty("instance.min.shutdown.time.seconds")) * 1000L;
 
     /**
-     * 30 seconds
+     * 
      */
-    protected static final int MAX_SHUTDOWN_TIME_MILLS = 30 * 1000;
-    /**
-     * 20 seconds
-     */
-    protected static final int TIMER_INTERVAL_MILLIS = 20 * 1000;
+    protected static final long MAX_SHUTDOWN_TIME_MILLS = Integer.parseInt(PropertiesUtils
+            .getProperty("instance.max.shutdown.time.seconds")) * 1000L;
 
-    /**
-     * 5 minutes
-     */
-    protected static final int HEARTBEAT_INTERVAL_MILLIS = 300 * 1000;
     /**
      * 
      */
     protected String instanceID = null;
-    // private String state = "pending";
+
     protected String imageId = null;
 
     protected String instanceType = InstanceType.M1_SMALL.getName();
@@ -110,13 +113,9 @@ public class MockEc2Instance {
     protected boolean stopping = false;
     protected boolean terminated = false;
 
-    // protected InstanceState instanceState = InstanceState.PENDING;
-
     protected String pubDns = null;
 
     protected Timer timer = new Timer(true);
-
-    protected int timerCounter = 0;
 
     public MockEc2Instance() {
 
@@ -136,7 +135,7 @@ public class MockEc2Instance {
                         running = false;
                         booting = false;
                         stopping = false;
-                        timerCounter = 0;
+
                         pubDns = null;
                         this.cancel();
                         return;
@@ -148,7 +147,7 @@ public class MockEc2Instance {
 
                             try {
                                 Thread.sleep(MIN_BOOT_TIME_MILLS
-                                        + _random.nextInt(MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS));
+                                        + _random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
                             } catch (InterruptedException e) {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
@@ -158,13 +157,11 @@ public class MockEc2Instance {
 
                             booting = false;
 
-                            timerCounter = 0;
-
                         } else if (stopping) {
 
                             try {
                                 Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
-                                        + _random.nextInt(MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS));
+                                        + _random.nextInt((int) (MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS)));
                             } catch (InterruptedException e) {
                                 // TODO Auto-generated catch block
                                 e.printStackTrace();
@@ -175,18 +172,6 @@ public class MockEc2Instance {
                             stopping = false;
 
                             running = false;
-
-                            timerCounter = 0;
-
-                        }
-
-                        if (timerCounter >= HEARTBEAT_INTERVAL_MILLIS / TIMER_INTERVAL_MILLIS) {
-
-                            timerCounter = 0;
-
-                        } else {
-
-                            timerCounter++;
 
                         }
 
@@ -229,7 +214,6 @@ public class MockEc2Instance {
         if (running || booting || stopping || terminated) {
             return false;
         } else {
-            timerCounter = 0;
             booting = true;
             running = true;
             return true;
@@ -239,7 +223,6 @@ public class MockEc2Instance {
     public boolean stop() {
 
         if (booting || running) {
-            timerCounter = 0;
             stopping = true;
             booting = false;
             return true;
