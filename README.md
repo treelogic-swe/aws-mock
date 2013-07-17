@@ -27,7 +27,7 @@ gradle war
 
 ### Usage
 
-Deploy the war to your servlet container and in your code with **aws-sdk**, just point the ec2 endpoint to such as:
+Deploy the war to your servlet container, and in your code with aws-sdk, or EC2 client tools, just point the ec2 endpoint to such as:
 ```
 http://localhost:8080/aws-mock/ec2-endpoint/
 ```
@@ -37,7 +37,8 @@ For eclipse users, `gradle cleanEclipse eclipse` can initialize the ready-to-imp
 
 
 ### To-do List
-- Organize the web service Java stub jar generating with CXF into a gradle dependency for other parts of builds (probably as a dependent gradle sub project).  
+- Organize the web service Java stub jar generating with CXF into a gradle dependency for other parts of builds (probably as a dependent gradle sub project). 
+- Make sure to be compatible with Amazon EC2 API Tools. 
 - Persistence of mock objects for recovering after service restarts. 
 - Clean up terminated mock instances after a pre-defined period (as genuine EC2 does). 
 
