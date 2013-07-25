@@ -26,6 +26,17 @@ eclipse {
     }
 }
 
+task wsdl2java (type:Exec) {
+    dependencies{
+	   	runtime 'org.apache.cxf:apache-cxf:2.7.5'
+	}
+    
+    //For Linux
+    //commandLine './pack'
+    //For Windows
+	commandLine 'cmd','/c', 'pack.bat'
+}
+
 task sourcesJar(type:Jar, dependsOn:classes){
     classifier = 'sources'
     // from sourceSets.main.allSource
