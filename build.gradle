@@ -43,5 +43,5 @@ artifacts {
     archives javadocJar
 }
 
-
+war.exclude('build/resources/main/log4j.properties')
 
