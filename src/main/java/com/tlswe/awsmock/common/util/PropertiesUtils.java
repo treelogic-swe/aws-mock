@@ -5,8 +5,17 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+/**
+ * Providing utilities such as properties loading/fetching.
+ * 
+ * @author xma
+ * 
+ */
 public class PropertiesUtils {
 
+    /**
+     * all properties loaded into aws-mock.properties
+     */
     static private Properties _properties = new Properties();
 
     static {
@@ -18,10 +27,24 @@ public class PropertiesUtils {
         }
     }
 
+    /**
+     * Get property value by name.
+     * 
+     * @param propertyName
+     *            name of the property to get
+     * @return the value
+     */
     public static String getProperty(final String propertyName) {
         return _properties.getProperty(propertyName);
     }
 
+    /**
+     * Get a set of properties those share the same given name prefix.
+     * 
+     * @param propertyNamePrefix
+     *            prefix of name
+     * @return the set of values whose property names share the same prefix
+     */
     public static Set<String> getPropertiesByPrefix(final String propertyNamePrefix) {
 
         Set<String> ret = new TreeSet<String>();
@@ -33,13 +56,6 @@ public class PropertiesUtils {
         }
 
         return ret;
-    }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        System.out.println(getProperty("ec2.instance.class"));
     }
 
 }
