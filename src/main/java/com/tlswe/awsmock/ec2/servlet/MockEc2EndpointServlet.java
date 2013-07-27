@@ -32,15 +32,15 @@ public class MockEc2EndpointServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
 
-        System.out.println("==== New query comming ====");
+//        System.out.println("==== New query comming ====");
 
-        Map<String, String[]> queryParams = request.getParameterMap();
-        for (Map.Entry<String, String[]> e : (Set<Map.Entry<String, String[]>>) queryParams
-                .entrySet()) {
-            System.out.println(e.getKey() + " - (" + e.getValue().length + ") - "
-                    + e.getValue()[0]);
-
-        }
+        Map<String, String[]> queryParams = (Map<String, String[]>)request.getParameterMap();
+//        for (Map.Entry<String, String[]> e : (Set<Map.Entry<String, String[]>>) queryParams
+//                .entrySet()) {
+//            System.out.println(e.getKey() + " - (" + e.getValue().length + ") - "
+//                    + e.getValue()[0]);
+//
+//        }
 
         response.setContentType("text/xml");
         response.setCharacterEncoding("UTF-8");
