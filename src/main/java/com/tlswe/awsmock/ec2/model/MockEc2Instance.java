@@ -108,8 +108,10 @@ public class MockEc2Instance {
     protected String instanceType = InstanceType.M1_SMALL.getName();
     protected Set<String> securityGroups = new TreeSet<String>();
 
-    protected boolean booting = true;
-    protected boolean running = true;
+    protected boolean internalTimerInitialized = false;
+
+    protected boolean booting = false;
+    protected boolean running = false;
     protected boolean stopping = false;
     protected boolean terminated = false;
 
@@ -118,72 +120,7 @@ public class MockEc2Instance {
     protected Timer timer = new Timer(true);
 
     public MockEc2Instance() {
-
         this.instanceID = "i-" + UUID.randomUUID().toString().substring(0, 7);
-
-        timer.schedule(new TimerTask() {
-
-            /**
-             * this method is triggered every TIMER_INTERVAL_MILLIS
-             */
-            @Override
-            public void run() {
-
-                try {
-
-                    if (terminated) {
-                        running = false;
-                        booting = false;
-                        stopping = false;
-
-                        pubDns = null;
-                        this.cancel();
-                        return;
-                    }
-
-                    if (running) {
-
-                        if (booting) {
-
-                            try {
-                                Thread.sleep(MIN_BOOT_TIME_MILLS
-                                        + _random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
-                            } catch (InterruptedException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-
-                            pubDns = "mock-ec2-" + UUID.randomUUID().toString().toLowerCase() + ".amazon.com";
-
-                            booting = false;
-
-                        } else if (stopping) {
-
-                            try {
-                                Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
-                                        + _random.nextInt((int) (MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS)));
-                            } catch (InterruptedException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-
-                            pubDns = null;
-
-                            stopping = false;
-
-                            running = false;
-
-                        }
-
-                    }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-        }, 0L, TIMER_INTERVAL_MILLIS);
-
     }
 
     public String getInstanceID() {
@@ -216,6 +153,76 @@ public class MockEc2Instance {
         } else {
             booting = true;
             running = true;
+            if (!internalTimerInitialized) {
+
+                TimerTask internalTimerTask = new TimerTask() {
+
+                    /**
+                     * this method is triggered every TIMER_INTERVAL_MILLIS
+                     */
+                    @Override
+                    public void run() {
+
+                        try {
+
+                            if (terminated) {
+                                running = false;
+                                booting = false;
+                                stopping = false;
+
+                                pubDns = null;
+                                this.cancel();
+                                return;
+                            }
+
+                            if (running) {
+
+                                if (booting) {
+
+                                    try {
+                                        Thread.sleep(MIN_BOOT_TIME_MILLS
+                                                + _random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
+                                    } catch (InterruptedException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
+                                    }
+
+                                    pubDns = "mock-ec2-" + UUID.randomUUID().toString().toLowerCase() + ".amazon.com";
+
+                                    booting = false;
+
+                                } else if (stopping) {
+
+                                    try {
+                                        Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
+                                                + _random
+                                                        .nextInt((int) (MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS)));
+                                    } catch (InterruptedException e) {
+                                        // TODO Auto-generated catch block
+                                        e.printStackTrace();
+                                    }
+
+                                    pubDns = null;
+
+                                    stopping = false;
+
+                                    running = false;
+
+                                }
+
+                            }
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                    }
+                };
+                timer.schedule(internalTimerTask, 0L, TIMER_INTERVAL_MILLIS);
+
+                internalTimerInitialized = true;
+
+            }
             return true;
         }
     }

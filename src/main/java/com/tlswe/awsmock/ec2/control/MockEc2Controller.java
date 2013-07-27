@@ -78,6 +78,8 @@ public class MockEc2Controller {
             inst.setInstanceType(instanceType);
             // inst.setSecurityGroups(securityGroups);
 
+            inst.start();
+
             ret.add(inst);
 
             _allMockEc2Instances.put(inst.getInstanceID(), inst);
