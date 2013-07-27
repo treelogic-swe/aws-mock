@@ -12,19 +12,46 @@ import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateType;
 import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 
+/**
+ * Factory class providing static methods for managing life cycle of mock ec2
+ * instances. The current implementations can:
+ * <ul>
+ * <li>run</li>
+ * <li>stop</li>
+ * <li>terminate</li>
+ * <li>describe</li>
+ * </ul>
+ * mock ec2 instances only. <br>
+ * 
+ * 
+ * @author xma
+ * 
+ */
 public class MockEc2Controller {
 
+    /**
+     * max allowed number of mock instances to run at a time (a single request)
+     */
     private static final int MAX_RUN_INSTANCE_COUNT_AT_A_TIME = 10000;
 
     // private static final Random _random = new Random();
 
     /**
      * a map of all the mock ec2 instances, instanceID as key and
-     * MockEc2InstanceLifecycleThread as value <br>
-     * the states are simplified as: running, stopped
+     * {@link MockEc2Instance} as value
      */
     private static Map<String, MockEc2Instance> _allMockEc2Instances = new ConcurrentHashMap<String, MockEc2Instance>();
 
+    /**
+     * List mock ec2 instances in current aws-mock.
+     * 
+     * @param instanceIDs
+     *            a filter of specified instance IDs for the target instance to
+     *            describe
+     * @return a collection of {@link MockEc2Instance} with specifed instance
+     *         IDs, or all of the mock ec2 instances if no instance IDs as
+     *         filtered
+     */
     public static Collection<MockEc2Instance> describeInstances(Set<String> instanceIDs) {
         if (null == instanceIDs || instanceIDs.size() == 0) {
             return _allMockEc2Instances.values();
@@ -33,6 +60,25 @@ public class MockEc2Controller {
         }
     }
 
+    /**
+     * Create and run mock ec2 instances.
+     * 
+     * @param clazz
+     *            class as type of mock ec2 instance to run as, should extend
+     *            MockEc2Instance
+     * @param imageId
+     *            AMI of new mock ec2 instance(s)
+     * @param instanceType
+     *            type(scale) of new mock ec2 instance(s), refer to
+     *            {@link MockEc2Instance#InstanceType}
+     * @param minCount
+     *            max count of instances to run (but limited to
+     *            {@link #MAX_RUN_INSTANCE_COUNT_AT_A_TIME})
+     * @param maxCount
+     *            min count of instances to run (should larger than 0)
+     * @return a list of objects of clazz as started new mock ec2 instances
+     * @throws MockEc2Exception
+     */
     public static <T extends MockEc2Instance> List<T> runInstances(Class<? extends T> clazz, String imageId,
             String instanceType,
             /* Set<String> securityGroups, */int minCount, int maxCount) throws MockEc2Exception {
@@ -90,6 +136,13 @@ public class MockEc2Controller {
 
     }
 
+    /**
+     * Start one or more existing mock ec2 instances.
+     * 
+     * @param instanceIDs
+     *            a set of instance IDs for those instances to start
+     * @return a list of state change messages (typically stopped to running)
+     */
     public static List<InstanceStateChangeType> startInstances(Set<String> instanceIDs) {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
@@ -120,6 +173,13 @@ public class MockEc2Controller {
 
     }
 
+    /**
+     * Stop one or more existing mock ec2 instances.
+     * 
+     * @param instanceIDs
+     *            a set of instance IDs for those instances to stop
+     * @return a list of state change messages (typically running to stopping)
+     */
     public static List<InstanceStateChangeType> stopInstances(Set<String> instanceIDs) {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
@@ -150,6 +210,14 @@ public class MockEc2Controller {
 
     }
 
+    /**
+     * Terminate one or more existing mock ec2 instances.
+     * 
+     * @param instanceIDs
+     *            a set of instance IDs for those instances to terminate
+     * @return a list of state change messages (typically running/stopped to
+     *         terminated)
+     */
     public static List<InstanceStateChangeType> terminateInstances(Set<String> instanceIDs) {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
@@ -180,14 +248,33 @@ public class MockEc2Controller {
 
     }
 
+    /**
+     * List all mock ec2 instances within aws-mock.
+     * 
+     * @return a collection of all the mock ec2 instances
+     */
     public static Collection<MockEc2Instance> getAllMockEc2Instances() {
         return _allMockEc2Instances.values();
     }
 
+    /**
+     * Get mock ec2 instance by instance ID.
+     * 
+     * @param instanceID
+     *            ID of the mock ec2 instance to get
+     * @return the mock ec2 instance object
+     */
     public static MockEc2Instance getMockEc2Instance(String instanceID) {
         return _allMockEc2Instances.get(instanceID);
     }
 
+    /**
+     * Get mock ec2 instances by instance IDs.
+     * 
+     * @param instanceIDs
+     *            IDs of the mock ec2 instances to get
+     * @return the mock ec2 instances object
+     */
     private static Collection<MockEc2Instance> getInstances(Set<String> instanceIDs) {
         Collection<MockEc2Instance> ret = new ArrayList<MockEc2Instance>();
         for (String instanceID : instanceIDs) {
@@ -196,38 +283,6 @@ public class MockEc2Controller {
         return ret;
     }
 
-    // /**
-    // * Load mock ec2 intances along with mock vnc sessions on them, from the
-    // * object map in {@link CoreHandler}, with is always made persistent. This
-    // * method should be called once at mock appliation context initializing.
-    // */
-    // public static void restoreMockInstances() {
-    // Collection<Ec2Node> nodes = CoreHandler.listAllNodes();
-    // for (Ec2Node node : nodes) {
-    // MockEc2Instance inst = _allMockEc2Instances.get(node
-    // .getInstanceID());
-    // if (null == inst) {
-    //
-    // inst = new MockEc2Instance(node.getInstanceID());
-    //
-    // Set<VncSession> vncSessionsOnNode = node.getAllVncSessions();
-    // if (null != vncSessionsOnNode && vncSessionsOnNode.size() > 0) {
-    // inst.restoreVncSessions(vncSessionsOnNode);
-    // }
-    //
-    // _allMockEc2Instances.put(node.getInstanceID(), inst);
-    //
-    // }
-    //
-    // }
-    // }
-
-    /**
-     * @param args
-     */
-    protected static void main(final String[] args) {
-        // TODO Auto-generated method stub
-
-    }
+    // TODO restoreInstances
 
 }
