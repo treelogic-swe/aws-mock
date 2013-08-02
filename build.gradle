@@ -37,6 +37,11 @@ task wsdl2java (type:Exec) {
 	commandLine 'cmd','/c', 'pack.bat'
 }
 
+task packStub(type: Jar, dependsOn: wsdl2java) {
+	from 'src/main/java/com/tlswe/awsmock/ec2/cxf_generated'
+	into 'libs/cxf-stub-ec2-2013-02-01.jar'
+}
+
 task sourcesJar(type:Jar, dependsOn:classes){
     classifier = 'sources'
     // from sourceSets.main.allSource
