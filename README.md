@@ -9,6 +9,7 @@ For now we implemented only a few interfaces of Amazon EC2:
 - startInstances
 - terminateInstances
 - describeInstances
+- describeImages
 
 This mock of EC2 could be helpful for testing your applications with which you need to simulate large amount of dummy EC2 instances. 
 
