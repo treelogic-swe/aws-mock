@@ -41,8 +41,8 @@ task wsdl2java (type:Exec) {
 	commandLine 'cmd','/c', 'pack.bat'
 }
 
-task packStub(type: Jar, dependsOn: wsdl2java) {
-	from 'src/main/java/com/tlswe/awsmock/ec2/cxf_generated'
+task packStub(type: Jar/*, dependsOn: wsdl2java*/) {
+	//from 'src/main/java/com/tlswe/awsmock/ec2/cxf_generated'
 	into 'libs/cxf-stub-ec2-2013-02-01.jar'
 }
 
@@ -75,10 +75,14 @@ task integrationTest(type: Test) {
     }
     testClassesDir = sourceSets.test.output.classesDir
 }
+
 artifacts {
     archives sourcesJar
     archives javadocJar
 }
 
-war.exclude('build/resources/main/log4j.properties')
+jar {
+    exclude('log4j.properties')
+}
+
 
