@@ -12,6 +12,9 @@
         <welcome-file>default.htm</welcome-file>
         <welcome-file>default.jsp</welcome-file>
     </welcome-file-list>
+    <listener>
+    	<listener-class>com.tlswe.awsmock.common.listener.AppListener</listener-class>
+    </listener>
     <servlet>
         <description></description>
         <display-name>MockEc2EndpointServlet</display-name>

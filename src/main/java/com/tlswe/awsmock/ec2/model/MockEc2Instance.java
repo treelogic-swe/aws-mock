@@ -1,5 +1,6 @@
 package com.tlswe.awsmock.ec2.model;
 
+import java.io.Serializable;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
@@ -8,6 +9,9 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
+
+//import com.tlswe.awsmock.common.util.SerializedTimer;
 
 /**
  * Generic implementation of mock ec2 instance, with basic simulation of
@@ -23,7 +27,15 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
  * @author xma
  * 
  */
-public class MockEc2Instance {
+public class MockEc2Instance implements Serializable {
+
+    /**
+     * default serial version ID for this class which implements
+     * {@link Serializable}
+     * 
+     * @see Serializable
+     */
+    private static final long serialVersionUID = 1L;
 
     /**
      * all allowed instance types
@@ -84,6 +96,42 @@ public class MockEc2Instance {
 
         public String getName() {
             return name;
+        }
+
+    }
+
+    /**
+     * We define {@link Serializable} {@link Timer} here because all members in
+     * {@link MockEc2Instance} need to be save to binary file as for
+     * persistence.
+     * 
+     * @author xma
+     * 
+     */
+    public class SerializableTimer extends Timer implements Serializable {
+
+        /**
+         * default serial version ID for this class which implements
+         * {@link Serializable}
+         * 
+         * @see Serializable
+         */
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * constructor from superclass
+         */
+        public SerializableTimer() {
+            super();
+        }
+
+        /**
+         * constructor from superclass
+         * 
+         * @param isDaemon
+         */
+        public SerializableTimer(boolean isDaemon) {
+            super(isDaemon);
         }
 
     }
@@ -180,13 +228,15 @@ public class MockEc2Instance {
      * internal timer for simulating the behaviors and states of this mock ec2
      * instance
      */
-    protected Timer timer = new Timer(true);
+    protected SerializableTimer timer = null;
 
     /**
      * on constructing, an instance ID is assigned
      */
     public MockEc2Instance() {
-        this.instanceID = "i-" + UUID.randomUUID().toString().substring(0, 7);
+        if (null == this.instanceID) {
+            this.instanceID = "i-" + UUID.randomUUID().toString().substring(0, 7);
+        }
     }
 
     public String getInstanceID() {
@@ -213,6 +263,92 @@ public class MockEc2Instance {
         return terminated;
     }
 
+    public void initializeInternalTimer() {
+        // if it is the first the instance is started, we initialize the
+        // internal timer thread
+        if (!internalTimerInitialized) {
+
+            TimerTask internalTimerTask = new TimerTask() {
+
+                /**
+                 * this method is triggered every TIMER_INTERVAL_MILLIS
+                 */
+                @Override
+                public void run() {
+
+                    try {
+
+                        if (terminated) {
+                            running = false;
+                            booting = false;
+                            stopping = false;
+
+                            pubDns = null;
+                            this.cancel();
+                            return;
+                        }
+
+                        if (running) {
+
+                            if (booting) {
+
+                                // delay a random 'boot time'
+                                try {
+                                    Thread.sleep(MIN_BOOT_TIME_MILLS
+                                            + _random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
+                                } catch (InterruptedException e) {
+                                    throw new MockEc2Exception(
+                                            "InterruptedException caught when delaying a mock random 'boot time'", e);
+                                }
+
+                                // booted, assign a mock pub dns name
+                                pubDns = "mock-ec2-" + UUID.randomUUID().toString().toLowerCase() + ".amazon.com";
+
+                                booting = false;
+
+                            } else if (stopping) {
+
+                                // delay a random 'shutdown time'
+                                try {
+                                    Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
+                                            + _random
+                                                    .nextInt((int) (MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS)));
+                                } catch (InterruptedException e) {
+                                    throw new MockEc2Exception(
+                                            "InterruptedException caught when delaying a mock random 'shutdown time'", e);
+                                }
+
+                                // unset pub dns name
+                                pubDns = null;
+
+                                stopping = false;
+
+                                running = false;
+
+                            }
+
+                        }
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+
+                }
+            };
+            timer = new SerializableTimer(true);
+            timer.schedule(internalTimerTask, 0L, TIMER_INTERVAL_MILLIS);
+
+            internalTimerInitialized = true;
+
+        }
+    }
+
+    public void destroyInternalTimer() {
+        timer.cancel();
+        timer = null;
+        internalTimerInitialized = false;
+    }
+
     /**
      * Start a stopped mock ec2 instance.
      * 
@@ -229,82 +365,6 @@ public class MockEc2Instance {
             booting = true;
             running = true;
 
-            // if it is the first the instance is started, we initialize the
-            // internal timer thread
-            if (!internalTimerInitialized) {
-
-                TimerTask internalTimerTask = new TimerTask() {
-
-                    /**
-                     * this method is triggered every TIMER_INTERVAL_MILLIS
-                     */
-                    @Override
-                    public void run() {
-
-                        try {
-
-                            if (terminated) {
-                                running = false;
-                                booting = false;
-                                stopping = false;
-
-                                pubDns = null;
-                                this.cancel();
-                                return;
-                            }
-
-                            if (running) {
-
-                                if (booting) {
-
-                                    // delay a random 'boot time'
-                                    try {
-                                        Thread.sleep(MIN_BOOT_TIME_MILLS
-                                                + _random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
-                                    } catch (InterruptedException e) {
-                                        // TODO Auto-generated catch block
-                                        e.printStackTrace();
-                                    }
-
-                                    // booted, assign a mock pub dns name
-                                    pubDns = "mock-ec2-" + UUID.randomUUID().toString().toLowerCase() + ".amazon.com";
-
-                                    booting = false;
-
-                                } else if (stopping) {
-
-                                    // delay a random 'shutdown time'
-                                    try {
-                                        Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
-                                                + _random
-                                                        .nextInt((int) (MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS)));
-                                    } catch (InterruptedException e) {
-                                        // TODO Auto-generated catch block
-                                        e.printStackTrace();
-                                    }
-
-                                    // unset pub dns name
-                                    pubDns = null;
-
-                                    stopping = false;
-
-                                    running = false;
-
-                                }
-
-                            }
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-
-                    }
-                };
-                timer.schedule(internalTimerTask, 0L, TIMER_INTERVAL_MILLIS);
-
-                internalTimerInitialized = true;
-
-            }
             return true;
         }
     }

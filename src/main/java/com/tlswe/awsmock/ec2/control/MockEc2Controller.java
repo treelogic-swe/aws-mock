@@ -126,6 +126,10 @@ public class MockEc2Controller {
 
             inst.start();
 
+            // internal timer should be initialized once right after mock ec2
+            // instance is created and run
+            inst.initializeInternalTimer();
+
             ret.add(inst);
 
             _allMockEc2Instances.put(inst.getInstanceID(), inst);
@@ -283,6 +287,22 @@ public class MockEc2Controller {
         return ret;
     }
 
-    // TODO restoreInstances
+    /**
+     * Clear {@link #_allMockEc2Instances} and restore it from given a
+     * collection of instances.
+     * 
+     * @param instances
+     *            collection of {@link #getMockEc2Instance(String)} to restore
+     */
+    public static void restoreAllMockEc2Instances(Collection<MockEc2Instance> instances) {
+        _allMockEc2Instances.clear();
+        if (null != instances) {
+            for (MockEc2Instance instance : instances) {
+                _allMockEc2Instances.put(instance.getInstanceID(), instance);
+                // re-initialize the internal timer
+                instance.initializeInternalTimer();
+            }
+        }
+    }
 
 }

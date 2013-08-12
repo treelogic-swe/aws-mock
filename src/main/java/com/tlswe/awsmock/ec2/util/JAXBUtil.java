@@ -9,6 +9,8 @@ import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 
@@ -21,6 +23,8 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
  * 
  */
 public class JAXBUtil {
+
+    private static Log _log = LogFactory.getLog(JAXBUtil.class);
 
     /**
      * the JAXB context working in the context path of package
@@ -43,8 +47,7 @@ public class JAXBUtil {
             jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 
         } catch (JAXBException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            _log.fatal("JAXBException caught during initializing JAXBContext Marshaller: " + e.getMessage());
         }
 
     }
