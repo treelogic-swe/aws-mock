@@ -9,7 +9,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import javax.xml.bind.JAXBException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
@@ -50,6 +51,11 @@ import com.tlswe.awsmock.ec2.util.JAXBUtil;
 public class MockEC2QueryHandler {
 
     /**
+     * Log writer for this class.
+     */
+    private static Log _log = LogFactory.getLog(MockEC2QueryHandler.class);
+
+    /**
      * class for all mock ec2 instances, which should extend
      * {@link MockEc2Instance}
      */
@@ -81,6 +87,7 @@ public class MockEC2QueryHandler {
      * @param writer
      *            writer to put response into
      * @return true for successfully handling query, false: not
+     * @throws
      */
     public static void writeReponse(Map<String, String[]> queryParams, final Writer writer) {
 
@@ -102,105 +109,75 @@ public class MockEC2QueryHandler {
 
         String[] action = queryParams.get("Action");
 
+        String responseXml = null;
+
         if (null != action && action.length == 1) {
 
-            if ("DescribeInstances".equals(action[0])) {
+            try {
 
-                // put all the instanceIDs into a set
-                Set<String> instanceIDs = parseInstanceIDs(queryParams);
+                if ("DescribeInstances".equals(action[0])) {
 
-                try {
-                    writer.write(JAXBUtil.marshall(describeInstances(instanceIDs), "DescribeInstancesResponse",
-                            version[0]));
-                } catch (JAXBException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    // put all the instanceIDs into a set
+                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
+
+                    responseXml = JAXBUtil.marshall(describeInstances(instanceIDs), "DescribeInstancesResponse",
+                            version[0]);
+
+                } else if ("RunInstances".equals(action[0])) {
+
+                    String imageID = queryParams.get("ImageId")[0];
+                    String instanceType = queryParams.get("InstanceType")[0];
+                    int minCount = Integer.parseInt(queryParams.get("MinCount")[0]);
+                    int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
+
+                    responseXml = JAXBUtil.marshall(runInstances(imageID, instanceType, minCount, maxCount),
+                            "RunInstancesResponse", version[0]);
+
+                } else if ("StartInstances".equals(action[0])) {
+
+                    // put all the instanceIDs into a set
+                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
+
+                    responseXml = JAXBUtil.marshall(startInstances(instanceIDs), "StartInstancesResponse", version[0]);
+
+                } else if ("StopInstances".equals(action[0])) {
+                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
+
+                    responseXml = JAXBUtil.marshall(stopInstances(instanceIDs), "StopInstancesResponse", version[0]);
+
+                } else if ("TerminateInstances".equals(action[0])) {
+                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
+
+                    responseXml = JAXBUtil.marshall(terminateInstances(instanceIDs), "TerminateInstancesResponse",
+                            version[0]);
+
+                } else if ("DescribeImages".equals(action[0])) {
+
+                    responseXml = JAXBUtil.marshall(describeImages(), "DescribeImagesResponse", version[0]);
+
+                } else {
+
+                    // TODO unsupported action - write response for error
+
                 }
 
-            } else if ("RunInstances".equals(action[0])) {
-
-                String imageID = queryParams.get("ImageId")[0];
-                String instanceType = queryParams.get("InstanceType")[0];
-                int minCount = Integer.parseInt(queryParams.get("MinCount")[0]);
-                int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
-
-                try {
-                    writer.write(JAXBUtil.marshall(runInstances(imageID, instanceType, minCount, maxCount),
-                            "RunInstancesResponse", version[0]));
-                    // JAXBUtil.marshall3(
-                    // MockEC2QueryHandler.describeInstances(instanceIDs),
-                    // writer);
-                } catch (JAXBException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-            } else if ("StartInstances".equals(action[0])) {
-
-                // put all the instanceIDs into a set
-                Set<String> instanceIDs = parseInstanceIDs(queryParams);
-
-                try {
-                    writer.write(JAXBUtil.marshall(startInstances(instanceIDs), "StartInstancesResponse", version[0]));
-                } catch (JAXBException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-            } else if ("StopInstances".equals(action[0])) {
-                Set<String> instanceIDs = parseInstanceIDs(queryParams);
-
-                try {
-                    writer.write(JAXBUtil.marshall(stopInstances(instanceIDs), "StopInstancesResponse", version[0]));
-                } catch (JAXBException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } else if ("TerminateInstances".equals(action[0])) {
-                Set<String> instanceIDs = parseInstanceIDs(queryParams);
-
-                try {
-                    writer.write(JAXBUtil.marshall(terminateInstances(instanceIDs), "TerminateInstancesResponse",
-                            version[0]));
-                } catch (JAXBException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } else if ("DescribeImages".equals(action[0])) {
-                try {
-                    writer.write(JAXBUtil.marshall(describeImages(), "DescribeImagesResponse", version[0]));
-                } catch (JAXBException e1) {
-                    // TODO Auto-generated catch block
-                    e1.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } else {
-
-                // TODO unsupported action - write response for error
-
+            } catch (MockEc2Exception e) {
+                _log.fatal("error occurred when processing 'runInstances' request: " + e.getMessage());
+                // TODO write error xml response
             }
 
         } else {
 
             // TODO no action found - write response for error
 
+            // responseXml = xxx;
+
+        }
+
+        try {
+            writer.write(responseXml);
+        } catch (IOException e) {
+            _log.fatal("IOException caught while writing xml string to writer: " + e.getMessage());
         }
 
     }
@@ -311,9 +288,11 @@ public class MockEC2QueryHandler {
      *            min count of instances to run
      * @return a RunInstancesResponse that includes all information for the
      *         started new mock ec2 instances
+     * @throws MockEc2Exception
      */
     @SuppressWarnings("unchecked")
-    private static RunInstancesResponseType runInstances(String imageId, String instanceType, int minCount, int maxCount) {
+    private static RunInstancesResponseType runInstances(String imageId, String instanceType, int minCount, int maxCount)
+            throws MockEc2Exception {
 
         RunInstancesResponseType ret = new RunInstancesResponseType();
 
@@ -323,21 +302,12 @@ public class MockEC2QueryHandler {
         try {
             clazzOfEc2Instance = (Class<? extends MockEc2Instance>) Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME);
         } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new MockEc2Exception("configured class '" + MOCK_EC2_INSTANCE_CLASS_NAME + "' not found", e);
         }
 
         List<MockEc2Instance> newInstances = null;
-        try {
-            newInstances = MockEc2Controller
-                    .runInstances(clazzOfEc2Instance, imageId, instanceType, minCount, maxCount);
-        } catch (MockEc2Exception e) {
-            // TODO Auto-generated catch block
 
-            // return failure xml structure
-
-            e.printStackTrace();
-        }
+        newInstances = MockEc2Controller.runInstances(clazzOfEc2Instance, imageId, instanceType, minCount, maxCount);
 
         for (MockEc2Instance i : newInstances) {
 
@@ -424,7 +394,8 @@ public class MockEC2QueryHandler {
     /**
      * Handles "describeImages" request, as simple as without any filters to use
      * 
-     * @return a DescribeImagesResponse with our predefined AMIs in aws-mock.properties
+     * @return a DescribeImagesResponse with our predefined AMIs in
+     *         aws-mock.properties
      */
     private static DescribeImagesResponseType describeImages() {
         DescribeImagesResponseType ret = new DescribeImagesResponseType();

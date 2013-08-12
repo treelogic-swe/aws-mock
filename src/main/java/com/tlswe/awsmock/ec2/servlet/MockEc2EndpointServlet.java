@@ -1,6 +1,7 @@
 package com.tlswe.awsmock.ec2.servlet;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Map;
 
 import javax.servlet.ServletException;
@@ -43,7 +44,7 @@ public class MockEc2EndpointServlet extends HttpServlet {
 
         MockEC2QueryHandler.writeReponse(queryParams, response.getWriter());
 
-        // TODO for error response, we need to set http status other 200
+        // TODO for error response, we need to set http status other than 200
 
     }
 

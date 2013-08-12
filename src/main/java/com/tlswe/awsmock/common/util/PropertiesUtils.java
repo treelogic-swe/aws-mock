@@ -5,6 +5,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Providing utilities such as properties loading/fetching.
  * 
@@ -12,6 +15,11 @@ import java.util.TreeSet;
  * 
  */
 public class PropertiesUtils {
+
+    /**
+     * Log writer for this class.
+     */
+    private static Log _log = LogFactory.getLog(PropertiesUtils.class);
 
     /**
      * all properties loaded into aws-mock.properties
@@ -22,8 +30,7 @@ public class PropertiesUtils {
         try {
             _properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("aws-mock.properties"));
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            _log.fatal("fail to load 'aws-mock.properties' - " + e.getMessage());
         }
     }
 
