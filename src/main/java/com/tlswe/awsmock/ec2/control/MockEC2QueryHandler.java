@@ -1,13 +1,14 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,23 +90,27 @@ public class MockEC2QueryHandler {
      * @return true for successfully handling query, false: not
      * @throws
      */
-    public static void writeReponse(Map<String, String[]> queryParams, final Writer writer) {
+    public static void writeReponse(final Map<String, String[]> queryParams, final HttpServletResponse response) {
 
         if (null == queryParams || queryParams.size() == 0) {
 
             // TODO no params found at all - write an error xml response
+            
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
             return;
         }
 
         // parse the parameters in query
-        String[] version = queryParams.get("Version");
+        String[] versionParamValues = queryParams.get("Version");
 
-        if (null == version || version.length != 1) {
-
-        } else {
+        if (null == versionParamValues || versionParamValues.length != 1) {
             // TODO no version param found - write an error xml response
+
+            return;
         }
+
+        String version = versionParamValues[0];
 
         String[] action = queryParams.get("Action");
 
@@ -115,15 +120,7 @@ public class MockEC2QueryHandler {
 
             try {
 
-                if ("DescribeInstances".equals(action[0])) {
-
-                    // put all the instanceIDs into a set
-                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
-
-                    responseXml = JAXBUtil.marshall(describeInstances(instanceIDs), "DescribeInstancesResponse",
-                            version[0]);
-
-                } else if ("RunInstances".equals(action[0])) {
+                if ("RunInstances".equals(action[0])) {
 
                     String imageID = queryParams.get("ImageId")[0];
                     String instanceType = queryParams.get("InstanceType")[0];
@@ -131,34 +128,40 @@ public class MockEC2QueryHandler {
                     int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
 
                     responseXml = JAXBUtil.marshall(runInstances(imageID, instanceType, minCount, maxCount),
-                            "RunInstancesResponse", version[0]);
-
-                } else if ("StartInstances".equals(action[0])) {
-
-                    // put all the instanceIDs into a set
-                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
-
-                    responseXml = JAXBUtil.marshall(startInstances(instanceIDs), "StartInstancesResponse", version[0]);
-
-                } else if ("StopInstances".equals(action[0])) {
-                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
-
-                    responseXml = JAXBUtil.marshall(stopInstances(instanceIDs), "StopInstancesResponse", version[0]);
-
-                } else if ("TerminateInstances".equals(action[0])) {
-                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
-
-                    responseXml = JAXBUtil.marshall(terminateInstances(instanceIDs), "TerminateInstancesResponse",
-                            version[0]);
+                            "RunInstancesResponse", version);
 
                 } else if ("DescribeImages".equals(action[0])) {
-
-                    responseXml = JAXBUtil.marshall(describeImages(), "DescribeImagesResponse", version[0]);
-
+                    responseXml = JAXBUtil.marshall(describeImages(), "DescribeImagesResponse", version);
                 } else {
 
-                    // TODO unsupported action - write response for error
+                    // the following interface calls need instanceIDs provided
+                    // in params, we put all the instanceIDs into a set for
+                    // usage
+                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
 
+                    if ("DescribeInstances".equals(action[0])) {
+
+                        responseXml = JAXBUtil.marshall(describeInstances(instanceIDs), "DescribeInstancesResponse",
+                                version);
+
+                    } else if ("StartInstances".equals(action[0])) {
+
+                        responseXml = JAXBUtil.marshall(startInstances(instanceIDs), "StartInstancesResponse", version);
+
+                    } else if ("StopInstances".equals(action[0])) {
+
+                        responseXml = JAXBUtil.marshall(stopInstances(instanceIDs), "StopInstancesResponse", version);
+
+                    } else if ("TerminateInstances".equals(action[0])) {
+
+                        responseXml = JAXBUtil.marshall(terminateInstances(instanceIDs), "TerminateInstancesResponse",
+                                version);
+
+                    } else {
+
+                        // TODO unsupported action - write response for error
+
+                    }
                 }
 
             } catch (MockEc2Exception e) {
@@ -175,7 +178,7 @@ public class MockEC2QueryHandler {
         }
 
         try {
-            writer.write(responseXml);
+            response.getWriter().write(responseXml);
         } catch (IOException e) {
             _log.fatal("IOException caught while writing xml string to writer: " + e.getMessage());
         }

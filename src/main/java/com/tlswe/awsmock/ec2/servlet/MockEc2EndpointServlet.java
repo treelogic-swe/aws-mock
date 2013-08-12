@@ -42,7 +42,7 @@ public class MockEc2EndpointServlet extends HttpServlet {
         response.setContentType("text/xml");
         response.setCharacterEncoding("UTF-8");
 
-        MockEC2QueryHandler.writeReponse(queryParams, response.getWriter());
+        MockEC2QueryHandler.writeReponse(queryParams, response);
 
         // TODO for error response, we need to set http status other than 200
 
