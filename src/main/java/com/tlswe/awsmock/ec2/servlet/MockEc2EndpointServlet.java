@@ -17,6 +17,12 @@ import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
  */
 public class MockEc2EndpointServlet extends HttpServlet {
 
+    /**
+     * default serial version ID for this class which implements
+     * {@link Serializable}
+     * 
+     * @see Serializable
+     */
     private static final long serialVersionUID = 1L;
 
     public MockEc2EndpointServlet() {
@@ -24,9 +30,10 @@ public class MockEc2EndpointServlet extends HttpServlet {
     }
 
     /**
-     *      * Pass the query parameters from client to {@link MockEC2QueryHandler} and
-     * write response to client.
+     * * Pass the query parameters from client to {@link MockEC2QueryHandler}
+     * and write response to client.
      */
+    @SuppressWarnings("unchecked")
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         Map<String, String[]> queryParams = (Map<String, String[]>) request.getParameterMap();
