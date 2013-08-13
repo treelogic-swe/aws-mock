@@ -42,5 +42,5 @@ For eclipse users, `gradle cleanEclipse eclipse` can initialize the ready-to-imp
 - Make sure to be compatible with Amazon EC2 API Tools. 
 - Persistence of mock objects for recovering after service restarts. 
 - Clean up terminated mock instances after a pre-defined period (as genuine EC2 does). 
-- ~~Write an error xml response for all those unimplemented actions (in MockEC2QueryHandler.writeReponse). ~~
-- ~~Improve the exception handling. ~~
+- [Done] <del>Write an error xml response for all those unimplemented actions (in MockEC2QueryHandler.writeReponse). </del>
+- [Done] <del>Improve the exception handling. </del>
