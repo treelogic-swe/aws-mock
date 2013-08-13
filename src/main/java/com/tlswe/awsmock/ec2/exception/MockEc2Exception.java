@@ -2,13 +2,16 @@ package com.tlswe.awsmock.ec2.exception;
 
 import java.io.Serializable;
 
+import com.tlswe.awsmock.common.exception.AwsMockException;
+
 /**
- * Generic exception type wrapping for mock ec2 management.
+ * Generic exception type wrapping for exception raised during life-cycle of
+ * mock ec2 management.
  * 
  * @author xma
  * 
  */
-public class MockEc2Exception extends Exception {
+public class MockEc2Exception extends AwsMockException {
 
     /**
      * default serial version ID for this class which implements
@@ -20,14 +23,17 @@ public class MockEc2Exception extends Exception {
 
     public MockEc2Exception() {
         super();
-    }
-
-    public MockEc2Exception(String message) {
-        super(message);
+        // TODO Auto-generated constructor stub
     }
 
     public MockEc2Exception(String message, Throwable cause) {
         super(message, cause);
+        // TODO Auto-generated constructor stub
+    }
+
+    public MockEc2Exception(String message) {
+        super(message);
+        // TODO Auto-generated constructor stub
     }
 
 }
