@@ -13,7 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
+import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 
 /**
  * Utility class to build XML string as AWS response from java object, using the
@@ -66,10 +66,11 @@ public class JAXBUtil {
      *            the version of EC2 API used by client (aws-sdk, cmd-line tools
      *            or other third-party client tools)
      * @return xml representation bound to the given object
-     * @throws MockEc2Exception
+     * @throws MockEc2InternalException
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static String marshall(Object obj, String localPartQName, String requestVersion) throws MockEc2Exception {
+    public static String marshall(Object obj, String localPartQName, String requestVersion)
+            throws MockEc2InternalException {
 
         StringWriter writer = new StringWriter();
 
@@ -80,7 +81,7 @@ public class JAXBUtil {
             String errMsg = "failed to marshall object to xml, localPartQName=" + localPartQName + ", requestVersion="
                     + requestVersion;
             _log.fatal(errMsg + ", exception message: " + e.getMessage());
-            throw new MockEc2Exception(errMsg, e);
+            throw new MockEc2InternalException(errMsg, e);
         }
 
         String ret = writer.toString();

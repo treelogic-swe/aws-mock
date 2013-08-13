@@ -1,7 +1,9 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,10 +12,13 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.common.util.TemplateUtils;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseType;
@@ -31,7 +36,8 @@ import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.TerminateInstancesResponseType;
-import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
+import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
+import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 import com.tlswe.awsmock.ec2.servlet.MockEc2EndpointServlet;
 import com.tlswe.awsmock.ec2.util.JAXBUtil;
@@ -68,6 +74,13 @@ public class MockEC2QueryHandler {
     private static final PlacementResponseType DEFAULT_MOCK_PLACEMENT = new PlacementResponseType();
 
     /**
+     * xml template filename for error response body
+     */
+    private static String ERROR_RESPONSE_TEMPLATE = "error.xml.ftl";
+
+    private static String REF_EC2_QUERY_API_DESC = "See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html for building a valid query.";
+
+    /**
      * predefined AMIs, as properties of predefined.mock.ami.X in
      * aws-mock.properties
      */
@@ -85,19 +98,25 @@ public class MockEC2QueryHandler {
      * @param queryParams
      *            map of query parameters from http request, which is from
      *            standard AWS Query API
-     * @param writer
-     *            writer to put response into
-     * @return true for successfully handling query, false: not
-     * @throws
+     * @param response
+     *            http servlet response to handle with
+     * @throws IOException
+     * @throws MockEc2InternalException 
      */
-    public static void writeReponse(final Map<String, String[]> queryParams, final HttpServletResponse response) {
+    public static void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
+            throws IOException, MockEc2InternalException {
+
+        if (null == response) {
+            throw new MockEc2InternalException("response should not be null!");
+        }
+
+        Writer writer = response.getWriter();
 
         if (null == queryParams || queryParams.size() == 0) {
 
-            // TODO no params found at all - write an error xml response
-            
+            // no params found at all - write an error xml response
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-
+            respondXmlError("InvalidQuery", "No parameter in query at all! " + REF_EC2_QUERY_API_DESC, writer);
             return;
         }
 
@@ -105,22 +124,35 @@ public class MockEC2QueryHandler {
         String[] versionParamValues = queryParams.get("Version");
 
         if (null == versionParamValues || versionParamValues.length != 1) {
-            // TODO no version param found - write an error xml response
 
+            // no version param found - write an error xml response
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            respondXmlError("InvalidQuery", "There should be a parameter of 'Version' provided in the query! "
+                    + REF_EC2_QUERY_API_DESC, writer);
             return;
         }
 
         String version = versionParamValues[0];
 
-        String[] action = queryParams.get("Action");
+        String[] actions = queryParams.get("Action");
 
         String responseXml = null;
 
-        if (null != action && action.length == 1) {
+        if (null == actions || actions.length != 1) {
+
+            // no action found - write response for error
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            respondXmlError("InvalidQuery", "There should be a parameter of 'Action' provided in the query! "
+                    + REF_EC2_QUERY_API_DESC, writer);
+            return;
+
+        } else {
+
+            String action = actions[0];
 
             try {
 
-                if ("RunInstances".equals(action[0])) {
+                if ("RunInstances".equals(action)) {
 
                     String imageID = queryParams.get("ImageId")[0];
                     String instanceType = queryParams.get("InstanceType")[0];
@@ -130,7 +162,7 @@ public class MockEC2QueryHandler {
                     responseXml = JAXBUtil.marshall(runInstances(imageID, instanceType, minCount, maxCount),
                             "RunInstancesResponse", version);
 
-                } else if ("DescribeImages".equals(action[0])) {
+                } else if ("DescribeImages".equals(action)) {
                     responseXml = JAXBUtil.marshall(describeImages(), "DescribeImagesResponse", version);
                 } else {
 
@@ -139,49 +171,55 @@ public class MockEC2QueryHandler {
                     // usage
                     Set<String> instanceIDs = parseInstanceIDs(queryParams);
 
-                    if ("DescribeInstances".equals(action[0])) {
+                    if ("DescribeInstances".equals(action)) {
 
                         responseXml = JAXBUtil.marshall(describeInstances(instanceIDs), "DescribeInstancesResponse",
                                 version);
 
-                    } else if ("StartInstances".equals(action[0])) {
+                    } else if ("StartInstances".equals(action)) {
 
                         responseXml = JAXBUtil.marshall(startInstances(instanceIDs), "StartInstancesResponse", version);
 
-                    } else if ("StopInstances".equals(action[0])) {
+                    } else if ("StopInstances".equals(action)) {
 
                         responseXml = JAXBUtil.marshall(stopInstances(instanceIDs), "StopInstancesResponse", version);
 
-                    } else if ("TerminateInstances".equals(action[0])) {
+                    } else if ("TerminateInstances".equals(action)) {
 
                         responseXml = JAXBUtil.marshall(terminateInstances(instanceIDs), "TerminateInstancesResponse",
                                 version);
 
                     } else {
 
-                        // TODO unsupported action - write response for error
+                        // unsupported action - write response for error
+                        response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+                        String allImplementedActions = "runInstances|stopInstances|startInstances|terminateInstances|describeInstances|describeImages";
+                        respondXmlError(
+                                "NotImplementedAction",
+                                "Action '"
+                                        + action
+                                        + "' has not been implemented yet in aws-mock. For now we only support actions as following: "
+                                        + allImplementedActions, writer);
 
                     }
                 }
 
-            } catch (MockEc2Exception e) {
-                _log.fatal("error occurred when processing 'runInstances' request: " + e.getMessage());
-                // TODO write error xml response
+            } catch (BadEc2RequestException e) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                respondXmlError("InvalidQuery", "invalid request for '" + action + "'. " + e.getMessage()
+                        + REF_EC2_QUERY_API_DESC, writer);
+                return;
+            } catch (MockEc2InternalException e) {
+                _log.fatal("server error occured while processing '" + action + "' request. " + e.getMessage());
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                respondXmlError("InternalError", e.getMessage(), writer);
+                return;
             }
 
-        } else {
-
-            // TODO no action found - write response for error
-
-            // responseXml = xxx;
-
         }
 
-        try {
-            response.getWriter().write(responseXml);
-        } catch (IOException e) {
-            _log.fatal("IOException caught while writing xml string to writer: " + e.getMessage());
-        }
+        response.setStatus(HttpServletResponse.SC_OK);
+        writer.write(responseXml);
 
     }
 
@@ -291,11 +329,12 @@ public class MockEC2QueryHandler {
      *            min count of instances to run
      * @return a RunInstancesResponse that includes all information for the
      *         started new mock ec2 instances
-     * @throws MockEc2Exception
+     * @throws MockEc2InternalException
+     * @throws BadEc2RequestException
      */
     @SuppressWarnings("unchecked")
     private static RunInstancesResponseType runInstances(String imageId, String instanceType, int minCount, int maxCount)
-            throws MockEc2Exception {
+            throws MockEc2InternalException, BadEc2RequestException {
 
         RunInstancesResponseType ret = new RunInstancesResponseType();
 
@@ -305,7 +344,7 @@ public class MockEC2QueryHandler {
         try {
             clazzOfEc2Instance = (Class<? extends MockEc2Instance>) Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME);
         } catch (ClassNotFoundException e) {
-            throw new MockEc2Exception("configured class '" + MOCK_EC2_INSTANCE_CLASS_NAME + "' not found", e);
+            throw new MockEc2InternalException("configured class '" + MOCK_EC2_INSTANCE_CLASS_NAME + "' not found", e);
         }
 
         List<MockEc2Instance> newInstances = null;
@@ -412,6 +451,31 @@ public class MockEC2QueryHandler {
         ret.setImagesSet(info);
 
         return ret;
+    }
+
+    /**
+     * Generate error response body in xml and write it with writer.
+     * 
+     * @param errorCode
+     *            the error code wrapped in the xml response
+     * @param errorMessage
+     *            the error message wrapped in the xml response
+     * @param writer
+     *            writer to print the xml response
+     */
+    private static void respondXmlError(final String errorCode, final String errorMessage, final Writer writer) {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("errorCode", StringEscapeUtils.escapeXml(errorCode));
+        data.put("errorMessage", StringEscapeUtils.escapeXml(errorMessage));
+        // fake a random UUID as request ID
+        data.put("requestID", UUID.randomUUID().toString());
+
+        try {
+            TemplateUtils.write(ERROR_RESPONSE_TEMPLATE, data, writer);
+        } catch (AwsMockException e) {
+            _log.fatal("fatal exception caught: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 }
