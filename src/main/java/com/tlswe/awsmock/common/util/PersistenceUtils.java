@@ -11,8 +11,6 @@ import java.io.ObjectOutputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
-
 /**
  * Simple utilities that can save/load runtime objects (e.g. all mock ec2
  * instances).

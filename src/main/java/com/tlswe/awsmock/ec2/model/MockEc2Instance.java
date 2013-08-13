@@ -9,7 +9,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
+import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 
 //import com.tlswe.awsmock.common.util.SerializedTimer;
 
@@ -297,7 +297,7 @@ public class MockEc2Instance implements Serializable {
                                     Thread.sleep(MIN_BOOT_TIME_MILLS
                                             + _random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
                                 } catch (InterruptedException e) {
-                                    throw new MockEc2Exception(
+                                    throw new MockEc2InternalException(
                                             "InterruptedException caught when delaying a mock random 'boot time'", e);
                                 }
 
@@ -314,8 +314,9 @@ public class MockEc2Instance implements Serializable {
                                             + _random
                                                     .nextInt((int) (MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS)));
                                 } catch (InterruptedException e) {
-                                    throw new MockEc2Exception(
-                                            "InterruptedException caught when delaying a mock random 'shutdown time'", e);
+                                    throw new MockEc2InternalException(
+                                            "InterruptedException caught when delaying a mock random 'shutdown time'",
+                                            e);
                                 }
 
                                 // unset pub dns name
