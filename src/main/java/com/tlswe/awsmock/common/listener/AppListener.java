@@ -24,8 +24,14 @@ import com.tlswe.awsmock.ec2.model.MockEc2Instance;
  */
 public class AppListener implements ServletContextListener {
 
+    /**
+     * Log writer for this class.
+     */
     private static Log _log = LogFactory.getLog(AppListener.class);
 
+    /**
+     * Global switch for persistence.
+     */
     private static boolean _persistenceEnabled = Boolean.parseBoolean(PropertiesUtils
             .getProperty("persistence.enabled"));
 
@@ -33,7 +39,7 @@ public class AppListener implements ServletContextListener {
      * Default constructor.
      */
     public AppListener() {
-        
+
     }
 
     /**
