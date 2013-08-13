@@ -5,13 +5,12 @@ import java.io.Serializable;
 import com.tlswe.awsmock.common.exception.AwsMockException;
 
 /**
- * Generic exception type wrapping for exception raised during life-cycle of
- * mock ec2 management.
+ * Exception for invalid query (parameters) from client.
  * 
  * @author xma
  * 
  */
-public class MockEc2Exception extends AwsMockException {
+public class BadEc2RequestException extends AwsMockException {
 
     /**
      * default serial version ID for this class which implements
@@ -21,19 +20,16 @@ public class MockEc2Exception extends AwsMockException {
      */
     private static final long serialVersionUID = 1L;
 
-    public MockEc2Exception() {
+    public BadEc2RequestException() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
-    public MockEc2Exception(String message, Throwable cause) {
+    public BadEc2RequestException(String message, Throwable cause) {
         super(message, cause);
-        // TODO Auto-generated constructor stub
     }
 
-    public MockEc2Exception(String message) {
+    public BadEc2RequestException(String message) {
         super(message);
-        // TODO Auto-generated constructor stub
     }
 
 }
