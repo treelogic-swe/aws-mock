@@ -23,7 +23,7 @@ import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
 public class PersistenceUtils {
 
     /**
-     * The log writer for this class.
+     * Log writer for this class.
      */
     private static Log _log = LogFactory.getLog(PersistenceUtils.class);
 

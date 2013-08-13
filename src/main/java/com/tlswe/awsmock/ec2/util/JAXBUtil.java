@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.ec2.exception.MockEc2Exception;
 
 /**
  * Utility class to build XML string as AWS response from java object, using the
@@ -24,6 +25,9 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
  */
 public class JAXBUtil {
 
+    /**
+     * Log writer for this class.
+     */
     private static Log _log = LogFactory.getLog(JAXBUtil.class);
 
     /**
@@ -62,15 +66,22 @@ public class JAXBUtil {
      *            the version of EC2 API used by client (aws-sdk, cmd-line tools
      *            or other third-party client tools)
      * @return xml representation bound to the given object
-     * @throws JAXBException
+     * @throws MockEc2Exception
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static String marshall(Object obj, String localPartQName, String requestVersion) throws JAXBException {
+    public static String marshall(Object obj, String localPartQName, String requestVersion) throws MockEc2Exception {
 
         StringWriter writer = new StringWriter();
 
-        jaxbMarshaller.marshal(new JAXBElement(new QName(PropertiesUtils.getProperty("xmlns.current"), localPartQName),
-                obj.getClass(), obj), writer);
+        try {
+            jaxbMarshaller.marshal(new JAXBElement(new QName(PropertiesUtils.getProperty("xmlns.current"),
+                    localPartQName), obj.getClass(), obj), writer);
+        } catch (JAXBException e) {
+            String errMsg = "failed to marshall object to xml, localPartQName=" + localPartQName + ", requestVersion="
+                    + requestVersion;
+            _log.fatal(errMsg + ", exception message: " + e.getMessage());
+            throw new MockEc2Exception(errMsg, e);
+        }
 
         String ret = writer.toString();
 
