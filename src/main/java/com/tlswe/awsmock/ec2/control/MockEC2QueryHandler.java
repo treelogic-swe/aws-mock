@@ -1,7 +1,9 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,10 +12,13 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.common.util.TemplateUtils;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseType;
@@ -68,6 +73,11 @@ public class MockEC2QueryHandler {
     private static final PlacementResponseType DEFAULT_MOCK_PLACEMENT = new PlacementResponseType();
 
     /**
+     * xml template filename for error response body
+     */
+    private static String ERROR_RESPONSE_TEMPLATE = "error.xml.ftl";
+
+    /**
      * predefined AMIs, as properties of predefined.mock.ami.X in
      * aws-mock.properties
      */
@@ -95,7 +105,7 @@ public class MockEC2QueryHandler {
         if (null == queryParams || queryParams.size() == 0) {
 
             // TODO no params found at all - write an error xml response
-            
+
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 
             return;
@@ -412,6 +422,28 @@ public class MockEC2QueryHandler {
         ret.setImagesSet(info);
 
         return ret;
+    }
+
+    /**
+     * Generate error response body in xml and write it with writer.
+     * 
+     * @param errorCode
+     *            the error code wrapped in the xml response
+     * @param errorMessage
+     *            the error message wrapped in the xml response
+     * @param writer
+     *            writer to print the xml response
+     * @throws AwsMockException
+     */
+    private static void respondXmlError(final String errorCode, final String errorMessage, final Writer writer)
+            throws AwsMockException {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("errorCode", StringEscapeUtils.escapeXml(errorCode));
+        data.put("errorMessage", StringEscapeUtils.escapeXml(errorMessage));
+        // fake a random UUID as request ID
+        data.put("requestID", UUID.randomUUID().toString());
+
+        TemplateUtils.write(ERROR_RESPONSE_TEMPLATE, data, writer);
     }
 
 }
