@@ -1,7 +1,6 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -101,7 +100,7 @@ public class MockEC2QueryHandler {
      * @param response
      *            http servlet response to handle with
      * @throws IOException
-     * @throws MockEc2InternalException 
+     * @throws MockEc2InternalException
      */
     public static void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
             throws IOException, MockEc2InternalException {
@@ -110,47 +109,40 @@ public class MockEC2QueryHandler {
             throw new MockEc2InternalException("response should not be null!");
         }
 
-        Writer writer = response.getWriter();
+        String responseXml = null;
 
         if (null == queryParams || queryParams.size() == 0) {
-
             // no params found at all - write an error xml response
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            respondXmlError("InvalidQuery", "No parameter in query at all! " + REF_EC2_QUERY_API_DESC, writer);
-            return;
+            responseXml = getXmlError("InvalidQuery", "No parameter in query at all! " + REF_EC2_QUERY_API_DESC);
         }
 
         // parse the parameters in query
         String[] versionParamValues = queryParams.get("Version");
 
         if (null == versionParamValues || versionParamValues.length != 1) {
-
             // no version param found - write an error xml response
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            respondXmlError("InvalidQuery", "There should be a parameter of 'Version' provided in the query! "
-                    + REF_EC2_QUERY_API_DESC, writer);
-            return;
+            responseXml = getXmlError("InvalidQuery",
+                    "There should be a parameter of 'Version' provided in the query! " + REF_EC2_QUERY_API_DESC);
         }
 
         String version = versionParamValues[0];
 
         String[] actions = queryParams.get("Action");
 
-        String responseXml = null;
-
         if (null == actions || actions.length != 1) {
-
             // no action found - write response for error
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            respondXmlError("InvalidQuery", "There should be a parameter of 'Action' provided in the query! "
-                    + REF_EC2_QUERY_API_DESC, writer);
-            return;
-
+            responseXml = getXmlError("InvalidQuery", "There should be a parameter of 'Action' provided in the query! "
+                    + REF_EC2_QUERY_API_DESC);
         } else {
 
             String action = actions[0];
 
             try {
+
+                response.setStatus(HttpServletResponse.SC_OK);
 
                 if ("RunInstances".equals(action)) {
 
@@ -191,35 +183,33 @@ public class MockEC2QueryHandler {
 
                     } else {
 
-                        // unsupported action - write response for error
+                        // unsupported/unimplemented action - write an error
+                        // response
                         response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
                         String allImplementedActions = "runInstances|stopInstances|startInstances|terminateInstances|describeInstances|describeImages";
-                        respondXmlError(
+                        responseXml = getXmlError(
                                 "NotImplementedAction",
                                 "Action '"
                                         + action
                                         + "' has not been implemented yet in aws-mock. For now we only support actions as following: "
-                                        + allImplementedActions, writer);
-
+                                        + allImplementedActions);
                     }
                 }
 
             } catch (BadEc2RequestException e) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                respondXmlError("InvalidQuery", "invalid request for '" + action + "'. " + e.getMessage()
-                        + REF_EC2_QUERY_API_DESC, writer);
-                return;
+                responseXml = getXmlError("InvalidQuery", "invalid request for '" + action + "'. " + e.getMessage()
+                        + REF_EC2_QUERY_API_DESC);
             } catch (MockEc2InternalException e) {
                 _log.fatal("server error occured while processing '" + action + "' request. " + e.getMessage());
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                respondXmlError("InternalError", e.getMessage(), writer);
-                return;
+                responseXml = getXmlError("InternalError", e.getMessage());
             }
 
         }
 
-        response.setStatus(HttpServletResponse.SC_OK);
-        writer.write(responseXml);
+        response.getWriter().write(responseXml);
+        response.getWriter().flush();
 
     }
 
@@ -462,20 +452,24 @@ public class MockEC2QueryHandler {
      *            the error message wrapped in the xml response
      * @param writer
      *            writer to print the xml response
+     * @return
      */
-    private static void respondXmlError(final String errorCode, final String errorMessage, final Writer writer) {
+    private static String getXmlError(final String errorCode, final String errorMessage) {
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("errorCode", StringEscapeUtils.escapeXml(errorCode));
         data.put("errorMessage", StringEscapeUtils.escapeXml(errorMessage));
         // fake a random UUID as request ID
         data.put("requestID", UUID.randomUUID().toString());
 
+        String ret = null;
+
         try {
-            TemplateUtils.write(ERROR_RESPONSE_TEMPLATE, data, writer);
+            ret = TemplateUtils.get(ERROR_RESPONSE_TEMPLATE, data);
         } catch (AwsMockException e) {
             _log.fatal("fatal exception caught: " + e.getMessage());
             e.printStackTrace();
         }
+        return ret;
     }
 
 }
