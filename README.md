@@ -44,3 +44,4 @@ For eclipse users, `gradle cleanEclipse eclipse` can initialize the ready-to-imp
 - Clean up terminated mock instances after a pre-defined period (as genuine EC2 does). 
 - [Done] <del>Write an error xml response for all those unimplemented actions (in MockEC2QueryHandler.writeReponse). </del>
 - [Done] <del>Improve the exception handling. </del>
+- Add configurable percentage of failure on request processing. (e.g. 1% of runInstance requests receive error responses saying "fail to run new instance".)
