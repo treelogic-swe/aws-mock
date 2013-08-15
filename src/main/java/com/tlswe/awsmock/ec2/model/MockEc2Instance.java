@@ -1,5 +1,6 @@
 package com.tlswe.awsmock.ec2.model;
 
+import java.io.Serializable;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
@@ -7,11 +8,42 @@ import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.UUID;
 
-public class MockEc2Instance {
+import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 
-    // private static Log _log = LogFactory.getLog(MockEc2Instance.class);
+//import com.tlswe.awsmock.common.util.SerializedTimer;
 
-    public enum InstanceType {
+/**
+ * Generic implementation of mock ec2 instance, with basic simulation of
+ * behaviors and states of genuine ec2 instances. Any extra implementation of
+ * more customized ec2 mock instances with is system should extend this class
+ * and be defined as "ec2.instance.class" in aws-mock.properties. <br>
+ * To simulate actual ec2 instances, we have an internal timer in each object of
+ * mock ec2 instance that continuously check and set the states of it, within
+ * the life cycle of start-pending-running-stopping-stopped-terminated for a
+ * single ec2 instance, and with random time deviations (e.g. random
+ * boot/shutdown time within predefined values).
+ * 
+ * @author xma
+ * 
+ */
+public class MockEc2Instance implements Serializable {
+
+    /**
+     * default serial version ID for this class which implements
+     * {@link Serializable}
+     * 
+     * @see Serializable
+     */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * all allowed instance types
+     * 
+     * @author xma
+     * 
+     */
+    public static enum InstanceType {
         T1_MICRO("t1.micro"), M1_SMALL("m1.small"), M1_MEDIUM("m1.medium"), M1_LARGE("m1.large"), M1_XLARGE("m1.xlarge"), M2_XLARGE(
                 "m2.xlarge"), M2_2XLARGE("m2.2xlarge"), M2_4XLARGE("m2.4xlarge"), C1_MEDIUM("c1.medium"), C1_XLARGE(
                 "c1.xlarge"), CC1_4XLARGE("cc1.4xlarge"), CC2_8XLARGE("cc2.8xlarge"), CG1_4XLARGE("cg1.4xlarge"), HI1_4XLARGE(
@@ -39,7 +71,13 @@ public class MockEc2Instance {
 
     }
 
-    public enum InstanceState {
+    /**
+     * all allowed instance states
+     * 
+     * @author xma
+     * 
+     */
+    public static enum InstanceState {
 
         PENDING(0, "pending"), RUNNING(16, "running"), SHUTTING_DOWN(32, " shutting-down"), TERMINATED(48, "terminated"), STOPPING(
                 64, "stopping"), STOPPED(80, "stopped");
@@ -63,142 +101,142 @@ public class MockEc2Instance {
     }
 
     /**
+     * We define {@link Serializable} {@link Timer} here because all members in
+     * {@link MockEc2Instance} need to be save to binary file as for
+     * persistence.
      * 
+     * @author xma
+     * 
+     */
+    public class SerializableTimer extends Timer implements Serializable {
+
+        /**
+         * default serial version ID for this class which implements
+         * {@link Serializable}
+         * 
+         * @see Serializable
+         */
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * constructor from superclass
+         */
+        public SerializableTimer() {
+            super();
+        }
+
+        /**
+         * constructor from superclass
+         * 
+         * @param isDaemon
+         */
+        public SerializableTimer(boolean isDaemon) {
+            super(isDaemon);
+        }
+
+    }
+
+    /**
+     * interval for the internal timer thread that triggered for state chacking
+     * and changing - we set it for 10 seconds
+     */
+    protected static final int TIMER_INTERVAL_MILLIS = 10 * 1000;
+
+    /**
+     * utility random object for getting random numbers
      */
     protected static Random _random = new Random();
 
     /**
-     * 25 seconds
+     * minimal boot time
      */
-    protected static final int MIN_BOOT_TIME_MILLS = 25 * 1000;
+    protected static final long MIN_BOOT_TIME_MILLS = Integer.parseInt(PropertiesUtils
+            .getProperty("instance.min.boot.time.seconds")) * 1000L;
 
     /**
-     * 75 seconds
+     * maximum boot time
      */
-    protected static final int MAX_BOOT_TIME_MILLS = 75 * 1000;
+    protected static final long MAX_BOOT_TIME_MILLS = Integer.parseInt(PropertiesUtils
+            .getProperty("instance.max.boot.time.seconds")) * 1000L;
 
     /**
-     * 10 seconds
+     * minimal shutdown time
      */
-    protected static final int MIN_SHUTDOWN_TIME_MILLS = 10 * 1000;
+    protected static final long MIN_SHUTDOWN_TIME_MILLS = Integer.parseInt(PropertiesUtils
+            .getProperty("instance.min.shutdown.time.seconds")) * 1000L;
 
     /**
-     * 30 seconds
+     * maximum shutdown time
      */
-    protected static final int MAX_SHUTDOWN_TIME_MILLS = 30 * 1000;
-    /**
-     * 20 seconds
-     */
-    protected static final int TIMER_INTERVAL_MILLIS = 20 * 1000;
+    protected static final long MAX_SHUTDOWN_TIME_MILLS = Integer.parseInt(PropertiesUtils
+            .getProperty("instance.max.shutdown.time.seconds")) * 1000L;
 
     /**
-     * 5 minutes
-     */
-    protected static final int HEARTBEAT_INTERVAL_MILLIS = 300 * 1000;
-    /**
-     * 
+     * instance ID, randomly assigned on creating
      */
     protected String instanceID = null;
-    // private String state = "pending";
+
+    /**
+     * AMI for this ec2 instance
+     */
     protected String imageId = null;
 
+    /**
+     * instance type, default is "m1.small"
+     */
     protected String instanceType = InstanceType.M1_SMALL.getName();
+
+    /**
+     * security groups for this ec2 instance
+     */
     protected Set<String> securityGroups = new TreeSet<String>();
 
-    protected boolean booting = true;
-    protected boolean running = true;
+    /**
+     * flag that indicates whether internal timer of this mock ec2 instance has
+     * been started (on instance start())
+     */
+    protected boolean internalTimerInitialized = false;
+
+    /**
+     * flag that indicates whether this is ec2 instance is booting (pending)
+     */
+    protected boolean booting = false;
+
+    /**
+     * flag that indicates whether this is ec2 instance is running (started)
+     */
+    protected boolean running = false;
+
+    /**
+     * flag that indicates whether this is ec2 instance is stopping
+     * (shutting-down)
+     */
     protected boolean stopping = false;
+
+    /**
+     * flag that indicates whether this is ec2 instance is terminated
+     */
     protected boolean terminated = false;
 
-    // protected InstanceState instanceState = InstanceState.PENDING;
-
+    /**
+     * randomly assigned public dns name for this ec2 instance (dns name is
+     * assigned each time instance is started)
+     */
     protected String pubDns = null;
 
-    protected Timer timer = new Timer(true);
+    /**
+     * internal timer for simulating the behaviors and states of this mock ec2
+     * instance
+     */
+    protected SerializableTimer timer = null;
 
-    protected int timerCounter = 0;
-
+    /**
+     * on constructing, an instance ID is assigned
+     */
     public MockEc2Instance() {
-
-        this.instanceID = "i-" + UUID.randomUUID().toString().substring(0, 7);
-
-        timer.schedule(new TimerTask() {
-
-            /**
-             * this method is triggered every TIMER_INTERVAL_MILLIS
-             */
-            @Override
-            public void run() {
-
-                try {
-
-                    if (terminated) {
-                        running = false;
-                        booting = false;
-                        stopping = false;
-                        timerCounter = 0;
-                        pubDns = null;
-                        this.cancel();
-                        return;
-                    }
-
-                    if (running) {
-
-                        if (booting) {
-
-                            try {
-                                Thread.sleep(MIN_BOOT_TIME_MILLS
-                                        + _random.nextInt(MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS));
-                            } catch (InterruptedException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-
-                            pubDns = "mock-ec2-" + UUID.randomUUID().toString().toLowerCase() + ".amazon.com";
-
-                            booting = false;
-
-                            timerCounter = 0;
-
-                        } else if (stopping) {
-
-                            try {
-                                Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
-                                        + _random.nextInt(MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS));
-                            } catch (InterruptedException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                            }
-
-                            pubDns = null;
-
-                            stopping = false;
-
-                            running = false;
-
-                            timerCounter = 0;
-
-                        }
-
-                        if (timerCounter >= HEARTBEAT_INTERVAL_MILLIS / TIMER_INTERVAL_MILLIS) {
-
-                            timerCounter = 0;
-
-                        } else {
-
-                            timerCounter++;
-
-                        }
-
-                    }
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-        }, 0L, TIMER_INTERVAL_MILLIS);
-
+        if (null == this.instanceID) {
+            this.instanceID = "i-" + UUID.randomUUID().toString().substring(0, 7);
+        }
     }
 
     public String getInstanceID() {
@@ -225,21 +263,122 @@ public class MockEc2Instance {
         return terminated;
     }
 
+    public void initializeInternalTimer() {
+        // if it is the first the instance is started, we initialize the
+        // internal timer thread
+        if (!internalTimerInitialized) {
+
+            TimerTask internalTimerTask = new TimerTask() {
+
+                /**
+                 * this method is triggered every TIMER_INTERVAL_MILLIS
+                 */
+                @Override
+                public void run() {
+
+                    try {
+
+                        if (terminated) {
+                            running = false;
+                            booting = false;
+                            stopping = false;
+
+                            pubDns = null;
+                            this.cancel();
+                            return;
+                        }
+
+                        if (running) {
+
+                            if (booting) {
+
+                                // delay a random 'boot time'
+                                try {
+                                    Thread.sleep(MIN_BOOT_TIME_MILLS
+                                            + _random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
+                                } catch (InterruptedException e) {
+                                    throw new MockEc2InternalException(
+                                            "InterruptedException caught when delaying a mock random 'boot time'", e);
+                                }
+
+                                // booted, assign a mock pub dns name
+                                pubDns = "mock-ec2-" + UUID.randomUUID().toString().toLowerCase() + ".amazon.com";
+
+                                booting = false;
+
+                            } else if (stopping) {
+
+                                // delay a random 'shutdown time'
+                                try {
+                                    Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
+                                            + _random
+                                                    .nextInt((int) (MAX_SHUTDOWN_TIME_MILLS - MIN_SHUTDOWN_TIME_MILLS)));
+                                } catch (InterruptedException e) {
+                                    throw new MockEc2InternalException(
+                                            "InterruptedException caught when delaying a mock random 'shutdown time'",
+                                            e);
+                                }
+
+                                // unset pub dns name
+                                pubDns = null;
+
+                                stopping = false;
+
+                                running = false;
+
+                            }
+
+                        }
+
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+
+                }
+            };
+            timer = new SerializableTimer(true);
+            timer.schedule(internalTimerTask, 0L, TIMER_INTERVAL_MILLIS);
+
+            internalTimerInitialized = true;
+
+        }
+    }
+
+    public void destroyInternalTimer() {
+        timer.cancel();
+        timer = null;
+        internalTimerInitialized = false;
+    }
+
+    /**
+     * Start a stopped mock ec2 instance.
+     * 
+     * @return true for successfully started and false for nothing changed by
+     *         this action
+     */
     public boolean start() {
+
         if (running || booting || stopping || terminated) {
+            // do nothing if this instance is not stopped
             return false;
         } else {
-            timerCounter = 0;
+            // mark this instance started
             booting = true;
             running = true;
+
             return true;
         }
     }
 
+    /**
+     * Stop this ec2 instance.
+     * 
+     * @return true for successfully turned into 'stopping' and false for
+     *         nothing changed
+     */
     public boolean stop() {
 
         if (booting || running) {
-            timerCounter = 0;
             stopping = true;
             booting = false;
             return true;
@@ -249,6 +388,11 @@ public class MockEc2Instance {
 
     }
 
+    /**
+     * Terminate this ec2 instance.
+     * 
+     * @return true for successfully terminated and false for nothing changed
+     */
     public boolean terminate() {
 
         if (!terminated) {
@@ -259,11 +403,6 @@ public class MockEc2Instance {
         }
 
     }
-
-    // public String getStatusName() {
-    // return isBooting() ? "pending" : (isStopping() ? "stopping" :
-    // (isRunning() ? "running" : "stopped"));
-    // }
 
     public InstanceState getInstanceState() {
         return isTerminated() ? InstanceState.TERMINATED : (isBooting() ? InstanceState.PENDING
