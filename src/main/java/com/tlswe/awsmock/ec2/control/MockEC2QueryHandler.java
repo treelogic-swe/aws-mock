@@ -12,8 +12,8 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
@@ -59,7 +59,7 @@ public class MockEC2QueryHandler {
     /**
      * Log writer for this class.
      */
-    private static Log _log = LogFactory.getLog(MockEC2QueryHandler.class);
+    private static Logger _log = LoggerFactory.getLogger(MockEC2QueryHandler.class);
 
     /**
      * class for all mock ec2 instances, which should extend
@@ -201,7 +201,7 @@ public class MockEC2QueryHandler {
                 responseXml = getXmlError("InvalidQuery", "invalid request for '" + action + "'. " + e.getMessage()
                         + REF_EC2_QUERY_API_DESC);
             } catch (MockEc2InternalException e) {
-                _log.fatal("server error occured while processing '" + action + "' request. " + e.getMessage());
+                _log.error("server error occured while processing '{}' request. {}", action, e.getMessage());
                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 responseXml = getXmlError("InternalError", e.getMessage());
             }
@@ -466,7 +466,7 @@ public class MockEC2QueryHandler {
         try {
             ret = TemplateUtils.get(ERROR_RESPONSE_TEMPLATE, data);
         } catch (AwsMockException e) {
-            _log.fatal("fatal exception caught: " + e.getMessage());
+            _log.error("fatal exception caught: {}", e.getMessage());
             e.printStackTrace();
         }
         return ret;

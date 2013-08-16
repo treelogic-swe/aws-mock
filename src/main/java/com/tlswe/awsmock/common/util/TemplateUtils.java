@@ -5,8 +5,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tlswe.awsmock.common.exception.AwsMockException;
 
@@ -25,7 +25,7 @@ public class TemplateUtils {
     /**
      * Log writer for this class.
      */
-    private static Log _log = LogFactory.getLog(TemplateUtils.class);
+    private static Logger _log = LoggerFactory.getLogger(TemplateUtils.class);
 
     /**
      * Global configuration for FreeMarker.
@@ -59,7 +59,7 @@ public class TemplateUtils {
             tmpl = _conf.getTemplate(templateFilename);
         } catch (IOException e) {
             String errMsg = "IOException: failed to getTemplate (filename is " + templateFilename + ")";
-            _log.fatal(errMsg + ": " + e.getMessage());
+            _log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         }
 
@@ -76,11 +76,11 @@ public class TemplateUtils {
             String errMsg = "TemplateException: failed to process template '" + templateFilename + "', with data: "
                     + dataDescription.toString()
                     + " The probable cause could be un-matching of key-values for that template. ";
-            _log.fatal(errMsg + ": " + e.getMessage());
+            _log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         } catch (IOException e) {
             String errMsg = "IOException: failed to process and write to writer. ";
-            _log.fatal(errMsg + ": " + e.getMessage());
+            _log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         }
 

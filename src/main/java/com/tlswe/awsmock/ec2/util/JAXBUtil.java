@@ -9,8 +9,8 @@ import javax.xml.bind.Marshaller;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
@@ -28,7 +28,7 @@ public class JAXBUtil {
     /**
      * Log writer for this class.
      */
-    private static Log _log = LogFactory.getLog(JAXBUtil.class);
+    private static Logger _log = LoggerFactory.getLogger(JAXBUtil.class);
 
     /**
      * the JAXB context working in the context path of package
@@ -51,7 +51,7 @@ public class JAXBUtil {
             jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
 
         } catch (JAXBException e) {
-            _log.fatal("JAXBException caught during initializing JAXBContext Marshaller: " + e.getMessage());
+            _log.error("JAXBException caught during initializing JAXBContext Marshaller: {}", e.getMessage());
         }
 
     }
@@ -80,7 +80,7 @@ public class JAXBUtil {
         } catch (JAXBException e) {
             String errMsg = "failed to marshall object to xml, localPartQName=" + localPartQName + ", requestVersion="
                     + requestVersion;
-            _log.fatal(errMsg + ", exception message: " + e.getMessage());
+            _log.error("{}, exception message: {}", errMsg, e.getMessage());
             throw new MockEc2InternalException(errMsg, e);
         }
 
@@ -94,8 +94,6 @@ public class JAXBUtil {
             ret = StringUtils.replaceOnce(ret, PropertiesUtils.getProperty("ec2.api.version.current.impl"),
                     PropertiesUtils.getProperty("ec2.api.version.elasticfox"));
         }
-
-        // _log.info(ret);
 
         return ret;
 

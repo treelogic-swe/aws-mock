@@ -30,7 +30,7 @@ import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 public class MockEc2Instance implements Serializable {
 
     /**
-     * default serial version ID for this class which implements
+     * Default serial version ID for this class which implements.
      * {@link Serializable}
      * 
      * @see Serializable
@@ -38,7 +38,7 @@ public class MockEc2Instance implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * all allowed instance types
+     * All allowed instance types.
      * 
      * @author xma
      * 

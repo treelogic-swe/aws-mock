@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple utilities that can save/load runtime objects (e.g. all mock ec2
@@ -23,7 +23,7 @@ public class PersistenceUtils {
     /**
      * Log writer for this class.
      */
-    private static Log _log = LogFactory.getLog(PersistenceUtils.class);
+    private static Logger _log = LoggerFactory.getLogger(PersistenceUtils.class);
 
     /**
      * The persistent file path for saving object.
@@ -50,15 +50,15 @@ public class PersistenceUtils {
                 directory.mkdirs();
             }
 
-            _log.info("aws-mock: saving to " + file.getAbsolutePath());
+            _log.info("aws-mock: saving to {}", file.getAbsolutePath());
 
             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file, false));
             out.writeObject(obj);
             out.close();
         } catch (FileNotFoundException e) {
-            _log.fatal("FileNotFoundException caught during saving object to file: " + e.getMessage());
+            _log.error("FileNotFoundException caught during saving object to file: {}", e.getMessage());
         } catch (IOException e) {
-            _log.fatal("IOException caught during saving object to file: " + e.getMessage());
+            _log.error("IOException caught during saving object to file: {}", e.getMessage());
         }
 
     }
@@ -76,7 +76,7 @@ public class PersistenceUtils {
 
             File file = new File(_persistenceStoreFile);
 
-            _log.info("aws-mock: try to load objects from " + file.getAbsolutePath());
+            _log.info("aws-mock: try to load objects from {}", file.getAbsolutePath());
 
             ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
             ret = in.readObject();
@@ -84,14 +84,14 @@ public class PersistenceUtils {
 
         } catch (FileNotFoundException e) {
             // no saved file to load from
-            _log.warn("no saved file to load from: " + e.getMessage());
+            _log.warn("no saved file to load from: {}", e.getMessage());
             return null;
         } catch (IOException e) {
             // failed to load from the saved file
-            _log.warn("failed to load from the saved file: " + e.getMessage());
+            _log.warn("failed to load from the saved file: {}", e.getMessage());
             return null;
         } catch (ClassNotFoundException e) {
-            _log.fatal("ClassNotFoundException caught during loading object from file: " + e.getMessage());
+            _log.error("ClassNotFoundException caught during loading object from file: " + e.getMessage());
         }
         return ret;
 

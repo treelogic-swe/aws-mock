@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
@@ -25,7 +25,7 @@ public class MockEc2EndpointServlet extends HttpServlet {
     /**
      * Log writer for this class.
      */
-    private static Log _log = LogFactory.getLog(MockEc2EndpointServlet.class);
+    private static Logger _log = LoggerFactory.getLogger(MockEc2EndpointServlet.class);
 
     /**
      * default serial version ID for this class which implements
@@ -54,7 +54,7 @@ public class MockEc2EndpointServlet extends HttpServlet {
         try {
             MockEC2QueryHandler.handle(queryParams, response);
         } catch (AwsMockException e) {
-            _log.fatal("fatal exception caught: " + e.getMessage());
+            _log.error("fatal exception caught: {}", e.getMessage());
         }
 
         // TODO for error response, we need to set http status other than 200

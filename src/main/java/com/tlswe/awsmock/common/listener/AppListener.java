@@ -6,8 +6,7 @@ import java.util.Collection;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
 
 import com.tlswe.awsmock.common.util.PersistenceUtils;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
@@ -27,7 +26,7 @@ public class AppListener implements ServletContextListener {
     /**
      * Log writer for this class.
      */
-    private static Log _log = LogFactory.getLog(AppListener.class);
+    Logger _log = org.slf4j.LoggerFactory.getLogger(AppListener.class);
 
     /**
      * Global switch for persistence.
