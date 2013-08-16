@@ -77,6 +77,22 @@ task integrationTest(type: Test) {
     testClassesDir = sourceSets.test.output.classesDir
 }
 
+task run(dependsOn: classes) {
+    jettyRun.httpPort = 8000    // Port for test
+    jettyRun.daemon = true
+    jettyRun.execute()
+}
+
+task test(overwrite: true, type: Test, dependsOn: run) {
+    testClassesDir = sourceSets.test.output.classesDir
+}
+
+task stop(dependsOn: run) {
+    jettyStop.stopPort = 8091   // Port for stop signal
+    jettyStop.stopKey = 'stopKey'
+    jettyStop.execute()
+}
+
 artifacts {
     archives sourcesJar
     archives javadocJar
