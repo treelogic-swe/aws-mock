@@ -77,20 +77,27 @@ task integrationTest(type: Test) {
     testClassesDir = sourceSets.test.output.classesDir
 }
 
-task run(dependsOn: classes) {
-    jettyRun.httpPort = 8000    // Port for test
+
+jettyRun.httpPort = 8000    // Port for test
+[jettyRun,jettyStop]*.stopPort = 8091   // Port for stop signal
+[jettyRun,jettyStop]*.stopKey = 'foobar'
+
+task run(dependsOn: jettyRun) {
+
+}
+
+test.doFirst {
+    println '---- starting aws-mock on jetty before tests start ----'
     jettyRun.daemon = true
-    jettyRun.execute()
+    tasks.jettyRun.execute()
 }
 
-task test(overwrite: true, type: Test, dependsOn: run) {
-    testClassesDir = sourceSets.test.output.classesDir
-}
-
-task stop(dependsOn: run) {
-    jettyStop.stopPort = 8091   // Port for stop signal
-    jettyStop.stopKey = 'stopKey'
-    jettyStop.execute()
+// this is one way to finally run jettyStop after test despite of success or failure
+gradle.taskGraph.afterTask { Task task, TaskState state ->
+    if(task == test) {
+        tasks.jettyStop.execute()
+        println '---- stopped jetty after tests ended ----'
+    }
 }
 
 artifacts {
