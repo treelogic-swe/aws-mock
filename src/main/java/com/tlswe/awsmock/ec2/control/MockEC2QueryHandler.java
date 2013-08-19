@@ -115,95 +115,102 @@ public class MockEC2QueryHandler {
             // no params found at all - write an error xml response
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             responseXml = getXmlError("InvalidQuery", "No parameter in query at all! " + REF_EC2_QUERY_API_DESC);
-        }
-
-        // parse the parameters in query
-        String[] versionParamValues = queryParams.get("Version");
-
-        if (null == versionParamValues || versionParamValues.length != 1) {
-            // no version param found - write an error xml response
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseXml = getXmlError("InvalidQuery",
-                    "There should be a parameter of 'Version' provided in the query! " + REF_EC2_QUERY_API_DESC);
-        }
-
-        String version = versionParamValues[0];
-
-        String[] actions = queryParams.get("Action");
-
-        if (null == actions || actions.length != 1) {
-            // no action found - write response for error
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseXml = getXmlError("InvalidQuery", "There should be a parameter of 'Action' provided in the query! "
-                    + REF_EC2_QUERY_API_DESC);
         } else {
+            // parse the parameters in query
+            String[] versionParamValues = queryParams.get("Version");
 
-            String action = actions[0];
+            if (null == versionParamValues || versionParamValues.length != 1) {
+                // no version param found - write an error xml response
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                responseXml = getXmlError("InvalidQuery",
+                        "There should be a parameter of 'Version' provided in the query! " + REF_EC2_QUERY_API_DESC);
+            } else {
 
-            try {
+                String version = versionParamValues[0];
 
-                response.setStatus(HttpServletResponse.SC_OK);
+                String[] actions = queryParams.get("Action");
 
-                if ("RunInstances".equals(action)) {
-
-                    String imageID = queryParams.get("ImageId")[0];
-                    String instanceType = queryParams.get("InstanceType")[0];
-                    int minCount = Integer.parseInt(queryParams.get("MinCount")[0]);
-                    int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
-
-                    responseXml = JAXBUtil.marshall(runInstances(imageID, instanceType, minCount, maxCount),
-                            "RunInstancesResponse", version);
-
-                } else if ("DescribeImages".equals(action)) {
-                    responseXml = JAXBUtil.marshall(describeImages(), "DescribeImagesResponse", version);
+                if (null == actions || actions.length != 1) {
+                    // no action found - write response for error
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    responseXml = getXmlError("InvalidQuery",
+                            "There should be a parameter of 'Action' provided in the query! " + REF_EC2_QUERY_API_DESC);
                 } else {
 
-                    // the following interface calls need instanceIDs provided
-                    // in params, we put all the instanceIDs into a set for
-                    // usage
-                    Set<String> instanceIDs = parseInstanceIDs(queryParams);
+                    String action = actions[0];
 
-                    if ("DescribeInstances".equals(action)) {
+                    try {
 
-                        responseXml = JAXBUtil.marshall(describeInstances(instanceIDs), "DescribeInstancesResponse",
-                                version);
+                        response.setStatus(HttpServletResponse.SC_OK);
 
-                    } else if ("StartInstances".equals(action)) {
+                        if ("RunInstances".equals(action)) {
 
-                        responseXml = JAXBUtil.marshall(startInstances(instanceIDs), "StartInstancesResponse", version);
+                            String imageID = queryParams.get("ImageId")[0];
+                            String instanceType = queryParams.get("InstanceType")[0];
+                            int minCount = Integer.parseInt(queryParams.get("MinCount")[0]);
+                            int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
 
-                    } else if ("StopInstances".equals(action)) {
+                            responseXml = JAXBUtil.marshall(runInstances(imageID, instanceType, minCount, maxCount),
+                                    "RunInstancesResponse", version);
 
-                        responseXml = JAXBUtil.marshall(stopInstances(instanceIDs), "StopInstancesResponse", version);
+                        } else if ("DescribeImages".equals(action)) {
+                            responseXml = JAXBUtil.marshall(describeImages(), "DescribeImagesResponse", version);
+                        } else {
 
-                    } else if ("TerminateInstances".equals(action)) {
+                            // the following interface calls need instanceIDs
+                            // provided
+                            // in params, we put all the instanceIDs into a set
+                            // for
+                            // usage
+                            Set<String> instanceIDs = parseInstanceIDs(queryParams);
 
-                        responseXml = JAXBUtil.marshall(terminateInstances(instanceIDs), "TerminateInstancesResponse",
-                                version);
+                            if ("DescribeInstances".equals(action)) {
 
-                    } else {
+                                responseXml = JAXBUtil.marshall(describeInstances(instanceIDs),
+                                        "DescribeInstancesResponse", version);
 
-                        // unsupported/unimplemented action - write an error
-                        // response
-                        response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-                        String allImplementedActions = "runInstances|stopInstances|startInstances|terminateInstances|describeInstances|describeImages";
-                        responseXml = getXmlError(
-                                "NotImplementedAction",
-                                "Action '"
-                                        + action
-                                        + "' has not been implemented yet in aws-mock. For now we only support actions as following: "
-                                        + allImplementedActions);
+                            } else if ("StartInstances".equals(action)) {
+
+                                responseXml = JAXBUtil.marshall(startInstances(instanceIDs), "StartInstancesResponse",
+                                        version);
+
+                            } else if ("StopInstances".equals(action)) {
+
+                                responseXml = JAXBUtil.marshall(stopInstances(instanceIDs), "StopInstancesResponse",
+                                        version);
+
+                            } else if ("TerminateInstances".equals(action)) {
+
+                                responseXml = JAXBUtil.marshall(terminateInstances(instanceIDs),
+                                        "TerminateInstancesResponse", version);
+
+                            } else {
+
+                                // unsupported/unimplemented action - write an
+                                // error
+                                // response
+                                response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
+                                String allImplementedActions = "runInstances|stopInstances|startInstances|terminateInstances|describeInstances|describeImages";
+                                responseXml = getXmlError(
+                                        "NotImplementedAction",
+                                        "Action '"
+                                                + action
+                                                + "' has not been implemented yet in aws-mock. For now we only support actions as following: "
+                                                + allImplementedActions);
+                            }
+                        }
+
+                    } catch (BadEc2RequestException e) {
+                        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                        responseXml = getXmlError("InvalidQuery",
+                                "invalid request for '" + action + "'. " + e.getMessage() + REF_EC2_QUERY_API_DESC);
+                    } catch (MockEc2InternalException e) {
+                        _log.error("server error occured while processing '{}' request. {}", action, e.getMessage());
+                        response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                        responseXml = getXmlError("InternalError", e.getMessage());
                     }
-                }
 
-            } catch (BadEc2RequestException e) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                responseXml = getXmlError("InvalidQuery", "invalid request for '" + action + "'. " + e.getMessage()
-                        + REF_EC2_QUERY_API_DESC);
-            } catch (MockEc2InternalException e) {
-                _log.error("server error occured while processing '{}' request. {}", action, e.getMessage());
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                responseXml = getXmlError("InternalError", e.getMessage());
+                }
             }
 
         }
