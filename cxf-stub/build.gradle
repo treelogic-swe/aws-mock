@@ -1,0 +1,39 @@
+apply plugin: 'java'
+
+def ec2ApiVersion = "ec2-2013-02-01"
+def stubJarFilename = "cxf-stub-" + ec2ApiVersion + ".jar"
+
+task wsdl2java (type: JavaExec/*, dependsOn: clean*/) {
+    inputs.file file('ec2-2013-02-01.wsdl')
+    outputs.dir new File('build', 'stub_src')
+    dependencies{
+	   	compile 'org.apache.cxf:apache-cxf:2.7.5'
+	}
+	main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
+    classpath = sourceSets.main.runtimeClasspath
+    args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.ec2.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", ec2ApiVersion+".wsdl" ]
+}
+
+task cxfStubCompile (type: JavaCompile, dependsOn: wsdl2java) {
+    inputs.dir new File('build', 'stub_src')
+    outputs.dir new File('build', 'stub_classes')
+    classpath = configurations.runtime
+    source = file ('build/stub_src')
+    destinationDir = file ('build/stub_classes')
+}
+
+task cxfStubJar (type: Jar, dependsOn: cxfStubCompile) {
+    inputs.dir new File('build', 'stub_classes')
+    outputs.file file('../libs/' + stubJarFilename)
+    archiveName = stubJarFilename
+    manifest.attributes provider: 'tlswe'
+    from 'build/stub_src', 'build/stub_classes'
+    destinationDir = file('../libs')
+}
+
+task cxfStubJarClean (type: Delete) {
+    delete '../libs/' + stubJarFilename
+}
+
+clean.dependsOn cxfStubJarClean
+
