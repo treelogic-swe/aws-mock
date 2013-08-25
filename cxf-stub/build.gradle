@@ -17,6 +17,8 @@ task wsdl2java (type: JavaExec/*, dependsOn: clean*/) {
 task cxfStubCompile (type: JavaCompile, dependsOn: wsdl2java) {
     inputs.dir new File('build', 'stub_src')
     outputs.dir new File('build', 'stub_classes')
+    sourceCompatibility = '1.6'
+    targetCompatibility = '1.6'
     classpath = configurations.runtime
     source = file ('build/stub_src')
     destinationDir = file ('build/stub_classes')
@@ -35,5 +37,4 @@ task cxfStubJarClean (type: Delete) {
     delete '../libs/' + stubJarFilename
 }
 
-clean.dependsOn cxfStubJarClean
-
+// clean.dependsOn cxfStubJarClean
