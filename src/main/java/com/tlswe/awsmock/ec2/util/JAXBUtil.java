@@ -75,8 +75,15 @@ public class JAXBUtil {
         StringWriter writer = new StringWriter();
 
         try {
-            jaxbMarshaller.marshal(new JAXBElement(new QName(PropertiesUtils.getProperty("xmlns.current"),
-                    localPartQName), obj.getClass(), obj), writer);
+            /*-
+             *  call jaxbMarshaller.marshal() synchronized (fixes the issue of java.lang.ArrayIndexOutOfBoundsException: -1 
+             *  at com.sun.xml.internal.bind.v2.util.CollisionCheckStack.pushNocheck(CollisionCheckStack.java:117))
+             *  in case of jaxbMarshaller.marshal() is called concurrently
+             */
+            synchronized (jaxbMarshaller) {
+                jaxbMarshaller.marshal(new JAXBElement(new QName(PropertiesUtils.getProperty("xmlns.current"),
+                        localPartQName), obj.getClass(), obj), writer);
+            }
         } catch (JAXBException e) {
             String errMsg = "failed to marshall object to xml, localPartQName=" + localPartQName + ", requestVersion="
                     + requestVersion;
