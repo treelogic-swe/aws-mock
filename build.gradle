@@ -92,6 +92,10 @@ test.doFirst {
     tasks.jettyRun.execute()
 }
 
+test {
+    testLogging.showStandardStreams = true
+}
+
 // this is one way to finally run jettyStop after test despite of success or failure
 gradle.taskGraph.afterTask { Task task, TaskState state ->
     if(task == test) {
