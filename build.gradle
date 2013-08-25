@@ -5,11 +5,13 @@ apply plugin: 'jetty'
 
 version = '0.1'
 
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
+sourceCompatibility = JavaVersion.VERSION_1_6
+targetCompatibility = JavaVersion.VERSION_1_6
 
-repositories {
-    mavenCentral()
+allprojects {
+    repositories {
+        mavenCentral()
+    }
 }
 
 dependencies {
@@ -18,6 +20,7 @@ dependencies {
     compile 'org.slf4j:slf4j-log4j12:1.7.5'
     compile 'log4j:log4j:1.2.17'
     compile 'org.freemarker:freemarker:2.3.20'
+    compile fileTree(dir: 'libs', include: '*.jar')
     
     testCompile "junit:junit:4.9"
     testCompile "com.amazonaws:aws-java-sdk:1.5.3"
@@ -31,27 +34,14 @@ eclipse {
     }
 }
 
-task wsdl2java (type:Exec) {
-    dependencies{
-	   	// runtime 'org.apache.cxf:apache-cxf:2.7.5'
-	}
-    
-    //For Linux
-    //commandLine './pack'
-    //For Windows
-	commandLine 'cmd','/c', 'pack.bat'
-}
-
-task packStub(type: Jar/*, dependsOn: wsdl2java*/) {
-	//from 'src/main/java/com/tlswe/awsmock/ec2/cxf_generated'
-	into 'libs/cxf-stub-ec2-2013-02-01.jar'
-}
-
 sourceSets {
     test
 }
 
-task sourcesJar(type:Jar, dependsOn:classes){
+compileJava.dependsOn ":cxf-stub:cxfStubJar"
+eclipseClasspath.dependsOn ":cxf-stub:cxfStubJar"
+
+task sourcesJar(type:Jar, dependsOn: classes){
     classifier = 'sources'
     // from sourceSets.main.allSource
     from sourceSets.main.allJava.srcDirs
@@ -59,26 +49,11 @@ task sourcesJar(type:Jar, dependsOn:classes){
 }
 
 task javadocJar(type: Jar) {
-        classifier = "javadoc"
-        from javadoc
-    }
-
-task integrationTest(type: Test) {
-    doFirst {
-        jettyRun.httpPort = 8000    // Port for test
-        jettyRun.daemon = true
-        jettyRun.execute()
-    }
-    doLast {
-        jettyStop.stopPort = 8091   // Port for stop signal
-        jettyStop.stopKey = 'stopKey'
-        jettyStop.execute()
-    }
-    testClassesDir = sourceSets.test.output.classesDir
+    classifier = "javadoc"
+    from javadoc
 }
 
-
-jettyRun.httpPort = 8000    // Port for test
+jettyRun.httpPort = 8000                // Port for test
 [jettyRun,jettyStop]*.stopPort = 8091   // Port for stop signal
 [jettyRun,jettyStop]*.stopKey = 'foobar'
 
@@ -92,7 +67,7 @@ test.doFirst {
     tasks.jettyRun.execute()
 }
 
-// this is one way to finally run jettyStop after test despite of success or failure
+// this is one working way to finally run jettyStop after test despite of success or failure
 gradle.taskGraph.afterTask { Task task, TaskState state ->
     if(task == test) {
         tasks.jettyStop.execute()
@@ -108,5 +83,6 @@ artifacts {
 jar {
     exclude('log4j.properties')
 }
+
 
 
