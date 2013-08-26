@@ -30,7 +30,7 @@ In your own client applications which use [aws-sdk](http://aws.amazon.com/tools/
 ### How It Works
 Aws-mock works totally as a servlet web application, conform to the protocols defined in the WSDL defined by AWS. 
 Basically, take our mock "ec2-endpoint" as an example, it processes [Query Requests](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html) built by your client (such as AWS-SDK or EC2-API-Tools) and manages the internal mock EC2 instances as emulation of the lifecycle (pending->running->stopping->stopped->terminated, etc) of those in genuine EC2, and returns xml result response which is recognized by your client.  
-Note again that nly limited EC2 interfaces mentioned have been implemented. And only essential fields of data are filled in the response to calling of an interface. 
+Note again that only limited EC2 interfaces mentioned have been implemented. And only essential fields of data are filled in the response to calling of an interface. 
 
 
 ### Tips
