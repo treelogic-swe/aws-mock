@@ -1,4 +1,4 @@
-aws-mock
+aws-mock [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
 ========
 
 A lightweight, very modular Java-based mock of essential AWS services, works with official aws-sdk, or third-party tools such as elasticfox, generally for testing purposes.
