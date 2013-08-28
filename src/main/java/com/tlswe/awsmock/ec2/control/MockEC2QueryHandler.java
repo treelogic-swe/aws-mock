@@ -42,46 +42,54 @@ import com.tlswe.awsmock.ec2.servlet.MockEc2EndpointServlet;
 import com.tlswe.awsmock.ec2.util.JAXBUtil;
 
 /**
- * Class that handlers requests of AWS Query API for managing mock ec2
- * instances. This class works between {@link MockEc2Controller} and
- * {@link MockEc2EndpointServlet}. <br>
- * All object of mock ec2 instances are of the same type which is defined as
- * property of "ec2.instance.class" in aws-mock.properties.
- * 
+ * Class that handlers requests of AWS Query API for managing mock ec2 instances. This class works between
+ * {@link MockEc2Controller} and {@link MockEc2EndpointServlet}. <br>
+ * All object of mock ec2 instances are of the same type which is defined as property of "ec2.instance.class" in
+ * aws-mock.properties.
+ *
  * @see MockEc2Controller
  * @see MockEc2EndpointServlet
- * 
+ *
  * @author xma
- * 
+ *
  */
-public class MockEC2QueryHandler {
+public final class MockEC2QueryHandler {
+
+    /**
+* TODO .
+     */
+    private MockEC2QueryHandler() {
+
+    }
 
     /**
      * Log writer for this class.
      */
-    private static Logger _log = LoggerFactory.getLogger(MockEC2QueryHandler.class);
+    private static Logger log = LoggerFactory.getLogger(MockEC2QueryHandler.class);
 
     /**
-     * class for all mock ec2 instances, which should extend
-     * {@link MockEc2Instance}
+     * Class for all mock ec2 instances, which should extend {@link MockEc2Instance}.
      */
     private static final String MOCK_EC2_INSTANCE_CLASS_NAME = PropertiesUtils.getProperty("ec2.instance.class");
 
     /**
-     * default placement for this aws-mock, defined in aws-mock.properties
+     * Default placement for this aws-mock, defined in aws-mock.properties.
      */
     private static final PlacementResponseType DEFAULT_MOCK_PLACEMENT = new PlacementResponseType();
 
     /**
-     * xml template filename for error response body
+     * The xml template filename for error response body.
      */
-    private static String ERROR_RESPONSE_TEMPLATE = "error.xml.ftl";
-
-    private static String REF_EC2_QUERY_API_DESC = "See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html for building a valid query.";
+    private static final String ERROR_RESPONSE_TEMPLATE = "error.xml.ftl";
 
     /**
-     * predefined AMIs, as properties of predefined.mock.ami.X in
-     * aws-mock.properties
+* TODO .
+     */
+    private static final String REF_EC2_QUERY_API_DESC = "See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide"
+            + "/using-query-api.html for building a valid query.";
+
+    /**
+     * Predefined AMIs, as properties of predefined.mock.ami.X in aws-mock.properties.
      */
     private static final Set<String> MOCK_AMIS = new TreeSet<String>();
 
@@ -91,16 +99,16 @@ public class MockEC2QueryHandler {
     }
 
     /**
-     * Hub method for parsing query prarmeters and generate and write xml
-     * response.
-     * 
+     * Hub method for parsing query prarmeters and generate and write xml response.
+     *
      * @param queryParams
-     *            map of query parameters from http request, which is from
-     *            standard AWS Query API
+     *            map of query parameters from http request, which is from standard AWS Query API
      * @param response
      *            http servlet response to handle with
      * @throws IOException
+     *             TODO
      * @throws MockEc2InternalException
+     *             TODO
      */
     public static void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
             throws IOException, MockEc2InternalException {
@@ -190,13 +198,11 @@ public class MockEC2QueryHandler {
                                 // error
                                 // response
                                 response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED);
-                                String allImplementedActions = "runInstances|stopInstances|startInstances|terminateInstances|describeInstances|describeImages";
-                                responseXml = getXmlError(
-                                        "NotImplementedAction",
-                                        "Action '"
-                                                + action
-                                                + "' has not been implemented yet in aws-mock. For now we only support actions as following: "
-                                                + allImplementedActions);
+                                String allImplementedActions = "runInstances|stopInstances|startInstances|"
+                                        + "terminateInstances|describeInstances|describeImages";
+                                responseXml = getXmlError("NotImplementedAction", "Action '" + action
+                                        + "' has not been implemented yet in aws-mock. "
+                                        + "For now we only support actions as following: " + allImplementedActions);
                             }
                         }
 
@@ -205,7 +211,7 @@ public class MockEC2QueryHandler {
                         responseXml = getXmlError("InvalidQuery",
                                 "invalid request for '" + action + "'. " + e.getMessage() + REF_EC2_QUERY_API_DESC);
                     } catch (MockEc2InternalException e) {
-                        _log.error("server error occured while processing '{}' request. {}", action, e.getMessage());
+                        log.error("server error occured while processing '{}' request. {}", action, e.getMessage());
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         responseXml = getXmlError("InternalError", e.getMessage());
                     }
@@ -222,7 +228,7 @@ public class MockEC2QueryHandler {
 
     /**
      * Parse instance IDs from query parameters.
-     * 
+     *
      * @param queryParams
      *            map of query parameters in http request
      * @return a set of instance IDs in the parameter map
@@ -242,17 +248,14 @@ public class MockEC2QueryHandler {
     }
 
     /**
-     * Handles "describeInstances" request, with only a simplified filter of
-     * instanceIDs, and returns response with all mock ec2 instances if no
-     * instance IDs specified.
-     * 
+     * Handles "describeInstances" request, with only a simplified filter of instanceIDs, and returns response with all
+     * mock ec2 instances if no instance IDs specified.
+     *
      * @param instanceIDs
-     *            a filter of specified instance IDs for the target instance to
-     *            describe
-     * @return a DescribeInstancesResponse with information for all mock ec2
-     *         instances to describe
+     *            a filter of specified instance IDs for the target instance to describe
+     * @return a DescribeInstancesResponse with information for all mock ec2 instances to describe
      */
-    private static DescribeInstancesResponseType describeInstances(Set<String> instanceIDs) {
+    private static DescribeInstancesResponseType describeInstances(final Set<String> instanceIDs) {
 
         DescribeInstancesResponseType ret = new DescribeInstancesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
@@ -312,26 +315,25 @@ public class MockEC2QueryHandler {
     }
 
     /**
-     * Handles "runInstances" request, with only simplified filters of imageId,
-     * instanceType, minCount and maxCount.
-     * 
+     * Handles "runInstances" request, with only simplified filters of imageId, instanceType, minCount and maxCount.
+     *
      * @param imageId
      *            AMI of new mock ec2 instance(s)
      * @param instanceType
-     *            type(scale) of new mock ec2 instance(s), refer to
-     *            {@link MockEc2Instance#InstanceType}
+     *            type(scale) of new mock ec2 instance(s), refer to {@link MockEc2Instance#InstanceType}
      * @param minCount
      *            max count of instances to run
      * @param maxCount
      *            min count of instances to run
-     * @return a RunInstancesResponse that includes all information for the
-     *         started new mock ec2 instances
+     * @return a RunInstancesResponse that includes all information for the started new mock ec2 instances
      * @throws MockEc2InternalException
+     *             TODO
      * @throws BadEc2RequestException
+     *             TODO
      */
     @SuppressWarnings("unchecked")
-    private static RunInstancesResponseType runInstances(String imageId, String instanceType, int minCount, int maxCount)
-            throws MockEc2InternalException, BadEc2RequestException {
+    private static RunInstancesResponseType runInstances(final String imageId, final String instanceType,
+            final int minCount, final int maxCount) throws MockEc2InternalException, BadEc2RequestException {
 
         RunInstancesResponseType ret = new RunInstancesResponseType();
 
@@ -373,16 +375,13 @@ public class MockEC2QueryHandler {
     }
 
     /**
-     * Handles "startInstances" request, with only a simplified filter of
-     * instanceIDs
-     * 
+     * Handles "startInstances" request, with only a simplified filter of instanceIDs.
+     *
      * @param instanceIDs
-     *            a filter of specified instance IDs for the target instance to
-     *            start
-     * @return a StartInstancesResponse with information for all mock ec2
-     *         instances to start
+     *            a filter of specified instance IDs for the target instance to start
+     * @return a StartInstancesResponse with information for all mock ec2 instances to start
      */
-    private static StartInstancesResponseType startInstances(Set<String> instanceIDs) {
+    private static StartInstancesResponseType startInstances(final Set<String> instanceIDs) {
         StartInstancesResponseType ret = new StartInstancesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
         InstanceStateChangeSetType changeSet = new InstanceStateChangeSetType();
@@ -393,16 +392,13 @@ public class MockEC2QueryHandler {
     }
 
     /**
-     * Handles "stopInstances" request, with only a simplified filter of
-     * instanceIDs
-     * 
+     * Handles "stopInstances" request, with only a simplified filter of instanceIDs.
+     *
      * @param instanceIDs
-     *            a filter of specified instance IDs for the target instance to
-     *            stop
-     * @return a StopInstancesResponse with information for all mock ec2
-     *         instances to stop
+     *            a filter of specified instance IDs for the target instance to stop
+     * @return a StopInstancesResponse with information for all mock ec2 instances to stop
      */
-    private static StopInstancesResponseType stopInstances(Set<String> instanceIDs) {
+    private static StopInstancesResponseType stopInstances(final Set<String> instanceIDs) {
         StopInstancesResponseType ret = new StopInstancesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
         InstanceStateChangeSetType changeSet = new InstanceStateChangeSetType();
@@ -412,16 +408,13 @@ public class MockEC2QueryHandler {
     }
 
     /**
-     * Handles "terminateInstances" request, with only a simplified filter of
-     * instanceIDs
-     * 
+     * Handles "terminateInstances" request, with only a simplified filter of instanceIDs.
+     *
      * @param instanceIDs
-     *            a filter of specified instance IDs for the target instance to
-     *            terminate
-     * @return a StartInstancesResponse with information for all mock ec2
-     *         instances to terminate
+     *            a filter of specified instance IDs for the target instance to terminate
+     * @return a StartInstancesResponse with information for all mock ec2 instances to terminate
      */
-    private static TerminateInstancesResponseType terminateInstances(Set<String> instanceIDs) {
+    private static TerminateInstancesResponseType terminateInstances(final Set<String> instanceIDs) {
         TerminateInstancesResponseType ret = new TerminateInstancesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
         InstanceStateChangeSetType changeSet = new InstanceStateChangeSetType();
@@ -431,10 +424,9 @@ public class MockEC2QueryHandler {
     }
 
     /**
-     * Handles "describeImages" request, as simple as without any filters to use
-     * 
-     * @return a DescribeImagesResponse with our predefined AMIs in
-     *         aws-mock.properties
+     * Handles "describeImages" request, as simple as without any filters to use.
+     *
+     * @return a DescribeImagesResponse with our predefined AMIs in aws-mock.properties
      */
     private static DescribeImagesResponseType describeImages() {
         DescribeImagesResponseType ret = new DescribeImagesResponseType();
@@ -452,14 +444,12 @@ public class MockEC2QueryHandler {
 
     /**
      * Generate error response body in xml and write it with writer.
-     * 
+     *
      * @param errorCode
      *            the error code wrapped in the xml response
      * @param errorMessage
      *            the error message wrapped in the xml response
-     * @param writer
-     *            writer to print the xml response
-     * @return
+     * @return TODO
      */
     private static String getXmlError(final String errorCode, final String errorMessage) {
         Map<String, Object> data = new HashMap<String, Object>();
@@ -473,7 +463,7 @@ public class MockEC2QueryHandler {
         try {
             ret = TemplateUtils.get(ERROR_RESPONSE_TEMPLATE, data);
         } catch (AwsMockException e) {
-            _log.error("fatal exception caught: {}", e.getMessage());
+            log.error("fatal exception caught: {}", e.getMessage());
             e.printStackTrace();
         }
         return ret;

@@ -14,25 +14,24 @@ import com.tlswe.awsmock.ec2.control.MockEc2Controller;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 
 /**
- * Listener that does initializing tasks on context started (e.g. load and
- * restore persistent runtime object) and finalizing on context destroyed (e.g.
- * save runtime objects to persistence).
- * 
+ * Listener that does initializing tasks on context started (e.g. load and restore persistent runtime object) and
+ * finalizing on context destroyed (e.g. save runtime objects to persistence).
+ *
  * @author xma
- * 
+ *
  */
 public class AppListener implements ServletContextListener {
 
     /**
      * Log writer for this class.
      */
-    Logger _log = org.slf4j.LoggerFactory.getLogger(AppListener.class);
+    private final Logger log = org.slf4j.LoggerFactory.getLogger(AppListener.class);
 
     /**
      * Global switch for persistence.
      */
-    private static boolean _persistenceEnabled = Boolean.parseBoolean(PropertiesUtils
-            .getProperty("persistence.enabled"));
+    private static boolean persistenceEnabled = Boolean
+            .parseBoolean(PropertiesUtils.getProperty("persistence.enabled"));
 
     /**
      * Default constructor.
@@ -42,23 +41,31 @@ public class AppListener implements ServletContextListener {
     }
 
     /**
-     * @see ServletContextListener#contextInitialized(ServletContextEvent)
+* TODO .
+     *
+     * @param sce
+     *            TODO
      */
+    @Override
     @SuppressWarnings("unchecked")
-    public void contextInitialized(ServletContextEvent sce) {
-        _log.info("aws-mock starting...");
-        if (_persistenceEnabled) {
+    public final void contextInitialized(final ServletContextEvent sce) {
+        log.info("aws-mock starting...");
+        if (persistenceEnabled) {
             ArrayList<MockEc2Instance> instances = (ArrayList<MockEc2Instance>) PersistenceUtils.loadAll();
             MockEc2Controller.restoreAllMockEc2Instances(instances);
         }
     }
 
     /**
-     * @see ServletContextListener#contextDestroyed(ServletContextEvent)
+* TODO .
+     *
+     * @param sce
+     *            TODO
      */
-    public void contextDestroyed(ServletContextEvent sce) {
+    @Override
+    public final void contextDestroyed(final ServletContextEvent sce) {
 
-        if (_persistenceEnabled) {
+        if (persistenceEnabled) {
             Collection<MockEc2Instance> instances = MockEc2Controller.getAllMockEc2Instances();
 
             for (MockEc2Instance instance : instances) {
@@ -71,7 +78,7 @@ public class AppListener implements ServletContextListener {
             list.addAll(instances);
             PersistenceUtils.saveAll(list);
         }
-        _log.info("aws-mock stopped...");
+        log.info("aws-mock stopped...");
     }
 
 }

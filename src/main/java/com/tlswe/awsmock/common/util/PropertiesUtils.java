@@ -10,46 +10,53 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Providing utilities such as properties loading/fetching.
- * 
+ *
  * @author xma
- * 
+ *
  */
-public class PropertiesUtils {
+public final class PropertiesUtils {
+
+    /**
+* TODO .
+     */
+    private PropertiesUtils() {
+
+    }
 
     /**
      * Log writer for this class.
      */
-    private static Logger _log = LoggerFactory.getLogger(PropertiesUtils.class);
+    private static Logger log = LoggerFactory.getLogger(PropertiesUtils.class);
     // @InjectLogger
     // private static Logger _log;
 
     /**
-     * all properties loaded into aws-mock.properties
+     * All properties loaded into aws-mock.properties.
      */
-    static private Properties _properties = new Properties();
+    private static Properties properties = new Properties();
 
     static {
         try {
-            _properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("aws-mock.properties"));
+            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("aws-mock.properties"));
         } catch (IOException e) {
-            _log.error("fail to load 'aws-mock.properties' - {}", e.getMessage());
+            log.error("fail to load 'aws-mock.properties' - {}", e.getMessage());
         }
     }
 
     /**
      * Get property value by name.
-     * 
+     *
      * @param propertyName
      *            name of the property to get
      * @return the value
      */
     public static String getProperty(final String propertyName) {
-        return _properties.getProperty(propertyName);
+        return properties.getProperty(propertyName);
     }
 
     /**
      * Get a set of properties those share the same given name prefix.
-     * 
+     *
      * @param propertyNamePrefix
      *            prefix of name
      * @return the set of values whose property names share the same prefix
@@ -57,10 +64,10 @@ public class PropertiesUtils {
     public static Set<String> getPropertiesByPrefix(final String propertyNamePrefix) {
 
         Set<String> ret = new TreeSet<String>();
-        Set<Object> keys = _properties.keySet();
+        Set<Object> keys = properties.keySet();
         for (Object key : keys) {
             if (null != key && key.toString().startsWith(propertyNamePrefix)) {
-                ret.add(_properties.getProperty(key.toString()));
+                ret.add(properties.getProperty(key.toString()));
             }
         }
 
