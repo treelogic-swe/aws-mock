@@ -2,38 +2,43 @@ package com.tlswe.awsmock.common.exception;
 
 /**
  * Generic exception in aws-mock.
- * 
+ *
  * @author xma
- * 
+ *
  */
 public class AwsMockException extends Exception {
 
     /**
-     * Default serial version ID for this class which implements.
-     * {@link java.io.Serializable}
-     * 
+     * Default serial version ID for this class which implements. {@link java.io.Serializable}
+     *
      * @see java.io.Serializable
      */
     private static final long serialVersionUID = 1L;
 
     /**
-     * 
+     *
      */
     public AwsMockException() {
         super();
     }
 
     /**
-     * 
+     *
+     * @param message
+     *            message describing the exception
      */
-    public AwsMockException(String message) {
+    public AwsMockException(final String message) {
         super(message);
     }
 
     /**
-     * 
+     *
+     * @param message
+     *            message describing the exception
+     * @param cause
+     *            cause exception
      */
-    public AwsMockException(String message, Throwable cause) {
+    public AwsMockException(final String message, final Throwable cause) {
         super(message, cause);
     }
 

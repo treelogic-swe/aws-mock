@@ -16,31 +16,38 @@ import freemarker.template.TemplateException;
 
 /**
  * Utilities that writes/gets string output from FreeMarker templates.
- * 
+ *
  * @author xma
- * 
+ *
  */
-public class TemplateUtils {
+public final class TemplateUtils {
+
+    /**
+* TODO .
+     */
+    private TemplateUtils() {
+
+    }
 
     /**
      * Log writer for this class.
      */
-    private static Logger _log = LoggerFactory.getLogger(TemplateUtils.class);
+    private static Logger log = LoggerFactory.getLogger(TemplateUtils.class);
 
     /**
      * Global configuration for FreeMarker.
      */
-    private static Configuration _conf = new Configuration();
+    private static Configuration conf = new Configuration();
 
     // tell FreeMarker where to load templates - from folder "templates", in
     // classpath
     static {
-        _conf.setClassForTemplateLoading(TemplateUtils.class, "/templates");
+        conf.setClassForTemplateLoading(TemplateUtils.class, "/templates");
     }
 
     /**
      * Generate result from given template and data and print to writer.
-     * 
+     *
      * @param templateFilename
      *            filename of the .ftl file
      * @param data
@@ -48,6 +55,7 @@ public class TemplateUtils {
      * @param writer
      *            target writer to print the result
      * @throws AwsMockException
+     *             TODO
      */
     public static void write(final String templateFilename, final Map<String, Object> data, final Writer writer)
             throws AwsMockException {
@@ -56,10 +64,10 @@ public class TemplateUtils {
         try {
             // note that we don't need to cache templates by ourselves since
             // getTemplate() does that internally already
-            tmpl = _conf.getTemplate(templateFilename);
+            tmpl = conf.getTemplate(templateFilename);
         } catch (IOException e) {
             String errMsg = "IOException: failed to getTemplate (filename is " + templateFilename + ")";
-            _log.error("{}: {}", errMsg, e.getMessage());
+            log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         }
 
@@ -76,11 +84,11 @@ public class TemplateUtils {
             String errMsg = "TemplateException: failed to process template '" + templateFilename + "', with data: "
                     + dataDescription.toString()
                     + " The probable cause could be un-matching of key-values for that template. ";
-            _log.error("{}: {}", errMsg, e.getMessage());
+            log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         } catch (IOException e) {
             String errMsg = "IOException: failed to process and write to writer. ";
-            _log.error("{}: {}", errMsg, e.getMessage());
+            log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         }
 
@@ -88,13 +96,14 @@ public class TemplateUtils {
 
     /**
      * Generate result from given template and data and get it as a string.
-     * 
+     *
      * @param templateName
      *            filename of the .ftl file
      * @param data
      *            data to fill in the template, as key-values
      * @return processed result from template and data
      * @throws AwsMockException
+     *             TODO
      */
     public static String get(final String templateName, final Map<String, Object> data) throws AwsMockException {
         StringWriter writer = new StringWriter();
