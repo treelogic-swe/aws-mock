@@ -2,6 +2,7 @@ apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'jetty'
+apply plugin: 'checkstyle'
 
 version = '0.1'
 
