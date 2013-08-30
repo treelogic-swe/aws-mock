@@ -4,12 +4,12 @@ aws-mock [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branc
 A lightweight, very modular Java-based mock of essential [AWS services](http://aws.amazon.com/), works with official aws-sdk, api-tools, or third-party tools, generally for testing purposes.
 
 For now we have implemented only a few interfaces (and only necessary data in response) of Amazon EC2: 
+- describeImages
 - runInstances
 - stopInstances
 - startInstances
 - terminateInstances
 - describeInstances
-- describeImages
 
 This mock of EC2 could be helpful for testing your applications with which for testing you need to simulate and manage large amount of mock EC2 instances. 
 
@@ -34,7 +34,7 @@ Now you are able to interact with your "local Amazon Web Services" (though only 
 In your own client applications which use [AWS-SDK](http://aws.amazon.com/tools/), or with [EC2-API-TOOLS](http://aws.amazon.com/developertools/Amazon-EC2/351), or with other third-party client tools such as elasticfox. To manage instances on mock EC2, just point to the custom EC2 endpoint like:
 `http://localhost:8000/aws-mock/ec2-endpoint/` (equivalent to the official endpoint url like `https://ec2.us-west-1.amazonaws.com/`)
 
-For detailed specification and usage reference for those interfaces already implemented in aws-mock, here is a list of [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Implemented-Requests-and-Responses).
+For detailed specification and usage reference for those interfaces already available in aws-mock, here is a list of [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Implemented-Requests-and-Responses).
 
 
 ### Tips
