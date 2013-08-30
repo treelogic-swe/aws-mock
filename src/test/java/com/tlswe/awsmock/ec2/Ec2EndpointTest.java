@@ -97,4 +97,70 @@ public class Ec2EndpointTest extends BaseTest {
         waitForState(instances.get(0).getInstanceId(),
                 MockEc2Instance.InstanceState.TERMINATED);
     }
+
+    /**
+     * Test one instance by run->terminate->start. A terminated instance can not
+     * start.
+     */
+    @Test(timeout = 240000)
+    public void sequenceRunTerminateStartTest() {
+        _log.info("Start simple run->terminate->start test");
+        // run
+        List<Instance> instances = runInstances(
+                MockEc2Instance.InstanceType.M1_SMALL, 1, 1);
+        Assert.assertTrue("fail to start instances", instances.size() == 1);
+
+        // wait for running
+        waitForState(instances.get(0).getInstanceId(),
+                MockEc2Instance.InstanceState.RUNNING);
+
+        // terminate
+        List<InstanceStateChange> stateChanges = terminateInstances(instances);
+        Assert.assertTrue("fail to terminate instances",
+                stateChanges.size() == 1);
+
+        // wait for terminated
+        waitForState(instances.get(0).getInstanceId(),
+                MockEc2Instance.InstanceState.TERMINATED);
+
+        // start, instance's state should remain terminated.
+        stateChanges = startInstances(instances);
+        Assert.assertTrue("fail to call start instances",
+                stateChanges.size() == 1);
+
+        // wait 10 seconds
+        waitForState(instances.get(0).getInstanceId(),
+                MockEc2Instance.InstanceState.RUNNING, 10000);
+
+        instances = describeInstances(instances);
+        Assert.assertTrue("number of instances should be 1",
+                instances.size() == 1);
+        Assert.assertTrue(
+                "instance's state should be terminated",
+                instances
+                        .get(0)
+                        .getState()
+                        .getName()
+                        .equals(MockEc2Instance.InstanceState.TERMINATED
+                                .getName()));
+    }
+
+    @Test(timeout = 240000)
+    public void thousandsStartTest() {
+        _log.info("Start thousands of instances test");
+
+        // random 1000 to 9999 instances
+        int count = 1000 + _random.nextInt(9000);
+
+        // run
+        List<Instance> instances = runInstances(
+                MockEc2Instance.InstanceType.M1_SMALL, count, count);
+        Assert.assertTrue("fail to start instances", instances.size() == count);
+
+        // wait for running
+        for (Instance i : instances) {
+            waitForState(i.getInstanceId(),
+                    MockEc2Instance.InstanceState.RUNNING);
+        }
+    }
 }

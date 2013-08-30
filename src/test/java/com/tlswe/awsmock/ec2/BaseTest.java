@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +43,11 @@ public class BaseTest {
      * Log writer for this class.
      */
     private static Logger _log = LoggerFactory.getLogger(BaseTest.class);
+    
+    /**
+     * Random object used in tests.
+     */
+    protected static Random _random = new Random();
 
     /**
      * Property key for AWS access key.
@@ -136,8 +140,8 @@ public class BaseTest {
         Assert.assertTrue("There's no predefined AMI id.",
                 _predefinedAMIs.size() > 0);
 
-        Random random = new Random();
-        int index = random.nextInt(_predefinedAMIs.size());
+        
+        int index = _random.nextInt(_predefinedAMIs.size());
         return _predefinedAMIs.get(index);
     }
 
@@ -321,8 +325,29 @@ public class BaseTest {
      *            target state
      */
     protected void waitForState(String instanceId, InstanceState state) {
+        // pass Lone.MAX_VALUE to waitForState make it never time out.
+        waitForState(instanceId, state, Long.MAX_VALUE);
+    }
+
+    /**
+     * Wait an instance reaching target {@link InstanceState} by describing the
+     * instance every second until it reach target state or time out.
+     * 
+     * @param instanceId
+     *            instance's ID
+     * @param state
+     *            target state
+     * @param timeout
+     *            timeout in millisecond
+     */
+    protected void waitForState(String instanceId, InstanceState state,
+            long timeout) {
         _log.info("Wait instance " + instanceId + " reaching state " + state);
+        long endTime = System.currentTimeMillis() + timeout;
         while (true) {
+            if (System.currentTimeMillis() > endTime)
+                break;
+
             List<Instance> instances = describeInstances(
                     Arrays.asList(instanceId), false);
             if (instances.get(0).getState().getName().equals(state.getName()))

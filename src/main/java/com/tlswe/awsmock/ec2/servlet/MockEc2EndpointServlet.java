@@ -25,28 +25,45 @@ public class MockEc2EndpointServlet extends HttpServlet {
     /**
      * Log writer for this class.
      */
-    private static Logger _log = LoggerFactory.getLogger(MockEc2EndpointServlet.class);
+    private static Logger log = LoggerFactory
+            .getLogger(MockEc2EndpointServlet.class);
 
     /**
-     * default serial version ID for this class which implements
-     * {@link Serializable}
-     * 
+     * Default serial version ID for this class which implements
+     * {@link Serializable}.
+     *
      * @see Serializable
      */
     private static final long serialVersionUID = 1L;
 
+    /**
+     * TODO .
+     */
     public MockEc2EndpointServlet() {
         super();
     }
 
     /**
-     * * Pass the query parameters from client to {@link MockEC2QueryHandler}
-     * and write response to client.
+     * Pass the query parameters from client to {@link MockEC2QueryHandler} and
+     * write response to client.
+     *
+     * @param request
+     *            TODO
+     * @param response
+     *            TODO
+     * @throws ServletException
+     *             TODO
+     * @throws IOException
+     *             TODO
      */
+    @Override
     @SuppressWarnings("unchecked")
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected final void doGet(final HttpServletRequest request,
+            final HttpServletResponse response) throws ServletException,
+            IOException {
 
-        Map<String, String[]> queryParams = (Map<String, String[]>) request.getParameterMap();
+        Map<String, String[]> queryParams = (Map<String, String[]>) request
+                .getParameterMap();
 
         response.setContentType("text/xml");
         response.setCharacterEncoding("UTF-8");
@@ -54,7 +71,7 @@ public class MockEc2EndpointServlet extends HttpServlet {
         try {
             MockEC2QueryHandler.handle(queryParams, response);
         } catch (AwsMockException e) {
-            _log.error("fatal exception caught: {}", e.getMessage());
+            log.error("fatal exception caught: {}", e.getMessage());
         }
 
         // TODO for error response, we need to set http status other than 200
@@ -62,9 +79,20 @@ public class MockEc2EndpointServlet extends HttpServlet {
     }
 
     /**
-     * @see #doGet
+     * Refer to doGet().
+     *
+     * @param request
+     *            TODO
+     * @param response
+     *            TODO
+     * @throws ServletException
+     *             TODO
+     * @throws IOException
+     *             TODO
      */
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+    @Override
+    protected final void doPost(final HttpServletRequest request,
+            final HttpServletResponse response) throws ServletException,
             IOException {
         doGet(request, response);
     }
