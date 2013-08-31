@@ -4,62 +4,39 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
 
 /**
- * Servlet implementation for mock ec2 endpoint. This servlet works as an AWS
- * ec2 endpoint that accepts AWS Query API request and respond bare xml, with
- * aws-sdk, ec2-api-tools, elasticfox and other clients.
+ * Servlet implementation for mock ec2 endpoint. This servlet works as an AWS ec2 endpoint that accepts AWS Query API
+ * request and respond bare xml, with aws-sdk, ec2-api-tools, elasticfox and other clients.
  */
 public class MockEc2EndpointServlet extends HttpServlet {
 
     /**
-     * Log writer for this class.
-     */
-    private static Logger log = LoggerFactory
-            .getLogger(MockEc2EndpointServlet.class);
-
-    /**
-     * Default serial version ID for this class which implements
-     * {@link Serializable}.
+     * Default serial version ID for this class which implements {@link Serializable}.
      *
      * @see Serializable
      */
     private static final long serialVersionUID = 1L;
 
     /**
-     * TODO .
-     */
-    public MockEc2EndpointServlet() {
-        super();
-    }
-
-    /**
-     * Pass the query parameters from client to {@link MockEC2QueryHandler} and
-     * write response to client.
+     * Pass the query parameters from client to {@link MockEC2QueryHandler} and write response to client.
      *
      * @param request
-     *            TODO
+     *            request from client of AWS doing the query
      * @param response
-     *            TODO
-     * @throws ServletException
-     *             TODO
+     *            response that with an xml body describing the calling result of query from request
      * @throws IOException
-     *             TODO
+     *             throw an I/O exception in case of failing to get the httpServletResponse's writer
      */
     @Override
     @SuppressWarnings("unchecked")
     protected final void doGet(final HttpServletRequest request,
-            final HttpServletResponse response) throws ServletException,
+            final HttpServletResponse response) throws
             IOException {
 
         Map<String, String[]> queryParams = (Map<String, String[]>) request
@@ -68,31 +45,23 @@ public class MockEc2EndpointServlet extends HttpServlet {
         response.setContentType("text/xml");
         response.setCharacterEncoding("UTF-8");
 
-        try {
-            MockEC2QueryHandler.handle(queryParams, response);
-        } catch (AwsMockException e) {
-            log.error("fatal exception caught: {}", e.getMessage());
-        }
-
-        // TODO for error response, we need to set http status other than 200
+        MockEC2QueryHandler.handle(queryParams, response);
 
     }
 
     /**
-     * Refer to doGet().
+     * Refer to {@link MockEc2EndpointServlet#doGet}.
      *
      * @param request
-     *            TODO
+     *            see {@link MockEc2EndpointServlet#doGet}
      * @param response
-     *            TODO
-     * @throws ServletException
-     *             TODO
+     *            see {@link MockEc2EndpointServlet#doGet}
      * @throws IOException
-     *             TODO
+     *             see {@link MockEc2EndpointServlet#doGet}
      */
     @Override
     protected final void doPost(final HttpServletRequest request,
-            final HttpServletResponse response) throws ServletException,
+            final HttpServletResponse response) throws
             IOException {
         doGet(request, response);
     }

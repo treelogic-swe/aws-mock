@@ -31,7 +31,7 @@ import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 public final class MockEc2Controller {
 
     /**
-* TODO .
+     * TODO (MockEc2Controller should be implemented as singleton).
      */
     private MockEc2Controller() {
 
@@ -70,9 +70,10 @@ public final class MockEc2Controller {
      * Create and run mock ec2 instances.
      *
      * @param <T>
-     *            TODO
+     *            The template type of class as concrete type of mock ec2 instance to run as, should extend
+     *            {@link MockEc2Instance}, matching the clazz parameter
      * @param clazz
-     *            class as type of mock ec2 instance to run as, should extend MockEc2Instance
+     *            class as concrete type of mock ec2 instance to run as, should extend {@link MockEc2Instance}
      * @param imageId
      *            AMI of new mock ec2 instance(s)
      * @param instanceType
@@ -83,9 +84,10 @@ public final class MockEc2Controller {
      *            min count of instances to run (should larger than 0)
      * @return a list of objects of clazz as started new mock ec2 instances
      * @throws MockEc2InternalException
-     *             TODO
+     *             throws a wrapped exception in case a server side internal error occurs.
      * @throws BadEc2RequestException
-     *             TODO
+     *             throws an exception in case of error parsing for a correct request conformed to EC2 QUERY API which
+     *             should be built by AWS client tool
      */
     public static <T extends MockEc2Instance> List<T> runInstances(final Class<? extends T> clazz,
             final String imageId, final String instanceType,

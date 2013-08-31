@@ -39,79 +39,79 @@ public class MockEc2Instance implements Serializable {
     private static final short INSTANCE_ID_POSTFIX_LENGTH = 7;
 
     /**
-     * All allowed instance types.
+     * Enumeration of all allowed instance types.
      *
      * @author xma
      *
      */
     public static enum InstanceType {
         /**
-         * TODO javadoc.
+         * t1.micro.
          */
         T1_MICRO("t1.micro"),
         /**
-         * TODO javadoc.
+         * m1.small.
          */
         M1_SMALL("m1.small"),
         /**
-         * TODO javadoc.
+         * m1.medium.
          */
         M1_MEDIUM("m1.medium"),
         /**
-         * TODO javadoc.
+         * m1.large.
          */
         M1_LARGE("m1.large"),
         /**
-         * TODO javadoc.
+         * m1.xlarge.
          */
         M1_XLARGE("m1.xlarge"),
         /**
-         * TODO javadoc.
+         * m2.xlarge.
          */
         M2_XLARGE("m2.xlarge"),
         /**
-         * TODO javadoc.
+         * m2.2xlarge.
          */
         M2_2XLARGE("m2.2xlarge"),
         /**
-         * TODO javadoc.
+         * m2.4xlarge.
          */
         M2_4XLARGE("m2.4xlarge"),
         /**
-         * TODO javadoc.
+         * c1.medium.
          */
         C1_MEDIUM("c1.medium"),
         /**
-         * TODO javadoc.
+         * c1.xlarge.
          */
         C1_XLARGE("c1.xlarge"),
         /**
-         * TODO javadoc.
+         * cc1.4xlarge.
          */
         CC1_4XLARGE("cc1.4xlarge"),
         /**
-         * TODO javadoc.
+         * cc2.8xlarge.
          */
         CC2_8XLARGE("cc2.8xlarge"),
         /**
-         * TODO javadoc.
+         * cg1.4xlarge.
          */
         CG1_4XLARGE("cg1.4xlarge"),
         /**
-         * TODO javadoc.
+         * hi1.4xlarge.
          */
         HI1_4XLARGE("hi1.4xlarge");
 
         /**
-         * TODO javadoc.
+         * Name of instacne type.
          */
         private String name;
 
         /**
-         * TODO javadoc.
+         * Private constructor for the enums of instance types defined above.
          *
          * @param typeName
-         *            TODO
+         *            name of instance type
          *
          */
         private InstanceType(final String typeName) {
@@ -119,19 +119,20 @@ public class MockEc2Instance implements Serializable {
         }
 
         /**
-         * TODO javadoc.
+         * Get the instance type name.
          *
-         * @return TODO
+         * @return the instance type name of the enum.
          */
         public String getName() {
             return this.name;
         }
 
         /**
+         * Tests if an instance type of the given name exists as among all the defined instance types.
          *
          * @param name
-         *            TODO
-         * @return TODO
+         *            instance type name
+         * @return true for existing and false for not existing
          */
         public static boolean containsByName(final String name) {
             InstanceType[] values = InstanceType.values();
@@ -146,7 +147,7 @@ public class MockEc2Instance implements Serializable {
     }
 
     /**
-     * All allowed instance states.
+     * Enumeration of all instance states.
      *
      * @author xma
      *
@@ -154,47 +155,47 @@ public class MockEc2Instance implements Serializable {
     public static enum InstanceState {
 
         /**
-         * TODO .
+         * pending.
          */
         PENDING(0, "pending"),
         /**
-         * TODO .
+         * running.
          */
         RUNNING(16, "running"),
         /**
-         * TODO .
+         * shutting-down.
          */
-        SHUTTING_DOWN(32, " shutting-down"),
+        SHUTTING_DOWN(32, "shutting-down"),
         /**
-         * TODO .
+         * terminated.
          */
         TERMINATED(48, "terminated"),
         /**
-         * TODO .
+         * stopping.
          */
         STOPPING(64, "stopping"),
         /**
-         * TODO .
+         * stopped.
          */
         STOPPED(80, "stopped");
 
         /**
-         * TODO .
+         * Code of instance state.
          */
         private int code;
 
         /**
-         * TODO .
+         * Name of instance state.
          */
         private String name;
 
         /**
-         * TODO .
+         * Private constructor for the enums of instance states defined above.
          *
          * @param stateCode
-         *            TODO
+         *            code of instance state
          * @param stateName
-         *            TODO
+         *            name of instance stateO
          */
         private InstanceState(final int stateCode, final String stateName) {
             this.code = stateCode;
@@ -202,18 +203,18 @@ public class MockEc2Instance implements Serializable {
         }
 
         /**
-         * TODO .
+         * Get the instance state code.
          *
-         * @return TODO
+         * @return instance state code
          */
         public int getCode() {
             return code;
         }
 
         /**
-         * TODO .
+         * Get the instance state name.
          *
-         * @return TODO
+         * @return instance state name
          */
         public String getName() {
             return name;
@@ -248,7 +249,7 @@ public class MockEc2Instance implements Serializable {
          * Constructor from superclass.
          *
          * @param isDaemon
-         *            TODO
+         *            true if the associated thread should run as a daemon
          */
         public SerializableTimer(final boolean isDaemon) {
             super(isDaemon);
@@ -361,61 +362,61 @@ public class MockEc2Instance implements Serializable {
     }
 
     /**
-     * TODO .
+     * Get ID of this mock ec2 instance.
      *
-     * @return TODO
+     * @return ID of this mock ec2 instance
      */
     public final String getInstanceID() {
         return instanceID;
     }
 
     /**
-     * TODO .
+     * Test if this mock ec2 instance is during booting phase (pending).
      *
-     * @return TODO
+     * @return this mock ec2 instance is booting or not
      */
     public final boolean isBooting() {
         return booting;
     }
 
     /**
-     * TODO .
+     * Test if this mock ec2 instance is running (started/power-on).
      *
-     * @return TODO
+     * @return this mock ec2 instance is running or not
      */
     public final boolean isRunning() {
         return running;
     }
 
     /**
-     * TODO .
+     * Get public DNS of this mock ec2 instance.
      *
-     * @return TODO
+     * @return public DNS of this mock ec2 instance
      */
     public final String getPubDns() {
         return pubDns;
     }
 
     /**
-     * TODO .
+     * Test if this mock ec2 instance is during stopping phase.
      *
-     * @return TODO
+     * @return this mock ec2 instance is stopping or not
      */
     public final boolean isStopping() {
         return stopping;
     }
 
     /**
-     * TODO .
+     * Test if this mock ec2 instance is terminated.
      *
-     * @return TODO
+     * @return this mock ec2 instance is terminated or not
      */
     public final boolean isTerminated() {
         return terminated;
     }
 
     /**
-     * TODO .
+     * Start scheduling the internal timer that controls the behaviors and states of this mock ec2 instance.
      */
     public final void initializeInternalTimer() {
         // if it is the first the instance is started, we initialize the
@@ -502,7 +503,7 @@ public class MockEc2Instance implements Serializable {
     }
 
     /**
-     * TODO.
+     * Cancel the internal timer of this mock ec2 instance so that it stops its lifecycle-emulation.
      */
     public final void destroyInternalTimer() {
         timer.cancel();
@@ -563,9 +564,9 @@ public class MockEc2Instance implements Serializable {
     }
 
     /**
-     * TODO .
+     * Get state of this mock ec2 instance.
      *
-     * @return TODO
+     * @return one of the instance states defined in {@link InstanceState}
      */
     public final InstanceState getInstanceState() {
         return isTerminated() ? InstanceState.TERMINATED
@@ -576,19 +577,19 @@ public class MockEc2Instance implements Serializable {
     }
 
     /**
-     * TODO .
+     * Get the AMI this mock ec2 instance started from.
      *
-     * @return TODO
+     * @return the AMI
      */
     public final String getImageId() {
         return imageId;
     }
 
     /**
-     * TODO .
+     * Set the AMI this mock ec2 instance starts from.
      *
      * @param newImageID
-     *            TODO
+     *            the AMI
      */
     public final void setImageId(final String newImageID) {
         this.imageId = newImageID;
@@ -614,19 +615,19 @@ public class MockEc2Instance implements Serializable {
     }
 
     /**
-     * TODO .
+     * Get the security groups used by this mock ec2 instance.
      *
-     * @return TODO
+     * @return a list of security groups
      */
     public final Set<String> getSecurityGroups() {
         return securityGroups;
     }
 
     /**
-     * TODO .
+     * Get the security groups used by this mock ec2 instance.
      *
      * @param newSecurityGroups
-     *            TODO
+     *            a list of security groups
      */
     public final void setSecurityGroups(final Set<String> newSecurityGroups) {
         if (null != newSecurityGroups) {

@@ -13,37 +13,29 @@ import com.tlswe.awsmock.common.exception.AwsMockException;
 public class MockEc2InternalException extends AwsMockException {
 
     /**
-     * Default serial version ID for this class which implements
-     * {@link Serializable}.
+     * Default serial version ID for this class which implements {@link Serializable}.
      *
      * @see Serializable
      */
     private static final long serialVersionUID = 1L;
 
     /**
-* TODO .
-     */
-    public MockEc2InternalException() {
-        super();
-    }
-
-    /**
-* TODO .
+     * Constructs from an error message and the original exception.
      *
      * @param message
-     *            TODO
+     *            the error message
      * @param cause
-     *            TODO
+     *            the original exception
      */
     public MockEc2InternalException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
     /**
-* TODO .
+     * Constructs from an error message .
      *
      * @param message
-     *            TODO
+     *            the error message
      */
     public MockEc2InternalException(final String message) {
         super(message);

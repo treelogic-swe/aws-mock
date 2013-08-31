@@ -41,10 +41,10 @@ public class AppListener implements ServletContextListener {
     }
 
     /**
-* TODO .
+     * We load the saved instances if persistence of enabled, on web application starting.
      *
      * @param sce
-     *            TODO
+     *            the context event object
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -57,10 +57,10 @@ public class AppListener implements ServletContextListener {
     }
 
     /**
-* TODO .
+     * We save the instances if persistence of enabled, on web application shutting-down.
      *
      * @param sce
-     *            TODO
+     *            the context event object
      */
     @Override
     public final void contextDestroyed(final ServletContextEvent sce) {

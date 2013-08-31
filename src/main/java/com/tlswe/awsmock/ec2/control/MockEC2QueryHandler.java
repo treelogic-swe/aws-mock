@@ -56,7 +56,7 @@ import com.tlswe.awsmock.ec2.util.JAXBUtil;
 public final class MockEC2QueryHandler {
 
     /**
-* TODO .
+     * TODO (MockEc2Controller should be implemented as singleton).
      */
     private MockEC2QueryHandler() {
 
@@ -83,7 +83,7 @@ public final class MockEC2QueryHandler {
     private static final String ERROR_RESPONSE_TEMPLATE = "error.xml.ftl";
 
     /**
-* TODO .
+     * Description for the link to AWS QUERY API reference.
      */
     private static final String REF_EC2_QUERY_API_DESC = "See http://docs.aws.amazon.com/AWSEC2/latest/UserGuide"
             + "/using-query-api.html for building a valid query.";
@@ -106,15 +106,15 @@ public final class MockEC2QueryHandler {
      * @param response
      *            http servlet response to handle with
      * @throws IOException
-     *             TODO
-     * @throws MockEc2InternalException
-     *             TODO
+     *             in case of failure of getting response's writer
+     *
      */
     public static void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
-            throws IOException, MockEc2InternalException {
+            throws IOException {
 
         if (null == response) {
-            throw new MockEc2InternalException("response should not be null!");
+            // do nothing in case null is passed in
+            return;
         }
 
         String responseXml = null;
@@ -327,9 +327,10 @@ public final class MockEC2QueryHandler {
      *            min count of instances to run
      * @return a RunInstancesResponse that includes all information for the started new mock ec2 instances
      * @throws MockEc2InternalException
-     *             TODO
+     *             throws a wrapped exception in case a server side internal error occurs.
      * @throws BadEc2RequestException
-     *             TODO
+     *             throws an exception in case of error parsing for a correct request conformed to EC2 QUERY API which
+     *             should be built by AWS client tool
      */
     @SuppressWarnings("unchecked")
     private static RunInstancesResponseType runInstances(final String imageId, final String instanceType,
@@ -449,7 +450,7 @@ public final class MockEC2QueryHandler {
      *            the error code wrapped in the xml response
      * @param errorMessage
      *            the error message wrapped in the xml response
-     * @return TODO
+     * @return xml body for an error message which can be recognized by AWS clients
      */
     private static String getXmlError(final String errorCode, final String errorMessage) {
         Map<String, Object> data = new HashMap<String, Object>();

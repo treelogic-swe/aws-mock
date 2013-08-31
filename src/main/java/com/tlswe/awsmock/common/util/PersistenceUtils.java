@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public final class PersistenceUtils {
 
     /**
-* TODO .
+     * Constructor is made private as this is a utility class which should be always used in static way.
      */
     private PersistenceUtils() {
 

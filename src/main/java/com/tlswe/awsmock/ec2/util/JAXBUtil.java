@@ -74,12 +74,10 @@ public final class JAXBUtil {
      *            the version of EC2 API used by client (aws-sdk, cmd-line tools or other third-party client tools)
      * @return xml representation bound to the given object
      * @throws MockEc2InternalException
-     *             TODO
+     *             in case of failing to marshall object to xml
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public static String marshall(final Object obj,
-            final String localPartQName,
-            final String requestVersion)
+    public static String marshall(final Object obj, final String localPartQName, final String requestVersion)
             throws MockEc2InternalException {
 
         StringWriter writer = new StringWriter();

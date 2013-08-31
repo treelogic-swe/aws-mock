@@ -23,7 +23,7 @@ import freemarker.template.TemplateException;
 public final class TemplateUtils {
 
     /**
-* TODO .
+     * Constructor is made private as this is a utility class which should be always used in static way.
      */
     private TemplateUtils() {
 
@@ -55,7 +55,7 @@ public final class TemplateUtils {
      * @param writer
      *            target writer to print the result
      * @throws AwsMockException
-     *             TODO
+     *             a wrapped exception will be thrown in case of any thing wrong during writing from template
      */
     public static void write(final String templateFilename, final Map<String, Object> data, final Writer writer)
             throws AwsMockException {
@@ -103,7 +103,7 @@ public final class TemplateUtils {
      *            data to fill in the template, as key-values
      * @return processed result from template and data
      * @throws AwsMockException
-     *             TODO
+     *             a wrapped exception will be thrown in case of any thing wrong during generating string from template
      */
     public static String get(final String templateName, final Map<String, Object> data) throws AwsMockException {
         StringWriter writer = new StringWriter();
