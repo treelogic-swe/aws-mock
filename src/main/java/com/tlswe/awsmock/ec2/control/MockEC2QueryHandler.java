@@ -295,7 +295,7 @@ public final class MockEC2QueryHandler {
 
                 instItem.setInstanceState(st);
                 instItem.setImageId(instance.getImageId());
-                instItem.setInstanceType(instance.getInstanceType());
+                instItem.setInstanceType(instance.getInstanceType().getName());
                 instItem.setDnsName(instance.getPubDns());
 
                 instsSet.getItem().add(instItem);
@@ -357,7 +357,7 @@ public final class MockEC2QueryHandler {
 
             instItem.setInstanceId(i.getInstanceID());
             instItem.setImageId(i.getImageId());
-            instItem.setInstanceType(i.getInstanceType());
+            instItem.setInstanceType(i.getInstanceType().getName());
             InstanceStateType state = new InstanceStateType();
             state.setCode(i.getInstanceState().getCode());
             state.setName(i.getInstanceState().getName());

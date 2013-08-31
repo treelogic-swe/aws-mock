@@ -144,6 +144,23 @@ public class MockEc2Instance implements Serializable {
             return false;
         }
 
+        /**
+         * Get enum of an instance type of the given name exists as among all the defined instance types.
+         *
+         * @param name
+         *            instance type name
+         * @return object of instance type, null will be returned in case that not found
+         */
+        public static InstanceType getByName(final String name) {
+            InstanceType[] values = InstanceType.values();
+            for (InstanceType value : values) {
+                if (value.getName().equals(name)) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
     }
 
     /**
@@ -306,9 +323,9 @@ public class MockEc2Instance implements Serializable {
     private String imageId = null;
 
     /**
-     * Instance type, default is "m1.small".
+     * Instance type, by default is "m1.small".
      */
-    private String instanceType = InstanceType.M1_SMALL.getName();
+    private InstanceType instanceType = InstanceType.M1_SMALL;
 
     /**
      * Security groups for this ec2 instance.
@@ -566,7 +583,7 @@ public class MockEc2Instance implements Serializable {
     /**
      * Get state of this mock ec2 instance.
      *
-     * @return one of the instance states defined in {@link InstanceState}
+     * @return state of this mock ec2 instance, should be one of the instance states defined in {@link InstanceState}
      */
     public final InstanceState getInstanceState() {
         return isTerminated() ? InstanceState.TERMINATED
@@ -596,21 +613,21 @@ public class MockEc2Instance implements Serializable {
     }
 
     /**
-     * TODO .
+     * Get type of this mock ec2 instance.
      *
-     * @return TODO
+     * @return type of this mock ec2 instance
      */
-    public final String getInstanceType() {
+    public final InstanceType getInstanceType() {
         return instanceType;
     }
 
     /**
-     * TODO .
+     * Set type of this mock ec2 instance.
      *
      * @param newInstanceType
-     *            TODO
+     *            type of this mock ec2 instance, should be one of the instance types defined in {@link InstanceType}
      */
-    public final void setInstanceType(final String newInstanceType) {
+    public final void setInstanceType(final InstanceType newInstanceType) {
         this.instanceType = newInstanceType;
     }
 

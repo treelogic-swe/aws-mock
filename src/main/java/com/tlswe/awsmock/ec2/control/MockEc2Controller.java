@@ -12,6 +12,7 @@ import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateType;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
 import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
+import com.tlswe.awsmock.ec2.model.MockEc2Instance.InstanceType;
 
 /**
  * Factory class providing static methods for managing life cycle of mock ec2 instances. The current implementations
@@ -76,8 +77,8 @@ public final class MockEc2Controller {
      *            class as concrete type of mock ec2 instance to run as, should extend {@link MockEc2Instance}
      * @param imageId
      *            AMI of new mock ec2 instance(s)
-     * @param instanceType
-     *            type(scale) of new mock ec2 instance(s), refer to {@link MockEc2Instance#InstanceType}
+     * @param instanceTypeName
+     *            type(scale) name of new mock ec2 instance(s), refer to {@link MockEc2Instance#InstanceType}
      * @param minCount
      *            max count of instances to run (but limited to {@link #MAX_RUN_INSTANCE_COUNT_AT_A_TIME})
      * @param maxCount
@@ -90,12 +91,13 @@ public final class MockEc2Controller {
      *             should be built by AWS client tool
      */
     public static <T extends MockEc2Instance> List<T> runInstances(final Class<? extends T> clazz,
-            final String imageId, final String instanceType,
+            final String imageId, final String instanceTypeName,
             /* Set<String> securityGroups, */final int minCount, final int maxCount) throws BadEc2RequestException,
             MockEc2InternalException {
 
-        if (!MockEc2Instance.InstanceType.containsByName(instanceType)) {
-            throw new BadEc2RequestException("illegal instance type: " + instanceType);
+        InstanceType instanceType = InstanceType.getByName(instanceTypeName);
+        if (null == instanceType) {
+            throw new BadEc2RequestException("illegal instance type: " + instanceTypeName);
         }
 
         if (maxCount > MAX_RUN_INSTANCE_COUNT_AT_A_TIME) {
