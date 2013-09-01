@@ -12,11 +12,11 @@ For now we have implemented only a few interfaces (and only necessary data in re
 - describeInstances
 
 This mock of EC2 could be helpful for testing your applications with which for testing you need to simulate and manage large amount of mock EC2 instances. 
-
+g
 
 ### How It Works
 Aws-mock works totally as a servlet web application, conforming to the protocols described in the WSDL defined by AWS. 
-Basically, take our mock "ec2-endpoint" as an example, it processes [Query Requests](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html) built by your client (such as AWS-SDK or EC2-API-Tools) and manages the internal mock EC2 instances as emulation of the lifecycle of those in genuine EC2(pending->running, stopping->stopped, terminated, etc), and returns xml result body in responses which is recognized by your client.  
+Basically, take our mock "ec2-endpoint" as an example, it processes [Query Requests](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html) built by your client (such as AWS-SDK or EC2-API-Tools) and manages the internal mock EC2 instances as emulation of the lifecycle of those in genuine EC2 (pending->running, stopping->stopped, terminated, etc), and returns xml result body in responses which is recognized by your client.  
 Note again that only limited EC2 interfaces mentioned have been implemented. And only essential fields of data are filled in the response body. 
 
 
