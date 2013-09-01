@@ -5,6 +5,7 @@
 package com.tlswe.awsmock.ec2;
 
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,20 +18,34 @@ import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 
 /**
  * @author Willard Wang
- * 
  */
 public class Ec2EndpointTest extends BaseTest {
     /**
+     * 2 minutes timeout.
+     */
+    private static final int TIMEOUT_LEVEL1 = 120000;
+
+    /**
+     * 4 minutes timeout.
+     */
+    private static final int TIMEOUT_LEVEL2 = 240000;
+
+    /**
+     * 10 seconds in millisecond.
+     */
+    private static final int TEN_SECONDS = 10000;
+
+    /**
      * Log writer for this class.
      */
-    private static Logger _log = LoggerFactory.getLogger(Ec2EndpointTest.class);
+    private static Logger log = LoggerFactory.getLogger(Ec2EndpointTest.class);
 
     /**
      * Test one instance by run->stop.
      */
-    @Test(timeout = 120000)
-    public void sequenceRunStopTest() {
-        _log.info("Start simple run -> stop test");
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void sequenceRunStopTest() {
+        log.info("Start simple run -> stop test");
 
         // run
         List<Instance> instances = runInstances(
@@ -59,9 +74,9 @@ public class Ec2EndpointTest extends BaseTest {
     /**
      * Test one instance by run->stop->start->terminate.
      */
-    @Test(timeout = 240000)
-    public void sequenceRunStopStartTerminateTest() {
-        _log.info("Start simple run->stop->start->terminate test");
+    @Test(timeout = TIMEOUT_LEVEL2)
+    public final void sequenceRunStopStartTerminateTest() {
+        log.info("Start simple run->stop->start->terminate test");
         // run
         List<Instance> instances = runInstances(
                 MockEc2Instance.InstanceType.M1_SMALL, 1, 1);
@@ -102,9 +117,9 @@ public class Ec2EndpointTest extends BaseTest {
      * Test one instance by run->terminate->start. A terminated instance can not
      * start.
      */
-    @Test(timeout = 240000)
-    public void sequenceRunTerminateStartTest() {
-        _log.info("Start simple run->terminate->start test");
+    @Test(timeout = TIMEOUT_LEVEL2)
+    public final void sequenceRunTerminateStartTest() {
+        log.info("Start simple run->terminate->start test");
         // run
         List<Instance> instances = runInstances(
                 MockEc2Instance.InstanceType.M1_SMALL, 1, 1);
@@ -130,7 +145,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // wait 10 seconds
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.RUNNING, 10000);
+                MockEc2Instance.InstanceState.RUNNING, TEN_SECONDS);
 
         instances = describeInstances(instances);
         Assert.assertTrue("number of instances should be 1",
@@ -145,12 +160,17 @@ public class Ec2EndpointTest extends BaseTest {
                                 .getName()));
     }
 
-    @Test(timeout = 240000)
-    public void thousandsStartTest() {
-        _log.info("Start thousands of instances test");
+    /**
+     * Test starting thousands of instances.
+     */
+    @Test(timeout = TIMEOUT_LEVEL2)
+    public final void thousandsStartTest() {
+        log.info("Start thousands of instances test");
 
+        final int startCount = 1000;
+        final int maxRandomCount = 9000;
         // random 1000 to 9999 instances
-        int count = 1000 + _random.nextInt(9000);
+        int count = startCount + new Random().nextInt(maxRandomCount);
 
         // run
         List<Instance> instances = runInstances(
