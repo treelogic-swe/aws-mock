@@ -37,6 +37,10 @@ In your own client applications which use [AWS-SDK](http://aws.amazon.com/tools/
 For detailed specification and usage reference for those interfaces already available in aws-mock, here is a list of [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Implemented-Requests-and-Responses).
 
 
+### Javadoc
+http://treelogic-swe.github.io/aws-mock/javadoc/
+
+
 ### Tips
 - To build war for deployment, run `gradle war`. 
 - Initially there is no mock instances in mock EC2, so you need to run a few new instances first. 
