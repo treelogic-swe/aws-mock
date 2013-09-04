@@ -11,8 +11,8 @@ For now we have implemented only a few interfaces (and only necessary data in re
 - terminateInstances
 - describeInstances
 
-This mock of EC2 could be helpful for testing your applications. You need the applications to simulate and manage large amount of mock EC2 instances. 
-g
+This mock of EC2 could be helpful for testing your applications. Aws-mock manages a large amount of mock EC2 instances. 
+
 
 ### How It Works
 Aws-mock works totally as a servlet web application, conforming to the protocols described in the WSDL defined by AWS. 
