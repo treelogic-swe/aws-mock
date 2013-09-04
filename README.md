@@ -11,7 +11,7 @@ For now we have implemented only a few interfaces (and only necessary data in re
 - terminateInstances
 - describeInstances
 
-This mock of EC2 could be helpful for testing your applications with which for testing you need to simulate and manage large amount of mock EC2 instances. 
+This mock of EC2 could be helpful for testing your applications. You need the applications to simulate and manage large amount of mock EC2 instances. 
 g
 
 ### How It Works
