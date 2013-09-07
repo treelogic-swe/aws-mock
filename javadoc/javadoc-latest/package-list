@@ -1,8 +1,0 @@
-com.tlswe.awsmock.common.exception
-com.tlswe.awsmock.common.listener
-com.tlswe.awsmock.common.util
-com.tlswe.awsmock.ec2.control
-com.tlswe.awsmock.ec2.exception
-com.tlswe.awsmock.ec2.model
-com.tlswe.awsmock.ec2.servlet
-com.tlswe.awsmock.ec2.util
