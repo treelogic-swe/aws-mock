@@ -1,4 +1,3 @@
-
 if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
 
   echo -e "Start to publish lastest Javadoc to gh-pages...\n"
@@ -11,9 +10,8 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/treelogic-swe/aws-mock gh-pages > /dev/null
 
   cd gh-pages
-  rm -rf ./javadoc
+  git rm -rf ./javadoc
   cp -Rf $HOME/javadoc-latest ./javadoc
-
   git add -f .
   git commit -m "Lastest javadoc on successful travis build $TRAVIS_BUILD_NUMBER auto-pushed to gh-pages"
   git push -fq origin gh-pages > /dev/null
