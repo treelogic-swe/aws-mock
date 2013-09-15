@@ -1,6 +1,6 @@
 package com.tlswe.awsmock.common.listener;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.servlet.ServletContextEvent;
@@ -49,12 +49,12 @@ public class AppListener implements ServletContextListener {
      *            the context event object
      */
     @Override
-    @SuppressWarnings("unchecked")
     public final void contextInitialized(final ServletContextEvent sce) {
         log.info("aws-mock starting...");
+
         if (persistenceEnabled) {
-            ArrayList<MockEc2Instance> instances = (ArrayList<MockEc2Instance>) PersistenceUtils.loadAll();
-            MockEc2Controller.getInstance().restoreAllMockEc2Instances(instances);
+            MockEc2Instance[] instanceArray = (MockEc2Instance[]) PersistenceUtils.loadAll();
+            MockEc2Controller.getInstance().restoreAllMockEc2Instances(Arrays.asList(instanceArray));
         }
     }
 
@@ -76,12 +76,11 @@ public class AppListener implements ServletContextListener {
                 // web app stopping
                 instance.destroyInternalTimer();
             }
-            // put all instances into an ArrayList which is serializable
-            ArrayList<MockEc2Instance> list = new ArrayList<MockEc2Instance>();
-            list.addAll(instances);
-            PersistenceUtils.saveAll(list);
+            // put all instances into an array which is serializable and type-cast safe for persistence
+            MockEc2Instance[] array = new MockEc2Instance[0];
+            instances.toArray(array);
+            PersistenceUtils.saveAll(array);
         }
         log.info("aws-mock stopped...");
     }
-
 }
