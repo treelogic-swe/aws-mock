@@ -23,6 +23,7 @@ public class MockEc2EndpointServlet extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
+
     /**
      * Pass the query parameters from client to {@link MockEC2QueryHandler} and write response to client.
      *
@@ -45,9 +46,10 @@ public class MockEc2EndpointServlet extends HttpServlet {
         response.setContentType("text/xml");
         response.setCharacterEncoding("UTF-8");
 
-        MockEC2QueryHandler.handle(queryParams, response);
+        MockEC2QueryHandler.getInstance().handle(queryParams, response);
 
     }
+
 
     /**
      * Refer to {@link MockEc2EndpointServlet#doGet}.

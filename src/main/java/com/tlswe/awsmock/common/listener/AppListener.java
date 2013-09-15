@@ -33,12 +33,14 @@ public class AppListener implements ServletContextListener {
     private static boolean persistenceEnabled = Boolean
             .parseBoolean(PropertiesUtils.getProperty("persistence.enabled"));
 
+
     /**
      * Default constructor.
      */
     public AppListener() {
 
     }
+
 
     /**
      * We load the saved instances if persistence of enabled, on web application starting.
@@ -52,9 +54,10 @@ public class AppListener implements ServletContextListener {
         log.info("aws-mock starting...");
         if (persistenceEnabled) {
             ArrayList<MockEc2Instance> instances = (ArrayList<MockEc2Instance>) PersistenceUtils.loadAll();
-            MockEc2Controller.restoreAllMockEc2Instances(instances);
+            MockEc2Controller.getInstance().restoreAllMockEc2Instances(instances);
         }
     }
+
 
     /**
      * We save the instances if persistence of enabled, on web application shutting-down.
@@ -66,7 +69,7 @@ public class AppListener implements ServletContextListener {
     public final void contextDestroyed(final ServletContextEvent sce) {
 
         if (persistenceEnabled) {
-            Collection<MockEc2Instance> instances = MockEc2Controller.getAllMockEc2Instances();
+            Collection<MockEc2Instance> instances = MockEc2Controller.getInstance().getAllMockEc2Instances();
 
             for (MockEc2Instance instance : instances) {
                 // cancel and destroy the internal timers for all instances on

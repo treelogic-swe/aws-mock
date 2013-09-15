@@ -32,11 +32,9 @@ import com.tlswe.awsmock.ec2.model.MockEc2Instance.InstanceType;
 public final class MockEc2Controller {
 
     /**
-     * TODO (MockEc2Controller should be implemented as singleton).
+     * Singleton instance of MockEc2Controller.
      */
-    private MockEc2Controller() {
-
-    }
+    private static MockEc2Controller singletonMockEc2Controller = null;
 
     /**
      * Max allowed number of mock instances to run at a time (a single request).
@@ -48,7 +46,33 @@ public final class MockEc2Controller {
     /**
      * A map of all the mock ec2 instances, instanceID as key and {@link MockEc2Instance} as value.
      */
-    private static Map<String, MockEc2Instance> allMockEc2Instances = new ConcurrentHashMap<String, MockEc2Instance>();
+    private final Map<String, MockEc2Instance> allMockEc2Instances = new ConcurrentHashMap<String, MockEc2Instance>();
+
+
+    /**
+     * Constructor of MockEc2Controller is made private and only called once by {@link #getInstance()}.
+     */
+    private MockEc2Controller() {
+
+    }
+
+
+    /**
+     *
+     * @return singleton instance of {@link MockEc2Controller}
+     */
+    public static MockEc2Controller getInstance() {
+        if (null == singletonMockEc2Controller) {
+            // "double lock lazy loading" for singleton instance loading on first time usage
+            synchronized (MockEc2Controller.class) {
+                if (null == singletonMockEc2Controller) {
+                    singletonMockEc2Controller = new MockEc2Controller();
+                }
+            }
+        }
+        return singletonMockEc2Controller;
+    }
+
 
     /**
      * List mock ec2 instances in current aws-mock.
@@ -58,13 +82,14 @@ public final class MockEc2Controller {
      * @return a collection of {@link MockEc2Instance} with specifed instance IDs, or all of the mock ec2 instances if
      *         no instance IDs as filtered
      */
-    public static Collection<MockEc2Instance> describeInstances(final Set<String> instanceIDs) {
+    public Collection<MockEc2Instance> describeInstances(final Set<String> instanceIDs) {
         if (null == instanceIDs || instanceIDs.size() == 0) {
             return allMockEc2Instances.values();
         } else {
             return getInstances(instanceIDs);
         }
     }
+
 
     /**
      *
@@ -90,7 +115,7 @@ public final class MockEc2Controller {
      *             throws an exception in case of error parsing for a correct request conformed to EC2 QUERY API which
      *             should be built by AWS client tool
      */
-    public static <T extends MockEc2Instance> List<T> runInstances(final Class<? extends T> clazz,
+    public <T extends MockEc2Instance> List<T> runInstances(final Class<? extends T> clazz,
             final String imageId, final String instanceTypeName,
             /* Set<String> securityGroups, */final int minCount, final int maxCount) throws BadEc2RequestException,
             MockEc2InternalException {
@@ -151,6 +176,7 @@ public final class MockEc2Controller {
 
     }
 
+
     /**
      * Start one or more existing mock ec2 instances.
      *
@@ -158,7 +184,7 @@ public final class MockEc2Controller {
      *            a set of instance IDs for those instances to start
      * @return a list of state change messages (typically stopped to running)
      */
-    public static List<InstanceStateChangeType> startInstances(final Set<String> instanceIDs) {
+    public List<InstanceStateChangeType> startInstances(final Set<String> instanceIDs) {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
 
@@ -188,6 +214,7 @@ public final class MockEc2Controller {
 
     }
 
+
     /**
      * Stop one or more existing mock ec2 instances.
      *
@@ -195,7 +222,7 @@ public final class MockEc2Controller {
      *            a set of instance IDs for those instances to stop
      * @return a list of state change messages (typically running to stopping)
      */
-    public static List<InstanceStateChangeType> stopInstances(final Set<String> instanceIDs) {
+    public List<InstanceStateChangeType> stopInstances(final Set<String> instanceIDs) {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
 
@@ -225,6 +252,7 @@ public final class MockEc2Controller {
 
     }
 
+
     /**
      * Terminate one or more existing mock ec2 instances.
      *
@@ -232,7 +260,7 @@ public final class MockEc2Controller {
      *            a set of instance IDs for those instances to terminate
      * @return a list of state change messages (typically running/stopped to terminated)
      */
-    public static List<InstanceStateChangeType> terminateInstances(final Set<String> instanceIDs) {
+    public List<InstanceStateChangeType> terminateInstances(final Set<String> instanceIDs) {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
 
@@ -262,14 +290,16 @@ public final class MockEc2Controller {
 
     }
 
+
     /**
      * List all mock ec2 instances within aws-mock.
      *
      * @return a collection of all the mock ec2 instances
      */
-    public static Collection<MockEc2Instance> getAllMockEc2Instances() {
+    public Collection<MockEc2Instance> getAllMockEc2Instances() {
         return allMockEc2Instances.values();
     }
+
 
     /**
      * Get mock ec2 instance by instance ID.
@@ -278,9 +308,10 @@ public final class MockEc2Controller {
      *            ID of the mock ec2 instance to get
      * @return the mock ec2 instance object
      */
-    public static MockEc2Instance getMockEc2Instance(final String instanceID) {
+    public MockEc2Instance getMockEc2Instance(final String instanceID) {
         return allMockEc2Instances.get(instanceID);
     }
+
 
     /**
      * Get mock ec2 instances by instance IDs.
@@ -289,7 +320,7 @@ public final class MockEc2Controller {
      *            IDs of the mock ec2 instances to get
      * @return the mock ec2 instances object
      */
-    private static Collection<MockEc2Instance> getInstances(final Set<String> instanceIDs) {
+    private Collection<MockEc2Instance> getInstances(final Set<String> instanceIDs) {
         Collection<MockEc2Instance> ret = new ArrayList<MockEc2Instance>();
         for (String instanceID : instanceIDs) {
             ret.add(getMockEc2Instance(instanceID));
@@ -297,13 +328,14 @@ public final class MockEc2Controller {
         return ret;
     }
 
+
     /**
      * Clear {@link #allMockEc2Instances} and restore it from given a collection of instances.
      *
      * @param instances
      *            collection of {@link #getMockEc2Instance(String)} to restore
      */
-    public static void restoreAllMockEc2Instances(final Collection<MockEc2Instance> instances) {
+    public void restoreAllMockEc2Instances(final Collection<MockEc2Instance> instances) {
         allMockEc2Instances.clear();
         if (null != instances) {
             for (MockEc2Instance instance : instances) {
