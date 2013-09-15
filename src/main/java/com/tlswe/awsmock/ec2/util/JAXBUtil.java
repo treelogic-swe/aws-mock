@@ -25,13 +25,6 @@ import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 public final class JAXBUtil {
 
     /**
-     *
-     */
-    private JAXBUtil() {
-
-    }
-
-    /**
      * Log writer for this class.
      */
     private static Logger log = LoggerFactory.getLogger(JAXBUtil.class);
@@ -63,6 +56,15 @@ public final class JAXBUtil {
         }
 
     }
+
+
+    /**
+    *
+    */
+    private JAXBUtil() {
+
+    }
+
 
     /**
      *
