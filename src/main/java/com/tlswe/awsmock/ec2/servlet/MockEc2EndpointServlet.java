@@ -35,11 +35,15 @@ public class MockEc2EndpointServlet extends HttpServlet {
      *             throw an I/O exception in case of failing to get the httpServletResponse's writer
      */
     @Override
-    @SuppressWarnings("unchecked")
     protected final void doGet(final HttpServletRequest request,
             final HttpServletResponse response) throws
             IOException {
 
+        @SuppressWarnings("unchecked")
+        /*-
+         * As request.getParameterMap() in servlet-api-2.5 provides return type of raw java.util.Map,
+         * we suppress the type safety check warning here.
+         */
         Map<String, String[]> queryParams = (Map<String, String[]>) request
                 .getParameterMap();
 
