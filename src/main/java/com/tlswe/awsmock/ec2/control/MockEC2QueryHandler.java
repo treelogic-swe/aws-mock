@@ -87,7 +87,8 @@ public final class MockEC2QueryHandler {
             + "/using-query-api.html for building a valid query.";
 
     /**
-     * Predefined AMIs, as properties of predefined.mock.ami.X in aws-mock.properties.
+     * Predefined AMIs, as properties of predefined.mock.ami.X in aws-mock.properties. We use {@link TreeSet} here so
+     * that those AMIs are loaded and displayed (described) in the same order the are defined in aws-mock.properties.
      */
     private static final Set<String> MOCK_AMIS = new TreeSet<String>();
 
@@ -363,7 +364,6 @@ public final class MockEC2QueryHandler {
      *             throws an exception in case of error parsing for a correct request conformed to EC2 QUERY API which
      *             should be built by AWS client tool
      */
-    @SuppressWarnings("unchecked")
     private RunInstancesResponseType runInstances(final String imageId, final String instanceType,
             final int minCount, final int maxCount) throws MockEc2InternalException, BadEc2RequestException {
 
@@ -371,21 +371,21 @@ public final class MockEC2QueryHandler {
 
         RunningInstancesSetType instSet = new RunningInstancesSetType();
 
-        Class<? extends MockEc2Instance> clazzOfEc2Instance = null;
+        Class<? extends MockEc2Instance> clazzOfMockEc2Instance = null;
+
         try {
-            clazzOfEc2Instance = (Class<? extends MockEc2Instance>) Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME);
+            clazzOfMockEc2Instance = (Class<? extends MockEc2Instance>) Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME);
         } catch (ClassNotFoundException e) {
             throw new MockEc2InternalException("configured class '" + MOCK_EC2_INSTANCE_CLASS_NAME + "' not found", e);
         }
 
         List<MockEc2Instance> newInstances = null;
 
-        newInstances = mockEc2Controller.runInstances(clazzOfEc2Instance, imageId, instanceType, minCount, maxCount);
+        newInstances = mockEc2Controller
+                .runInstances(clazzOfMockEc2Instance, imageId, instanceType, minCount, maxCount);
 
         for (MockEc2Instance i : newInstances) {
-
             RunningInstancesItemType instItem = new RunningInstancesItemType();
-
             instItem.setInstanceId(i.getInstanceID());
             instItem.setImageId(i.getImageId());
             instItem.setInstanceType(i.getInstanceType().getName());
