@@ -54,7 +54,9 @@ public class AppServletContextListener implements ServletContextListener {
 
         if (persistenceEnabled) {
             MockEc2Instance[] instanceArray = (MockEc2Instance[]) PersistenceUtils.loadAll();
-            MockEc2Controller.getInstance().restoreAllMockEc2Instances(Arrays.asList(instanceArray));
+            if (null != instanceArray) {
+                MockEc2Controller.getInstance().restoreAllMockEc2Instances(Arrays.asList(instanceArray));
+            }
         }
     }
 
@@ -77,7 +79,7 @@ public class AppServletContextListener implements ServletContextListener {
                 instance.destroyInternalTimer();
             }
             // put all instances into an array which is serializable and type-cast safe for persistence
-            MockEc2Instance[] array = new MockEc2Instance[0];
+            MockEc2Instance[] array = new MockEc2Instance[instances.size()];
             instances.toArray(array);
             PersistenceUtils.saveAll(array);
         }
