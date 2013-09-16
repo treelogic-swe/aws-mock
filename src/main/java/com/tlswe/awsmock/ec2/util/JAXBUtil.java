@@ -78,7 +78,6 @@ public final class JAXBUtil {
      * @throws MockEc2InternalException
      *             in case of failing to marshall object to xml
      */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static String marshall(final Object obj, final String localPartQName, final String requestVersion)
             throws MockEc2InternalException {
 
@@ -92,9 +91,13 @@ public final class JAXBUtil {
              *  in case of jaxbMarshaller.marshal() is called concurrently
              */
             synchronized (jaxbMarshaller) {
-                jaxbMarshaller.marshal(new JAXBElement(new QName(
+                // jaxbMarshaller.marshal(new JAXBElement(new QName(
+                // PropertiesUtils.getProperty("xmlns.current"),
+                // localPartQName), obj.getClass(), obj), writer);
+
+                jaxbMarshaller.marshal(new JAXBElement<Object>(new QName(
                         PropertiesUtils.getProperty("xmlns.current"),
-                        localPartQName), obj.getClass(), obj), writer);
+                        localPartQName), Object.class, obj), writer);
             }
         } catch (JAXBException e) {
             String errMsg = "failed to marshall object to xml, localPartQName="
