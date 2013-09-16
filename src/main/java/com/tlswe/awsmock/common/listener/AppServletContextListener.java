@@ -14,18 +14,18 @@ import com.tlswe.awsmock.ec2.control.MockEc2Controller;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 
 /**
- * Listener that does initializing tasks on context started (e.g. load and restore persistent runtime object) and
- * finalizing on context destroyed (e.g. save runtime objects to persistence).
+ * A ServletContextListener that does initializing tasks on event that context started (e.g. load and restore persistent
+ * runtime object) and finalizing on event that context destroyed (e.g. save runtime objects to persistence).
  *
  * @author xma
  *
  */
-public class AppListener implements ServletContextListener {
+public class AppServletContextListener implements ServletContextListener {
 
     /**
      * Log writer for this class.
      */
-    private final Logger log = org.slf4j.LoggerFactory.getLogger(AppListener.class);
+    private final Logger log = org.slf4j.LoggerFactory.getLogger(AppServletContextListener.class);
 
     /**
      * Global switch for persistence.
@@ -37,7 +37,7 @@ public class AppListener implements ServletContextListener {
     /**
      * Default constructor.
      */
-    public AppListener() {
+    public AppServletContextListener() {
 
     }
 

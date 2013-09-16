@@ -13,7 +13,7 @@
         <welcome-file>default.jsp</welcome-file>
     </welcome-file-list>
     <listener>
-    	<listener-class>com.tlswe.awsmock.common.listener.AppListener</listener-class>
+    	<listener-class>com.tlswe.awsmock.common.listener.AppServletContextListener</listener-class>
     </listener>
     <servlet>
         <description></description>
