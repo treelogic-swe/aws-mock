@@ -374,7 +374,11 @@ public final class MockEC2QueryHandler {
         Class<? extends MockEc2Instance> clazzOfMockEc2Instance = null;
 
         try {
-            clazzOfMockEc2Instance = (Class<? extends MockEc2Instance>) Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME);
+            // clazzOfMockEc2Instance = (Class<? extends MockEc2Instance>) Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME);
+
+            clazzOfMockEc2Instance = (Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME)
+                    .asSubclass(MockEc2Instance.class));
+
         } catch (ClassNotFoundException e) {
             throw new MockEc2InternalException("configured class '" + MOCK_EC2_INSTANCE_CLASS_NAME + "' not found", e);
         }
