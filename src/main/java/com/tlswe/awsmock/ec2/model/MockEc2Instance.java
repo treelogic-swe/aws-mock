@@ -39,6 +39,16 @@ public class MockEc2Instance implements Serializable {
     private static final short INSTANCE_ID_POSTFIX_LENGTH = 7;
 
     /**
+     * Prefix for generated random public dnsname.
+     */
+    private static final String MOCK_PUBDNS_PREFIX = "mock-ec2-";
+
+    /**
+     * Postfix for generated random public dnsname.
+     */
+    private static final String MOCK_PUBDNS_POSTFIX = ".amazon.com";
+
+    /**
      * Enumeration of all allowed instance types.
      *
      * @author xma
@@ -490,9 +500,7 @@ public class MockEc2Instance implements Serializable {
                             }
 
                             // booted, assign a mock pub dns name
-                            pubDns = "mock-ec2-"
-                                    + UUID.randomUUID().toString()
-                                            .toLowerCase() + ".amazon.com";
+                            pubDns = generatePubDns();
 
                             booting = false;
 
@@ -671,6 +679,19 @@ public class MockEc2Instance implements Serializable {
         if (null != newSecurityGroups) {
             this.securityGroups = newSecurityGroups;
         }
+    }
+
+
+    /**
+     * Generate a random public dns name for a mock EC2 instance.
+     *
+     * @return a random public dns name
+     */
+    private static String generatePubDns() {
+
+        return MOCK_PUBDNS_PREFIX
+                + UUID.randomUUID().toString()
+                        .toLowerCase() + MOCK_PUBDNS_POSTFIX;
     }
 
 }
