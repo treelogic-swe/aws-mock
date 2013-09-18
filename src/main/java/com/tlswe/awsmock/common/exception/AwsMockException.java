@@ -6,7 +6,7 @@ package com.tlswe.awsmock.common.exception;
  * @author xma
  *
  */
-public class AwsMockException extends Exception {
+public class AwsMockException extends RuntimeException {
 
     /**
      * Default serial version ID for this class which implements. {@link java.io.Serializable}
@@ -15,12 +15,14 @@ public class AwsMockException extends Exception {
      */
     private static final long serialVersionUID = 1L;
 
+
     /**
-     *
-     */
+    *
+    */
     public AwsMockException() {
         super();
     }
+
 
     /**
      *
@@ -31,6 +33,7 @@ public class AwsMockException extends Exception {
         super(message);
     }
 
+
     /**
      *
      * @param message
@@ -40,6 +43,17 @@ public class AwsMockException extends Exception {
      */
     public AwsMockException(final String message, final Throwable cause) {
         super(message, cause);
+    }
+
+
+    /**
+     *
+     * @param cause
+     *            cause exception
+     */
+    public AwsMockException(final Throwable cause) {
+        super(cause);
+        // TODO Auto-generated constructor stub
     }
 
 }

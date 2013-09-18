@@ -8,8 +8,8 @@ import java.util.TimerTask;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 
 //import com.tlswe.awsmock.common.util.SerializedTimer;
 
@@ -107,6 +107,7 @@ public class MockEc2Instance implements Serializable {
          */
         private String name;
 
+
         /**
          * Private constructor for the enums of instance types defined above.
          *
@@ -118,6 +119,7 @@ public class MockEc2Instance implements Serializable {
             this.name = typeName;
         }
 
+
         /**
          * Get the instance type name.
          *
@@ -126,6 +128,7 @@ public class MockEc2Instance implements Serializable {
         public String getName() {
             return this.name;
         }
+
 
         /**
          * Tests if an instance type of the given name exists as among all the defined instance types.
@@ -143,6 +146,7 @@ public class MockEc2Instance implements Serializable {
             }
             return false;
         }
+
 
         /**
          * Get enum of an instance type of the given name exists as among all the defined instance types.
@@ -206,6 +210,7 @@ public class MockEc2Instance implements Serializable {
          */
         private String name;
 
+
         /**
          * Private constructor for the enums of instance states defined above.
          *
@@ -219,6 +224,7 @@ public class MockEc2Instance implements Serializable {
             this.name = stateName;
         }
 
+
         /**
          * Get the instance state code.
          *
@@ -227,6 +233,7 @@ public class MockEc2Instance implements Serializable {
         public int getCode() {
             return code;
         }
+
 
         /**
          * Get the instance state name.
@@ -255,12 +262,14 @@ public class MockEc2Instance implements Serializable {
          */
         private static final long serialVersionUID = 1L;
 
+
         /**
          * Constructor from superclass.
          */
         public SerializableTimer() {
             super();
         }
+
 
         /**
          * Constructor from superclass.
@@ -367,6 +376,7 @@ public class MockEc2Instance implements Serializable {
      */
     private SerializableTimer timer = null;
 
+
     /**
      * On constructing, an instance ID is assigned.
      */
@@ -378,6 +388,7 @@ public class MockEc2Instance implements Serializable {
         }
     }
 
+
     /**
      * Get ID of this mock ec2 instance.
      *
@@ -386,6 +397,7 @@ public class MockEc2Instance implements Serializable {
     public final String getInstanceID() {
         return instanceID;
     }
+
 
     /**
      * Test if this mock ec2 instance is during booting phase (pending).
@@ -396,6 +408,7 @@ public class MockEc2Instance implements Serializable {
         return booting;
     }
 
+
     /**
      * Test if this mock ec2 instance is running (started/power-on).
      *
@@ -404,6 +417,7 @@ public class MockEc2Instance implements Serializable {
     public final boolean isRunning() {
         return running;
     }
+
 
     /**
      * Get public DNS of this mock ec2 instance.
@@ -414,6 +428,7 @@ public class MockEc2Instance implements Serializable {
         return pubDns;
     }
 
+
     /**
      * Test if this mock ec2 instance is during stopping phase.
      *
@@ -423,6 +438,7 @@ public class MockEc2Instance implements Serializable {
         return stopping;
     }
 
+
     /**
      * Test if this mock ec2 instance is terminated.
      *
@@ -431,6 +447,7 @@ public class MockEc2Instance implements Serializable {
     public final boolean isTerminated() {
         return terminated;
     }
+
 
     /**
      * Start scheduling the internal timer that controls the behaviors and states of this mock ec2 instance.
@@ -448,65 +465,59 @@ public class MockEc2Instance implements Serializable {
                 @Override
                 public void run() {
 
-                    try {
+                    if (terminated) {
+                        running = false;
+                        booting = false;
+                        stopping = false;
 
-                        if (terminated) {
-                            running = false;
-                            booting = false;
-                            stopping = false;
+                        pubDns = null;
+                        this.cancel();
+                        return;
+                    }
 
-                            pubDns = null;
-                            this.cancel();
-                            return;
-                        }
+                    if (running) {
 
-                        if (running) {
+                        if (booting) {
 
-                            if (booting) {
-
-                                // delay a random 'boot time'
-                                try {
-                                    Thread.sleep(MIN_BOOT_TIME_MILLS
-                                            + random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
-                                } catch (InterruptedException e) {
-                                    throw new MockEc2InternalException(
-                                            "InterruptedException caught when delaying a mock random 'boot time'",
-                                            e);
-                                }
-
-                                // booted, assign a mock pub dns name
-                                pubDns = "mock-ec2-"
-                                        + UUID.randomUUID().toString()
-                                                .toLowerCase() + ".amazon.com";
-
-                                booting = false;
-
-                            } else if (stopping) {
-
-                                // delay a random 'shutdown time'
-                                try {
-                                    Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
-                                            + random.nextInt((int) (MAX_SHUTDOWN_TIME_MILLS
-                                                    - MIN_SHUTDOWN_TIME_MILLS)));
-                                } catch (InterruptedException e) {
-                                    throw new MockEc2InternalException(
-                                            "InterruptedException caught when delaying a mock random 'shutdown time'",
-                                            e);
-                                }
-
-                                // unset pub dns name
-                                pubDns = null;
-
-                                stopping = false;
-
-                                running = false;
-
+                            // delay a random 'boot time'
+                            try {
+                                Thread.sleep(MIN_BOOT_TIME_MILLS
+                                        + random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
+                            } catch (InterruptedException e) {
+                                throw new AwsMockException(
+                                        "InterruptedException caught when delaying a mock random 'boot time'",
+                                        e);
                             }
 
+                            // booted, assign a mock pub dns name
+                            pubDns = "mock-ec2-"
+                                    + UUID.randomUUID().toString()
+                                            .toLowerCase() + ".amazon.com";
+
+                            booting = false;
+
+                        } else if (stopping) {
+
+                            // delay a random 'shutdown time'
+                            try {
+                                Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
+                                        + random.nextInt((int) (MAX_SHUTDOWN_TIME_MILLS
+                                                - MIN_SHUTDOWN_TIME_MILLS)));
+                            } catch (InterruptedException e) {
+                                throw new AwsMockException(
+                                        "InterruptedException caught when delaying a mock random 'shutdown time'",
+                                        e);
+                            }
+
+                            // unset pub dns name
+                            pubDns = null;
+
+                            stopping = false;
+
+                            running = false;
+
                         }
 
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
                     }
 
                 }
@@ -515,9 +526,9 @@ public class MockEc2Instance implements Serializable {
             timer.schedule(internalTimerTask, 0L, TIMER_INTERVAL_MILLIS);
 
             internalTimerInitialized = true;
-
         }
     }
+
 
     /**
      * Cancel the internal timer of this mock ec2 instance so that it stops its lifecycle-emulation.
@@ -527,6 +538,7 @@ public class MockEc2Instance implements Serializable {
         timer = null;
         internalTimerInitialized = false;
     }
+
 
     /**
      * Start a stopped mock ec2 instance.
@@ -547,6 +559,7 @@ public class MockEc2Instance implements Serializable {
         }
     }
 
+
     /**
      * Stop this ec2 instance.
      *
@@ -564,6 +577,7 @@ public class MockEc2Instance implements Serializable {
 
     }
 
+
     /**
      * Terminate this ec2 instance.
      *
@@ -580,6 +594,7 @@ public class MockEc2Instance implements Serializable {
 
     }
 
+
     /**
      * Get state of this mock ec2 instance.
      *
@@ -593,6 +608,7 @@ public class MockEc2Instance implements Serializable {
                                         : InstanceState.STOPPED)));
     }
 
+
     /**
      * Get the AMI this mock ec2 instance started from.
      *
@@ -601,6 +617,7 @@ public class MockEc2Instance implements Serializable {
     public final String getImageId() {
         return imageId;
     }
+
 
     /**
      * Set the AMI this mock ec2 instance starts from.
@@ -612,6 +629,7 @@ public class MockEc2Instance implements Serializable {
         this.imageId = newImageID;
     }
 
+
     /**
      * Get type of this mock ec2 instance.
      *
@@ -620,6 +638,7 @@ public class MockEc2Instance implements Serializable {
     public final InstanceType getInstanceType() {
         return instanceType;
     }
+
 
     /**
      * Set type of this mock ec2 instance.
@@ -631,6 +650,7 @@ public class MockEc2Instance implements Serializable {
         this.instanceType = newInstanceType;
     }
 
+
     /**
      * Get the security groups used by this mock ec2 instance.
      *
@@ -639,6 +659,7 @@ public class MockEc2Instance implements Serializable {
     public final Set<String> getSecurityGroups() {
         return securityGroups;
     }
+
 
     /**
      * Get the security groups used by this mock ec2 instance.

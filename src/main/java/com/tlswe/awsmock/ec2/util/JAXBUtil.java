@@ -12,8 +12,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 
 /**
  * Utility class to build XML string as AWS response from java object, using the JAXB API, working with the stub classes
@@ -75,11 +75,8 @@ public final class JAXBUtil {
      * @param requestVersion
      *            the version of EC2 API used by client (aws-sdk, cmd-line tools or other third-party client tools)
      * @return xml representation bound to the given object
-     * @throws MockEc2InternalException
-     *             in case of failing to marshall object to xml
      */
-    public static String marshall(final Object obj, final String localPartQName, final String requestVersion)
-            throws MockEc2InternalException {
+    public static String marshall(final Object obj, final String localPartQName, final String requestVersion) {
 
         StringWriter writer = new StringWriter();
 
@@ -104,7 +101,7 @@ public final class JAXBUtil {
                     + localPartQName + ", requestVersion="
                     + requestVersion;
             log.error("{}, exception message: {}", errMsg, e.getMessage());
-            throw new MockEc2InternalException(errMsg, e);
+            throw new AwsMockException(errMsg, e);
         }
 
         String ret = writer.toString();

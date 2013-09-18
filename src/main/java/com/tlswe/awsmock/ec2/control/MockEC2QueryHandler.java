@@ -36,7 +36,6 @@ import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.TerminateInstancesResponseType;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
-import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 import com.tlswe.awsmock.ec2.servlet.MockEc2EndpointServlet;
 import com.tlswe.awsmock.ec2.util.JAXBUtil;
@@ -239,7 +238,7 @@ public final class MockEC2QueryHandler {
                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         responseXml = getXmlError("InvalidQuery",
                                 "invalid request for '" + action + "'. " + e.getMessage() + REF_EC2_QUERY_API_DESC);
-                    } catch (MockEc2InternalException e) {
+                    } catch (AwsMockException e) {
                         log.error("server error occured while processing '{}' request. {}", action, e.getMessage());
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         responseXml = getXmlError("InternalError", e.getMessage());
@@ -358,14 +357,9 @@ public final class MockEC2QueryHandler {
      * @param maxCount
      *            min count of instances to run
      * @return a RunInstancesResponse that includes all information for the started new mock ec2 instances
-     * @throws MockEc2InternalException
-     *             throws a wrapped exception in case a server side internal error occurs.
-     * @throws BadEc2RequestException
-     *             throws an exception in case of error parsing for a correct request conformed to EC2 QUERY API which
-     *             should be built by AWS client tool
      */
     private RunInstancesResponseType runInstances(final String imageId, final String instanceType,
-            final int minCount, final int maxCount) throws MockEc2InternalException, BadEc2RequestException {
+            final int minCount, final int maxCount) {
 
         RunInstancesResponseType ret = new RunInstancesResponseType();
 
@@ -380,7 +374,7 @@ public final class MockEC2QueryHandler {
                     .asSubclass(MockEc2Instance.class));
 
         } catch (ClassNotFoundException e) {
-            throw new MockEc2InternalException("configured class '" + MOCK_EC2_INSTANCE_CLASS_NAME + "' not found", e);
+            throw new AwsMockException("badly configured class '" + MOCK_EC2_INSTANCE_CLASS_NAME + "' not found", e);
         }
 
         List<MockEc2Instance> newInstances = null;

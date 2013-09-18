@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateChangeType;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateType;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
-import com.tlswe.awsmock.ec2.exception.MockEc2InternalException;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance;
 import com.tlswe.awsmock.ec2.model.MockEc2Instance.InstanceType;
 
@@ -109,33 +109,36 @@ public final class MockEc2Controller {
      * @param maxCount
      *            min count of instances to run (should larger than 0)
      * @return a list of objects of clazz as started new mock ec2 instances
-     * @throws MockEc2InternalException
-     *             throws a wrapped exception in case a server side internal error occurs.
-     * @throws BadEc2RequestException
-     *             throws an exception in case of error parsing for a correct request conformed to EC2 QUERY API which
-     *             should be built by AWS client tool
+     *
      */
     public <T extends MockEc2Instance> List<T> runInstances(final Class<? extends T> clazz,
             final String imageId, final String instanceTypeName,
-            /* Set<String> securityGroups, */final int minCount, final int maxCount) throws BadEc2RequestException,
-            MockEc2InternalException {
+            final int minCount, final int maxCount) {
 
+        // EC2 Query Request action name
+        final String action = "runInstances";
+
+        /*-
+         * throws an exception in case of error parsing for a correct request conformed to EC2 QUERY API which
+         *             should be built by AWS client tool correctly
+         */
         InstanceType instanceType = InstanceType.getByName(instanceTypeName);
         if (null == instanceType) {
-            throw new BadEc2RequestException("illegal instance type: " + instanceTypeName);
+            throw new BadEc2RequestException(action, "illegal instance type: " + instanceTypeName);
         }
 
         if (maxCount > MAX_RUN_INSTANCE_COUNT_AT_A_TIME) {
-            throw new BadEc2RequestException("you can not request to run more than " + MAX_RUN_INSTANCE_COUNT_AT_A_TIME
+            throw new BadEc2RequestException(action, "you can not request to run more than "
+                    + MAX_RUN_INSTANCE_COUNT_AT_A_TIME
                     + " instances at a time!");
         }
 
         if (minCount < 1) {
-            throw new BadEc2RequestException("you should request to run at least 1 instance!");
+            throw new BadEc2RequestException(action, "you should request to run at least 1 instance!");
         }
 
         if (minCount > maxCount) {
-            throw new BadEc2RequestException("minCount should not be greater than maxCount!");
+            throw new BadEc2RequestException(action, "minCount should not be greater than maxCount!");
         }
 
         List<T> ret = new ArrayList<T>();
@@ -149,11 +152,11 @@ public final class MockEc2Controller {
             try {
                 inst = clazz.newInstance();
             } catch (InstantiationException e) {
-                throw new MockEc2InternalException("failed to instantiate class " + clazz.getName()
+                throw new AwsMockException("failed to instantiate class " + clazz.getName()
                         + ", please make sure sure this class extends com.tlswe.awsmock.ec2.model.MockEc2Instance "
                         + "and has a public constructor with no parameters. ", e);
             } catch (IllegalAccessException e) {
-                throw new MockEc2InternalException("failed to access constructor of " + clazz.getName()
+                throw new AwsMockException("failed to access constructor of " + clazz.getName()
                         + ", please make sure the constructor with no parameters is public. ", e);
             }
             inst.setImageId(imageId);
