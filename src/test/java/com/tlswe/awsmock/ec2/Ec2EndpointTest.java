@@ -168,7 +168,7 @@ public class Ec2EndpointTest extends BaseTest {
         log.info("Start thousands of instances test");
 
         final int startCount = 1000;
-        final int maxRandomCount = 9000;
+        final int maxRandomCount = 4000;
         // random 1000 to 9999 instances
         int count = startCount + new Random().nextInt(maxRandomCount);
 
