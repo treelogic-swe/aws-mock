@@ -16,7 +16,11 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 /**
- * Utilities that writes/gets string output from FreeMarker (http://freemarker.org/) templates.
+ * Utilities that writes/gets string output from FreeMarker (http://freemarker.org/) templates. All templates are
+ * located under a folder named "templates" in the root folder which is relative to where this class is in the
+ * classpath. In case of any errors during processing such as {@link TemplateException} or {@link FileNotFoundException}
+ * (missing template), an {@link AwsMockException} wrapping the original exception will be raised.
+ *
  *
  * @author xma
  *
@@ -54,22 +58,21 @@ public final class TemplateUtils {
 
 
     /**
-     * Generate result from given template and data and print to writer.
+     * Process with given template + data and then put result to writer.
      *
      * @param templateFilename
      *            filename of the .ftl file
      * @param data
-     *            data to fill in the template, as key-values
+     *            data to fill in the template, as pairs of key-values
      * @param writer
      *            target writer to print the result
      */
-    public static void write(final String templateFilename, final Map<String, Object> data, final Writer writer)
-    {
-
+    public static void write(final String templateFilename, final Map<String, Object> data, final Writer writer) {
         Template tmpl = null;
         try {
-            // note that we don't need to cache templates by ourselves since
-            // getTemplate() does that internally already
+            /*-
+             * note that we don't need to cache templates by ourselves since getTemplate() does that internally already
+             */
             tmpl = conf.getTemplate(templateFilename);
         } catch (FileNotFoundException e1) {
             String errMsg = "FileNotFoundException: template file '" + templateFilename + "' not found";
@@ -106,12 +109,12 @@ public final class TemplateUtils {
 
 
     /**
-     * Generate result from given template and data and get it as a string.
+     * Process with given template + data and get result as a string.
      *
      * @param templateName
      *            filename of the .ftl file
      * @param data
-     *            data to fill in the template, as key-values
+     *            data to fill in the template, as pairs of key-values
      * @return processed result from template and data
      */
     public static String get(final String templateName, final Map<String, Object> data) {
