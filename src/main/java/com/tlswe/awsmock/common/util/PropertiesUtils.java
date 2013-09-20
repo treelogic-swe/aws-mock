@@ -1,5 +1,6 @@
 package com.tlswe.awsmock.common.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
@@ -37,11 +38,15 @@ public final class PropertiesUtils {
 
     static {
         try {
-            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream("aws-mock.properties"));
-        } catch (IOException e) {
-            log.error("fail to load 'aws-mock.properties' - {}", e.getMessage());
+            properties.load(Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream(Constants.FILE_NAME_AWS_MOCK_PROPERTIES));
+        } catch (FileNotFoundException e1) {
+            log.error("properties file '{}' not found: {}", Constants.FILE_NAME_AWS_MOCK_PROPERTIES, e1.getMessage());
+        } catch (IOException e2) {
+            log.error("fail to load '{}' - {}", Constants.FILE_NAME_AWS_MOCK_PROPERTIES, e2.getMessage());
         }
     }
+
 
     /**
      * Get property value by name.
@@ -53,6 +58,7 @@ public final class PropertiesUtils {
     public static String getProperty(final String propertyName) {
         return properties.getProperty(propertyName);
     }
+
 
     /**
      * Get a set of properties those share the same given name prefix.

@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tlswe.awsmock.common.exception.AwsMockException;
+import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.common.util.TemplateUtils;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
@@ -67,7 +68,8 @@ public final class MockEC2QueryHandler {
     /**
      * Class for all mock ec2 instances, which should extend {@link MockEc2Instance}.
      */
-    private static final String MOCK_EC2_INSTANCE_CLASS_NAME = PropertiesUtils.getProperty("ec2.instance.class");
+    private static final String MOCK_EC2_INSTANCE_CLASS_NAME = PropertiesUtils
+            .getProperty(Constants.PROP_NAME_EC2_INSTANCE_CLASS);
 
     /**
      * Default placement for this aws-mock, defined in aws-mock.properties.
@@ -97,7 +99,7 @@ public final class MockEC2QueryHandler {
     private final MockEc2Controller mockEc2Controller = MockEc2Controller.getInstance();
 
     static {
-        DEFAULT_MOCK_PLACEMENT.setAvailabilityZone(PropertiesUtils.getProperty("ec2.placement"));
+        DEFAULT_MOCK_PLACEMENT.setAvailabilityZone(PropertiesUtils.getProperty(Constants.PROP_NAME_EC2_PLACEMENT));
         MOCK_AMIS.addAll(PropertiesUtils.getPropertiesByPrefix("predefined.mock.ami."));
     }
 
@@ -314,9 +316,6 @@ public final class MockEC2QueryHandler {
                 RunningInstancesItemType instItem = new RunningInstancesItemType();
                 instItem.setInstanceId(instance.getInstanceID());
 
-                // PlacementResponseType placement = new
-                // PlacementResponseType();
-                // placement.setAvailabilityZone(PropertiesUtils.getProperty("ec2.placement"));
                 instItem.setPlacement(DEFAULT_MOCK_PLACEMENT);
 
                 InstanceStateType st = new InstanceStateType();

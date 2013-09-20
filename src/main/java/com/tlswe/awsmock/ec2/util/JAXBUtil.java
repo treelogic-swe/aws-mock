@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.tlswe.awsmock.common.exception.AwsMockException;
+import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 
 /**
@@ -39,11 +40,16 @@ public final class JAXBUtil {
      */
     private static Marshaller jaxbMarshaller = null;
 
+    /**
+     * Package name for the generated CXF Java stub on which JAXBContext works.
+     */
+    private static final String CXF_STUB_PACKAGE_NAME = "com.tlswe.awsmock.ec2.cxf_generated";
+
     static {
         try {
 
             jaxbContext = JAXBContext
-                    .newInstance("com.tlswe.awsmock.ec2.cxf_generated");
+                    .newInstance(CXF_STUB_PACKAGE_NAME);
             jaxbMarshaller = jaxbContext.createMarshaller();
 
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
@@ -88,12 +94,9 @@ public final class JAXBUtil {
              *  in case of jaxbMarshaller.marshal() is called concurrently
              */
             synchronized (jaxbMarshaller) {
-                // jaxbMarshaller.marshal(new JAXBElement(new QName(
-                // PropertiesUtils.getProperty("xmlns.current"),
-                // localPartQName), obj.getClass(), obj), writer);
 
                 jaxbMarshaller.marshal(new JAXBElement<Object>(new QName(
-                        PropertiesUtils.getProperty("xmlns.current"),
+                        PropertiesUtils.getProperty(Constants.PROP_NAME_XMLNS_CURRENT),
                         localPartQName), Object.class, obj), writer);
             }
         } catch (JAXBException e) {
@@ -110,15 +113,15 @@ public final class JAXBUtil {
          * to match the version of elasticfox so that it could successfully accept the xml as reponse.
          */
         if ("true".equalsIgnoreCase(PropertiesUtils
-                .getProperty("elasticfox.compatible"))
+                .getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE))
                 && null != requestVersion
                 && requestVersion.equals(PropertiesUtils
-                        .getProperty("ec2.api.version.elasticfox"))) {
+                        .getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX))) {
             ret = StringUtils
                     .replaceOnce(ret, PropertiesUtils
-                            .getProperty("ec2.api.version.current.impl"),
+                            .getProperty(Constants.PROP_NAME_EC2_API_VERSION_CURRENT_IMPL),
                             PropertiesUtils
-                                    .getProperty("ec2.api.version.elasticfox"));
+                                    .getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX));
         }
 
         return ret;

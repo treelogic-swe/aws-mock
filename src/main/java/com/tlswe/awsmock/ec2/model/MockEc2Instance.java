@@ -9,6 +9,7 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 import com.tlswe.awsmock.common.exception.AwsMockException;
+import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 
 //import com.tlswe.awsmock.common.util.SerializedTimer;
@@ -308,28 +309,28 @@ public class MockEc2Instance implements Serializable {
      */
     protected static final long MIN_BOOT_TIME_MILLS = Integer
             .parseInt(PropertiesUtils
-                    .getProperty("instance.min.boot.time.seconds")) * 1000L;
+                    .getProperty(Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS)) * 1000L;
 
     /**
      * Maximum boot time.
      */
     protected static final long MAX_BOOT_TIME_MILLS = Integer
             .parseInt(PropertiesUtils
-                    .getProperty("instance.max.boot.time.seconds")) * 1000L;
+                    .getProperty(Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS)) * 1000L;
 
     /**
      * Minimal shutdown time.
      */
     protected static final long MIN_SHUTDOWN_TIME_MILLS = Integer
             .parseInt(PropertiesUtils
-                    .getProperty("instance.min.shutdown.time.seconds")) * 1000L;
+                    .getProperty(Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME_SECONDS)) * 1000L;
 
     /**
      * maximum shutdown time.
      */
     protected static final long MAX_SHUTDOWN_TIME_MILLS = Integer
             .parseInt(PropertiesUtils
-                    .getProperty("instance.max.shutdown.time.seconds")) * 1000L;
+                    .getProperty(Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS)) * 1000L;
 
     /**
      * instance ID, randomly assigned on creating.

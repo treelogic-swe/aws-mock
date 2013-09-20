@@ -8,6 +8,7 @@ import javax.servlet.ServletContextListener;
 
 import org.slf4j.Logger;
 
+import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PersistenceUtils;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.ec2.control.MockEc2Controller;
@@ -31,7 +32,7 @@ public class AppServletContextListener implements ServletContextListener {
      * Global switch for persistence.
      */
     private static boolean persistenceEnabled = Boolean
-            .parseBoolean(PropertiesUtils.getProperty("persistence.enabled"));
+            .parseBoolean(PropertiesUtils.getProperty(Constants.PROP_NAME_PERSISTENCE_ENABLED));
 
 
     /**

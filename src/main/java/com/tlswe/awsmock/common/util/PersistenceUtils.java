@@ -34,7 +34,9 @@ public final class PersistenceUtils {
     /**
      * The persistent file path for saving object.
      */
-    private static String persistenceStoreFile = PropertiesUtils.getProperty("persistence.store.file");
+    private static String persistenceStoreFile = PropertiesUtils
+            .getProperty(Constants.PROP_NAME_PERSISTENCE_STORE_FILE);
+
 
     /**
      * Save object to the binary file defined as filename in property "persistence.store.file".
@@ -67,6 +69,7 @@ public final class PersistenceUtils {
         }
 
     }
+
 
     /**
      * Load object from the binary file defined as filename in property.

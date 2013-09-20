@@ -1,5 +1,6 @@
 package com.tlswe.awsmock.common.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -15,19 +16,12 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 /**
- * Utilities that writes/gets string output from FreeMarker templates.
+ * Utilities that writes/gets string output from FreeMarker (http://freemarker.org/) templates.
  *
  * @author xma
  *
  */
 public final class TemplateUtils {
-
-    /**
-     * Constructor is made private as this is a utility class which should be always used in static way.
-     */
-    private TemplateUtils() {
-
-    }
 
     /**
      * Log writer for this class.
@@ -39,11 +33,25 @@ public final class TemplateUtils {
      */
     private static Configuration conf = new Configuration();
 
+    /**
+     * Path for the folder relative to this class under which we store and load the freemarker templates.
+     */
+    private static final String PATH_FOR_TEMPLATES = "/templates";
+
     // tell FreeMarker where to load templates - from folder "templates", in
     // classpath
     static {
-        conf.setClassForTemplateLoading(TemplateUtils.class, "/templates");
+        conf.setClassForTemplateLoading(TemplateUtils.class, PATH_FOR_TEMPLATES);
     }
+
+
+    /**
+     * Constructor is made private as this is a utility class which should be always used in static way.
+     */
+    private TemplateUtils() {
+
+    }
+
 
     /**
      * Generate result from given template and data and print to writer.
@@ -54,17 +62,19 @@ public final class TemplateUtils {
      *            data to fill in the template, as key-values
      * @param writer
      *            target writer to print the result
-     * @throws AwsMockException
-     *             a wrapped exception will be thrown in case of any thing wrong during writing from template
      */
     public static void write(final String templateFilename, final Map<String, Object> data, final Writer writer)
-            throws AwsMockException {
+    {
 
         Template tmpl = null;
         try {
             // note that we don't need to cache templates by ourselves since
             // getTemplate() does that internally already
             tmpl = conf.getTemplate(templateFilename);
+        } catch (FileNotFoundException e1) {
+            String errMsg = "FileNotFoundException: template file '" + templateFilename + "' not found";
+            log.error("{}: {}", errMsg, e1.getMessage());
+            throw new AwsMockException(errMsg, e1);
         } catch (IOException e) {
             String errMsg = "IOException: failed to getTemplate (filename is " + templateFilename + ")";
             log.error("{}: {}", errMsg, e.getMessage());
@@ -87,12 +97,13 @@ public final class TemplateUtils {
             log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         } catch (IOException e) {
-            String errMsg = "IOException: failed to process and write to writer. ";
+            String errMsg = "IOException: failed to process template and write to writer. ";
             log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         }
 
     }
+
 
     /**
      * Generate result from given template and data and get it as a string.
@@ -102,10 +113,8 @@ public final class TemplateUtils {
      * @param data
      *            data to fill in the template, as key-values
      * @return processed result from template and data
-     * @throws AwsMockException
-     *             a wrapped exception will be thrown in case of any thing wrong during generating string from template
      */
-    public static String get(final String templateName, final Map<String, Object> data) throws AwsMockException {
+    public static String get(final String templateName, final Map<String, Object> data) {
         StringWriter writer = new StringWriter();
         write(templateName, data, writer);
         return writer.toString();
