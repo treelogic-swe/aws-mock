@@ -1,1 +1,104 @@
-github page for aws-mock.
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Slate is a responsive theme for GitHub Pages" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>aws-mock : A lightweight Java-based mock of essential AWS services</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/treelogic-swe/aws-mock/">View on GitHub</a>
+
+          <h1 id="project_title">aws-mock</h1>
+          <h2 id="project_tagline">A lightweight Java-based mock of essential AWS services, for test automation.</h2>
+
+          <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/treelogic-swe/aws-mock/tarball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/treelogic-swe/aws-mock/zipball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p>A lightweight, very modular Java-based mock of essential <a href="http://aws.amazon.com/">AWS services</a>, works with official aws-sdk, api-tools, or third-party tools, generally for test automation.</p>
+
+		<p>For now we have implemented only a few interfaces (and only necessary data in response) of Amazon EC2: </p>
+
+		<ul>
+		<li>describeImages</li>
+		<li>runInstances</li>
+		<li>stopInstances</li>
+		<li>startInstances</li>
+		<li>terminateInstances</li>
+		<li>describeInstances</li>
+		</ul>
+		<p>This mock of EC2 could be helpful for testing your applications. aws-mock can manage a large amount of mock EC2 instances. </p>
+		<h3>
+		<a name="how-it-works" class="anchor" href="#how-it-works"><span class="octicon octicon-link"></span></a>How It Works</h3>
+
+		<p>aws-mock works totally as a servlet web application, conforming to the protocols described in the WSDL defined by AWS. 
+		Basically, take our mock "ec2-endpoint" as an example. It processes <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html">Query Requests</a> built by your client (such as AWS-SDK or EC2-API-Tools) and manages the internal mock EC2 instances as emulation of the lifecycle of those in genuine EC2 (pending-&gt;running, stopping-&gt;stopped, terminated, etc), and returns xml result body in responses which is recognized by your client.<br>
+		Note again that only limited EC2 interfaces mentioned have been implemented. And only essential fields of data are filled in the response body. </p>
+
+		<h3>
+		<a name="quick-start" class="anchor" href="#quick-start"><span class="octicon octicon-link"></span></a>Quick Start</h3>
+
+		<pre><code>git clone https://github.com/treelogic-swe/aws-mock.git
+cd aws-mock
+gradle jettyRun
+</code></pre>
+
+		<p>That's all. </p>
+
+		<p>Necessary stuff will be all automatically built with dependencies downloaded and a jetty server will be started running aws-mock locally on your computer. </p>
+
+		<p>Now you are able to interact with your "local Amazon Web Services" (though only EC2 for now). 
+		In your own client applications which use <a href="http://aws.amazon.com/tools/">AWS-SDK</a>, or with <a href="http://aws.amazon.com/developertools/Amazon-EC2/351">EC2-API-TOOLS</a>, or with other third-party client tools such as elasticfox. To manage instances on mock EC2, just point to the custom EC2 endpoint like:
+		<code>http://localhost:8000/aws-mock/ec2-endpoint/</code> (equivalent to the official endpoint url like <code>https://ec2.us-west-1.amazonaws.com/</code>)</p>
+
+		<p>For detailed specification and usage reference for those interfaces already available in aws-mock, here is a list of <a href="https://github.com/treelogic-swe/aws-mock/wiki/Implemented-Requests-and-Responses">Implemented Requests and Responses</a>.</p>
+
+		<h3>
+		<a name="javadoc" class="anchor" href="#javadoc"><span class="octicon octicon-link"></span></a>Javadoc</h3>
+
+		<p><a href="http://treelogic-swe.github.io/aws-mock/javadoc/">http://treelogic-swe.github.io/aws-mock/javadoc/</a></p>
+
+		<h3>
+		<a name="tips" class="anchor" href="#tips"><span class="octicon octicon-link"></span></a>Tips</h3>
+
+		<ul>
+		<li>To build war for deployment, run <code>gradle war</code>. </li>
+		<li>Initially there is no mock instances in mock EC2, so you need to run a few new instances first. </li>
+		<li>Your client doesn't need to provide valid credentials since aws-mock skips the secretKey/accessKey check. </li>
+		<li>There are a few options in <code>src/main/resources/aws-mock.properties</code> to tune. </li>
+		<li>For eclipse users, <code>gradle cleanEclipse eclipse</code> can initialize the ready-to-import eclipse wtp project facets. </li>
+		</ul><h3>
+		<a name="your-contribution" class="anchor" href="#your-contribution"><span class="octicon octicon-link"></span></a>Your Contribution</h3>
+
+		<p>Any contribution to aws-mock is strongly welcomed - including any adding of the unimplemented interfaces/data of EC2 and other mock of Amazon Web Services. 
+		If you find aws-mock helpful working with your applications and have features added, we encourage you fork and send your pull requests to us! 
+		Bug report is also well appreciated. Thanks for your participation in advance. </p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Slate theme maintained by <a href="https://github.com/jsncostello">Jason Costello</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+  </body>
+</html>
