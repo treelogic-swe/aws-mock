@@ -45,7 +45,7 @@ import com.tlswe.awsmock.ec2.util.JAXBUtil;
  * Class that handlers requests of AWS Query API for managing mock ec2 instances. This class works between
  * {@link MockEc2Controller} and {@link MockEc2EndpointServlet}. <br>
  * All object of mock ec2 instances are of the same type which is defined as property of "ec2.instance.class" in
- * aws-mock.properties.
+ * aws-mock.properties (or if not overridden, as the default value defined in aws-mock-default.properties).
  *
  * @see MockEc2Controller
  * @see MockEc2EndpointServlet
@@ -72,7 +72,8 @@ public final class MockEC2QueryHandler {
             .getProperty(Constants.PROP_NAME_EC2_INSTANCE_CLASS);
 
     /**
-     * Default placement for this aws-mock, defined in aws-mock.properties.
+     * Default placement for this aws-mock, defined in aws-mock.properties (or if not overridden, as defined in
+     * aws-mock-default.properties).
      */
     private static final PlacementResponseType DEFAULT_MOCK_PLACEMENT = new PlacementResponseType();
 
@@ -88,8 +89,9 @@ public final class MockEC2QueryHandler {
             + "/using-query-api.html for building a valid query.";
 
     /**
-     * Predefined AMIs, as properties of predefined.mock.ami.X in aws-mock.properties. We use {@link TreeSet} here so
-     * that those AMIs are loaded and displayed (described) in the same order the are defined in aws-mock.properties.
+     * Predefined AMIs, as properties of predefined.mock.ami.X in aws-mock.properties (or if not overridden, as defined
+     * in aws-mock-default.properties). We use {@link TreeSet} here so that those AMIs are loaded and displayed
+     * (described) in the same order the are defined in the .properties file.
      */
     private static final Set<String> MOCK_AMIS = new TreeSet<String>();
 
@@ -459,7 +461,8 @@ public final class MockEC2QueryHandler {
     /**
      * Handles "describeImages" request, as simple as without any filters to use.
      *
-     * @return a DescribeImagesResponse with our predefined AMIs in aws-mock.properties
+     * @return a DescribeImagesResponse with our predefined AMIs in aws-mock.properties (or if not overridden, as
+     *         defined in aws-mock-default.properties)
      */
     private DescribeImagesResponseType describeImages() {
         DescribeImagesResponseType ret = new DescribeImagesResponseType();

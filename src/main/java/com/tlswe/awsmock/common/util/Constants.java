@@ -9,11 +9,6 @@ package com.tlswe.awsmock.common.util;
 public interface Constants {
 
     /**
-     * Filename for aws-mock.properties.
-     */
-    String FILE_NAME_AWS_MOCK_PROPERTIES = "aws-mock.properties";
-
-    /**
      * Property name for the switch that indicates whether persistence for runtime objects in aws-mock is enabled or
      * not.
      */

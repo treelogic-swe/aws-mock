@@ -17,10 +17,10 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
 /**
  * Generic implementation of mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances.
  * Any extra implementation of more customized ec2 mock instances with is system should extend this class and be defined
- * as "ec2.instance.class" in aws-mock.properties. <br>
- * To simulate actual ec2 instances, we have an internal timer in each object of mock ec2 instance that continuously
- * check and set the states of it, within the life cycle of start-pending-running-stopping-stopped-terminated for a
- * single ec2 instance, and with random time deviations (e.g. random boot/shutdown time within predefined values).
+ * as "ec2.instance.class" in aws-mock.properties (or if not overridden, as defined in aws-mock-default.properties). To
+ * simulate actual ec2 instances, we have an internal timer in each object of mock ec2 instance that continuously check
+ * and set the states of it, within the life cycle of start-pending-running-stopping-stopped-terminated for a single ec2
+ * instance, and with random time deviations (e.g. random boot/shutdown time within predefined values).
  *
  * @author xma
  *
