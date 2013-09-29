@@ -43,7 +43,7 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 
 ### Tips
 - To build war for deployment, run `gradle war`. 
-- Initially there is no mock instances in mock EC2, so you need to run a few new instances first. 
+- Initially there are no mock instances in mock EC2, so you need to run a few new instances first. 
 - Your client doesn't need to provide valid credentials since aws-mock skips the secretKey/accessKey check. 
 - There are a few options in `src/main/resources/aws-mock.properties` to tune. 
 - For eclipse users, `gradle cleanEclipse eclipse` can initialize the ready-to-import eclipse wtp project facets. 
