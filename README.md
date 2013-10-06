@@ -1,7 +1,7 @@
 aws-mock [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
 ========
 
-A lightweight, very modular Java-based mock of essential [AWS services](http://aws.amazon.com/), works with official aws-sdk, api-tools, or third-party tools, generally for test automation.
+A lightweight, very modular Java-based mock of essential [AWS services](http://aws.amazon.com/) that works with official aws-sdk, api-tools, or third-party tools, generally for test automation.
 
 For now we have implemented only a few interfaces (and only necessary data in response) of Amazon EC2: 
 - describeImages
@@ -28,7 +28,7 @@ gradle jettyRun
 ```
 That's all. 
 
-Necessary stuff will be all automatically built with dependencies downloaded and a jetty server will be started running aws-mock locally on your computer. 
+Necessary stuff will be all automatically built with dependencies downloaded, and a jetty server will be started that runs aws-mock locally on your computer. 
 
 Now you are able to interact with your "local Amazon Web Services" (though only EC2 for now). 
 In your own client applications which use [AWS-SDK](http://aws.amazon.com/tools/), or with [EC2-API-TOOLS](http://aws.amazon.com/developertools/Amazon-EC2/351), or with other third-party client tools such as elasticfox. To manage instances on mock EC2, just point to the custom EC2 endpoint like:
