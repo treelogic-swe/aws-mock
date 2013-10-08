@@ -11,7 +11,7 @@ For now we have implemented only a few interfaces (and only necessary data in re
 - terminateInstances
 - describeInstances
 
-This mock of EC2 could be helpful for testing your applications. aws-mock can manage a large amount of mock EC2 instances. 
+This mock of EC2 could be helpful for testing your applications. 'aws-mock' can manage a large amount of mock EC2 instances. 
 
 
 ### How It Works
