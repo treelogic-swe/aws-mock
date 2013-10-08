@@ -52,4 +52,4 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 ### Your Contribution
 Any contribution to aws-mock is strongly welcomed - including any adding of the unimplemented interfaces/data of EC2 and other mock of Amazon Web Services. 
 If you find aws-mock helpful working with your applications and have features added, we encourage you fork and send your pull requests to us! 
-Bug report is also well appreciated. Thanks for your participation in advance. 
+Bug reports are also very much appreciated.
