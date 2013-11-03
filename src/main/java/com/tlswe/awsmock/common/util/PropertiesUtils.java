@@ -73,7 +73,7 @@ public final class PropertiesUtils {
                 .getResourceAsStream(FILE_NAME_AWS_MOCK_PROPERTIES);
         if (null == inputStream) {
             log.warn(
-                    "properties file '{}' not found in classpath, no default property in '{}' will be overriden",
+                    "properties file '{}' not found in classpath, no default property in '{}' will be overridden",
                     FILE_NAME_AWS_MOCK_PROPERTIES, FILE_NAME_AWS_MOCK_DEFAULT_PROPERTIES);
         } else {
             try {
