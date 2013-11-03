@@ -688,7 +688,7 @@ public class MockEc2Instance implements Serializable {
      *
      * @return a random public dns name
      */
-    private static String generatePubDns() {
+    private String generatePubDns() {
 
         return MOCK_PUBDNS_PREFIX
                 + UUID.randomUUID().toString()
