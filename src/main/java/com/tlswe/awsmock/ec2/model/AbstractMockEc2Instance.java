@@ -15,8 +15,8 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
 //import com.tlswe.awsmock.common.util.SerializedTimer;
 
 /**
- * Generic implementation of mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances.
- * Any extra implementation of more customized ec2 mock instances with is system should extend this class and be defined
+ * Generic class for mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances' life cycle.
+ * Any extra implementation of more customized ec2 mock instances should extend this class (and override the events) and be defined
  * as "ec2.instance.class" in aws-mock.properties (or if not overridden, as defined in aws-mock-default.properties). To
  * simulate actual ec2 instances, we have an internal timer in each object of mock ec2 instance that continuously check
  * and set the states of it, within the life cycle of start-pending-running-stopping-stopped-terminated for a single ec2
@@ -25,7 +25,7 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
  * @author xma
  *
  */
-public class MockEc2Instance implements Serializable {
+public abstract class AbstractMockEc2Instance implements Serializable {
 
     /**
      * Default serial version ID for this class which implements. {@link Serializable}.
@@ -37,17 +37,17 @@ public class MockEc2Instance implements Serializable {
     /**
      * Length of generated postfix of instance ID.
      */
-    private static final short INSTANCE_ID_POSTFIX_LENGTH = 7;
+    protected static final short INSTANCE_ID_POSTFIX_LENGTH = 7;
 
     /**
      * Prefix for generated random public dnsname.
      */
-    private static final String MOCK_PUBDNS_PREFIX = "mock-ec2-";
+    protected static final String MOCK_PUBDNS_PREFIX = "mock-ec2-";
 
     /**
      * Postfix for generated random public dnsname.
      */
-    private static final String MOCK_PUBDNS_POSTFIX = ".amazon.com";
+    protected static final String MOCK_PUBDNS_POSTFIX = ".amazon.com";
 
     /**
      * Enumeration of all allowed instance types.
@@ -258,8 +258,8 @@ public class MockEc2Instance implements Serializable {
     }
 
     /**
-     * We define {@link Serializable} {@link Timer} here because all members in {@link MockEc2Instance} need to be save
-     * to binary file as for persistence.
+     * We define {@link Serializable} {@link Timer} here because all members in {@link AbstractMockEc2Instance} need to
+     * be save to binary file as for persistence.
      *
      * @author xma
      *
@@ -297,7 +297,7 @@ public class MockEc2Instance implements Serializable {
     /**
      * Interval for the internal timer thread that triggered for state chacking and changing - we set it for 10 seconds.
      */
-    protected static final int TIMER_INTERVAL_MILLIS = 10 * 1000;
+    public static final int TIMER_INTERVAL_MILLIS = 10 * 1000;
 
     /**
      * Utility random object for getting random numbers.
@@ -307,7 +307,7 @@ public class MockEc2Instance implements Serializable {
     /**
      * Minimal boot time.
      */
-    protected static final long MIN_BOOT_TIME_MILLS = Integer
+    public static final long MIN_BOOT_TIME_MILLS = Integer
             .parseInt(PropertiesUtils
                     .getProperty(Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS)) * 1000L;
 
@@ -335,63 +335,63 @@ public class MockEc2Instance implements Serializable {
     /**
      * instance ID, randomly assigned on creating.
      */
-    private String instanceID = null;
+    protected String instanceID = null;
 
     /**
      * AMI for this ec2 instance.
      */
-    private String imageId = null;
+    protected String imageId = null;
 
     /**
      * Instance type, by default is "m1.small".
      */
-    private InstanceType instanceType = InstanceType.M1_SMALL;
+    protected InstanceType instanceType = InstanceType.M1_SMALL;
 
     /**
      * Security groups for this ec2 instance.
      */
-    private Set<String> securityGroups = new TreeSet<String>();
+    protected Set<String> securityGroups = new TreeSet<String>();
 
     /**
      * Flag that indicates whether internal timer of this mock ec2 instance has been started (on instance start()).
      */
-    private boolean internalTimerInitialized = false;
+    protected boolean internalTimerInitialized = false;
 
     /**
      * Flag that indicates whether this is ec2 instance is booting (pending).
      */
-    private boolean booting = false;
+    protected boolean booting = false;
 
     /**
      * Flag that indicates whether this is ec2 instance is running (started).
      */
-    private boolean running = false;
+    protected boolean running = false;
 
     /**
      * Flag that indicates whether this is ec2 instance is stopping (shutting-down).
      */
-    private boolean stopping = false;
+    protected boolean stopping = false;
 
     /**
      * Flag that indicates whether this is ec2 instance is terminated.
      */
-    private boolean terminated = false;
+    protected boolean terminated = false;
 
     /**
      * Randomly assigned public dns name for this ec2 instance (dns name is assigned each time instance is started).
      */
-    private String pubDns = null;
+    protected String pubDns = null;
 
     /**
      * Internal timer for simulating the behaviors and states of this mock ec2 instance.
      */
-    private SerializableTimer timer = null;
+    protected SerializableTimer timer = null;
 
 
     /**
      * On constructing, an instance ID is assigned.
      */
-    public MockEc2Instance() {
+    public AbstractMockEc2Instance() {
         if (null == this.instanceID) {
             this.instanceID = "i-"
                     + UUID.randomUUID().toString()
@@ -480,9 +480,9 @@ public class MockEc2Instance implements Serializable {
                         running = false;
                         booting = false;
                         stopping = false;
-
                         pubDns = null;
                         this.cancel();
+                        onTerminated();
                         return;
                     }
 
@@ -505,6 +505,8 @@ public class MockEc2Instance implements Serializable {
 
                             booting = false;
 
+                            onBooted();
+
                         } else if (stopping) {
 
                             // delay a random 'shutdown time'
@@ -525,7 +527,11 @@ public class MockEc2Instance implements Serializable {
 
                             running = false;
 
+                            onStopped();
+
                         }
+
+                        onInternalTimer();
 
                     }
 
@@ -564,6 +570,8 @@ public class MockEc2Instance implements Serializable {
             booting = true;
             running = true;
 
+            onStarted();
+
             return true;
         }
     }
@@ -579,6 +587,7 @@ public class MockEc2Instance implements Serializable {
         if (booting || running) {
             stopping = true;
             booting = false;
+            onStopping();
             return true;
         } else {
             return false;
@@ -595,6 +604,7 @@ public class MockEc2Instance implements Serializable {
     public final boolean terminate() {
 
         if (!terminated) {
+            onTerminating();
             terminated = true;
             return true;
         } else {
@@ -694,5 +704,51 @@ public class MockEc2Instance implements Serializable {
                 + UUID.randomUUID().toString()
                         .toLowerCase() + MOCK_PUBDNS_POSTFIX;
     }
+
+
+    /**
+     * Triggered right after the 'instance' is 'powered-on'.
+     */
+    abstract public void onStarted();
+
+
+    /**
+     * Triggered after the 'instance' boots into 'OS'.
+     */
+    abstract public void onBooted();
+
+
+    /**
+     * Triggered on 'instance' entering the process of shutdown.
+     */
+    abstract public void onStopping();
+
+
+    /**
+     * Triggered right after the 'instance' is 'powered-off'.
+     */
+    abstract public void onStopped();
+
+
+    /**
+     * Triggered on 'instance' entering the process of termination.
+     */
+    abstract public void onTerminating();
+
+
+    /**
+     * Triggered right after the 'instance' is terminated.
+     */
+    abstract public void onTerminated();
+
+
+    /**
+     * Triggered on arriving interval of the internal timer of mock ec2 instance. <br>
+     * Note that if this method does things that take a long time, the interval would be prolonged and consequent
+     * events/state changing would always be delayed.
+     *
+     * @see #TIMER_INTERVAL_MILLIS
+     */
+    abstract public void onInternalTimer();
 
 }

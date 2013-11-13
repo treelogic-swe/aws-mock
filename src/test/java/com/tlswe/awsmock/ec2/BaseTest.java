@@ -31,8 +31,8 @@ import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
-import com.tlswe.awsmock.ec2.model.MockEc2Instance.InstanceState;
-import com.tlswe.awsmock.ec2.model.MockEc2Instance.InstanceType;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 
 /**
  * @author Willard Wang

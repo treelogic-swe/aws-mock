@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.InstanceStateChange;
-import com.tlswe.awsmock.ec2.model.MockEc2Instance;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
 
 /**
  * @author Willard Wang
@@ -49,7 +49,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // run
         List<Instance> instances = runInstances(
-                MockEc2Instance.InstanceType.M1_SMALL, 1, 1);
+                AbstractMockEc2Instance.InstanceType.M1_SMALL, 1, 1);
         Assert.assertTrue("fail to start instances", instances.size() == 1);
 
         instances = describeInstances(instances);
@@ -58,7 +58,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // wait for running
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.RUNNING);
+                AbstractMockEc2Instance.InstanceState.RUNNING);
 
         // stop
         List<InstanceStateChange> stateChanges = stopInstances(instances);
@@ -68,7 +68,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // wait for stopped
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.STOPPED);
+                AbstractMockEc2Instance.InstanceState.STOPPED);
     }
 
     /**
@@ -79,12 +79,12 @@ public class Ec2EndpointTest extends BaseTest {
         log.info("Start simple run->stop->start->terminate test");
         // run
         List<Instance> instances = runInstances(
-                MockEc2Instance.InstanceType.M1_SMALL, 1, 1);
+                AbstractMockEc2Instance.InstanceType.M1_SMALL, 1, 1);
         Assert.assertTrue("fail to start instances", instances.size() == 1);
 
         // wait for running
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.RUNNING);
+                AbstractMockEc2Instance.InstanceState.RUNNING);
 
         // stop
         List<InstanceStateChange> stateChanges = stopInstances(instances);
@@ -92,7 +92,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // wait for stopped
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.STOPPED);
+                AbstractMockEc2Instance.InstanceState.STOPPED);
 
         // re-start
         stateChanges = startInstances(instances);
@@ -101,7 +101,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // wait for running
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.RUNNING);
+                AbstractMockEc2Instance.InstanceState.RUNNING);
 
         // terminate
         stateChanges = terminateInstances(instances);
@@ -110,7 +110,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // wait for terminated
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.TERMINATED);
+                AbstractMockEc2Instance.InstanceState.TERMINATED);
     }
 
     /**
@@ -122,12 +122,12 @@ public class Ec2EndpointTest extends BaseTest {
         log.info("Start simple run->terminate->start test");
         // run
         List<Instance> instances = runInstances(
-                MockEc2Instance.InstanceType.M1_SMALL, 1, 1);
+                AbstractMockEc2Instance.InstanceType.M1_SMALL, 1, 1);
         Assert.assertTrue("fail to start instances", instances.size() == 1);
 
         // wait for running
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.RUNNING);
+                AbstractMockEc2Instance.InstanceState.RUNNING);
 
         // terminate
         List<InstanceStateChange> stateChanges = terminateInstances(instances);
@@ -136,7 +136,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // wait for terminated
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.TERMINATED);
+                AbstractMockEc2Instance.InstanceState.TERMINATED);
 
         // start, instance's state should remain terminated.
         stateChanges = startInstances(instances);
@@ -145,7 +145,7 @@ public class Ec2EndpointTest extends BaseTest {
 
         // wait 10 seconds
         waitForState(instances.get(0).getInstanceId(),
-                MockEc2Instance.InstanceState.RUNNING, TEN_SECONDS);
+                AbstractMockEc2Instance.InstanceState.RUNNING, TEN_SECONDS);
 
         instances = describeInstances(instances);
         Assert.assertTrue("number of instances should be 1",
@@ -156,7 +156,7 @@ public class Ec2EndpointTest extends BaseTest {
                         .get(0)
                         .getState()
                         .getName()
-                        .equals(MockEc2Instance.InstanceState.TERMINATED
+                        .equals(AbstractMockEc2Instance.InstanceState.TERMINATED
                                 .getName()));
     }
 
@@ -174,13 +174,13 @@ public class Ec2EndpointTest extends BaseTest {
 
         // run
         List<Instance> instances = runInstances(
-                MockEc2Instance.InstanceType.M1_SMALL, count, count);
+                AbstractMockEc2Instance.InstanceType.M1_SMALL, count, count);
         Assert.assertTrue("fail to start instances", instances.size() == count);
 
         // wait for running
         for (Instance i : instances) {
             waitForState(i.getInstanceId(),
-                    MockEc2Instance.InstanceState.RUNNING);
+                    AbstractMockEc2Instance.InstanceState.RUNNING);
         }
     }
 }

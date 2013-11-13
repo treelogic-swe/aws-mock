@@ -12,7 +12,7 @@ import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PersistenceUtils;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.ec2.control.MockEc2Controller;
-import com.tlswe.awsmock.ec2.model.MockEc2Instance;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
 
 /**
  * A ServletContextListener that does initializing tasks on event that context started (e.g. load and restore persistent
@@ -54,7 +54,7 @@ public class AppServletContextListener implements ServletContextListener {
         log.info("aws-mock starting...");
 
         if (persistenceEnabled) {
-            MockEc2Instance[] instanceArray = (MockEc2Instance[]) PersistenceUtils.loadAll();
+            AbstractMockEc2Instance[] instanceArray = (AbstractMockEc2Instance[]) PersistenceUtils.loadAll();
             if (null != instanceArray) {
                 MockEc2Controller.getInstance().restoreAllMockEc2Instances(Arrays.asList(instanceArray));
             }
@@ -72,15 +72,15 @@ public class AppServletContextListener implements ServletContextListener {
     public final void contextDestroyed(final ServletContextEvent sce) {
 
         if (persistenceEnabled) {
-            Collection<MockEc2Instance> instances = MockEc2Controller.getInstance().getAllMockEc2Instances();
+            Collection<AbstractMockEc2Instance> instances = MockEc2Controller.getInstance().getAllMockEc2Instances();
 
-            for (MockEc2Instance instance : instances) {
+            for (AbstractMockEc2Instance instance : instances) {
                 // cancel and destroy the internal timers for all instances on
                 // web app stopping
                 instance.destroyInternalTimer();
             }
             // put all instances into an array which is serializable and type-cast safe for persistence
-            MockEc2Instance[] array = new MockEc2Instance[instances.size()];
+            AbstractMockEc2Instance[] array = new AbstractMockEc2Instance[instances.size()];
             instances.toArray(array);
             PersistenceUtils.saveAll(array);
         }

@@ -11,8 +11,8 @@ import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateChangeType;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateType;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
-import com.tlswe.awsmock.ec2.model.MockEc2Instance;
-import com.tlswe.awsmock.ec2.model.MockEc2Instance.InstanceType;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 
 /**
  * Factory class providing static methods for managing life cycle of mock ec2 instances. The current implementations
@@ -44,9 +44,9 @@ public final class MockEc2Controller {
     // private static final Random _random = new Random();
 
     /**
-     * A map of all the mock ec2 instances, instanceID as key and {@link MockEc2Instance} as value.
+     * A map of all the mock ec2 instances, instanceID as key and {@link AbstractMockEc2Instance} as value.
      */
-    private final Map<String, MockEc2Instance> allMockEc2Instances = new ConcurrentHashMap<String, MockEc2Instance>();
+    private final Map<String, AbstractMockEc2Instance> allMockEc2Instances = new ConcurrentHashMap<String, AbstractMockEc2Instance>();
 
 
     /**
@@ -79,10 +79,10 @@ public final class MockEc2Controller {
      *
      * @param instanceIDs
      *            a filter of specified instance IDs for the target instance to describe
-     * @return a collection of {@link MockEc2Instance} with specifed instance IDs, or all of the mock ec2 instances if
+     * @return a collection of {@link AbstractMockEc2Instance} with specifed instance IDs, or all of the mock ec2 instances if
      *         no instance IDs as filtered
      */
-    public Collection<MockEc2Instance> describeInstances(final Set<String> instanceIDs) {
+    public Collection<AbstractMockEc2Instance> describeInstances(final Set<String> instanceIDs) {
         if (null == instanceIDs || instanceIDs.size() == 0) {
             return allMockEc2Instances.values();
         } else {
@@ -97,13 +97,13 @@ public final class MockEc2Controller {
      *
      * @param <T>
      *            The template type of class as concrete type of mock ec2 instance to run as, should extend
-     *            {@link MockEc2Instance}, matching the clazz parameter
+     *            {@link AbstractMockEc2Instance}, matching the clazz parameter
      * @param clazz
-     *            class as concrete type of mock ec2 instance to run as, should extend {@link MockEc2Instance}
+     *            class as concrete type of mock ec2 instance to run as, should extend {@link AbstractMockEc2Instance}
      * @param imageId
      *            AMI of new mock ec2 instance(s)
      * @param instanceTypeName
-     *            type(scale) name of new mock ec2 instance(s), refer to {@link MockEc2Instance#InstanceType}
+     *            type(scale) name of new mock ec2 instance(s), refer to {@link AbstractMockEc2Instance#InstanceType}
      * @param minCount
      *            max count of instances to run (but limited to {@link #MAX_RUN_INSTANCE_COUNT_AT_A_TIME})
      * @param maxCount
@@ -111,7 +111,7 @@ public final class MockEc2Controller {
      * @return a list of objects of clazz as started new mock ec2 instances
      *
      */
-    public <T extends MockEc2Instance> List<T> runInstances(final Class<? extends T> clazz,
+    public <T extends AbstractMockEc2Instance> List<T> runInstances(final Class<? extends T> clazz,
             final String imageId, final String instanceTypeName,
             final int minCount, final int maxCount) {
 
@@ -191,8 +191,8 @@ public final class MockEc2Controller {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
 
-        Collection<MockEc2Instance> instances = getInstances(instanceIDs);
-        for (MockEc2Instance instance : instances) {
+        Collection<AbstractMockEc2Instance> instances = getInstances(instanceIDs);
+        for (AbstractMockEc2Instance instance : instances) {
             if (null != instance) {
                 InstanceStateChangeType stateChange = new InstanceStateChangeType();
                 stateChange.setInstanceId(instance.getInstanceID());
@@ -229,8 +229,8 @@ public final class MockEc2Controller {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
 
-        Collection<MockEc2Instance> instances = getInstances(instanceIDs);
-        for (MockEc2Instance instance : instances) {
+        Collection<AbstractMockEc2Instance> instances = getInstances(instanceIDs);
+        for (AbstractMockEc2Instance instance : instances) {
             if (null != instance) {
                 InstanceStateChangeType stateChange = new InstanceStateChangeType();
                 stateChange.setInstanceId(instance.getInstanceID());
@@ -267,8 +267,8 @@ public final class MockEc2Controller {
 
         List<InstanceStateChangeType> ret = new ArrayList<InstanceStateChangeType>();
 
-        Collection<MockEc2Instance> instances = getInstances(instanceIDs);
-        for (MockEc2Instance instance : instances) {
+        Collection<AbstractMockEc2Instance> instances = getInstances(instanceIDs);
+        for (AbstractMockEc2Instance instance : instances) {
             if (null != instance) {
                 InstanceStateChangeType stateChange = new InstanceStateChangeType();
                 stateChange.setInstanceId(instance.getInstanceID());
@@ -299,7 +299,7 @@ public final class MockEc2Controller {
      *
      * @return a collection of all the mock ec2 instances
      */
-    public Collection<MockEc2Instance> getAllMockEc2Instances() {
+    public Collection<AbstractMockEc2Instance> getAllMockEc2Instances() {
         return allMockEc2Instances.values();
     }
 
@@ -311,7 +311,7 @@ public final class MockEc2Controller {
      *            ID of the mock ec2 instance to get
      * @return the mock ec2 instance object
      */
-    public MockEc2Instance getMockEc2Instance(final String instanceID) {
+    public AbstractMockEc2Instance getMockEc2Instance(final String instanceID) {
         return allMockEc2Instances.get(instanceID);
     }
 
@@ -323,8 +323,8 @@ public final class MockEc2Controller {
      *            IDs of the mock ec2 instances to get
      * @return the mock ec2 instances object
      */
-    private Collection<MockEc2Instance> getInstances(final Set<String> instanceIDs) {
-        Collection<MockEc2Instance> ret = new ArrayList<MockEc2Instance>();
+    private Collection<AbstractMockEc2Instance> getInstances(final Set<String> instanceIDs) {
+        Collection<AbstractMockEc2Instance> ret = new ArrayList<AbstractMockEc2Instance>();
         for (String instanceID : instanceIDs) {
             ret.add(getMockEc2Instance(instanceID));
         }
@@ -338,10 +338,10 @@ public final class MockEc2Controller {
      * @param instances
      *            collection of {@link #getMockEc2Instance(String)} to restore
      */
-    public void restoreAllMockEc2Instances(final Collection<MockEc2Instance> instances) {
+    public void restoreAllMockEc2Instances(final Collection<AbstractMockEc2Instance> instances) {
         allMockEc2Instances.clear();
         if (null != instances) {
-            for (MockEc2Instance instance : instances) {
+            for (AbstractMockEc2Instance instance : instances) {
                 allMockEc2Instances.put(instance.getInstanceID(), instance);
                 // re-initialize the internal timer
                 instance.initializeInternalTimer();
