@@ -36,7 +36,12 @@ eclipse {
 }
 
 sourceSets {
-    test
+    examples {
+        java {
+            srcDir 'example/java/simple'
+            srcDir 'example/java/full'
+        }
+    }
 }
 
 compileJava.dependsOn ":cxf-stub:cxfStubJar"
