@@ -15,12 +15,13 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
 //import com.tlswe.awsmock.common.util.SerializedTimer;
 
 /**
- * Generic class for mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances' life cycle.
- * Any extra implementation of more customized ec2 mock instances should extend this class (and override the events) and be defined
- * as "ec2.instance.class" in aws-mock.properties (or if not overridden, as defined in aws-mock-default.properties). To
- * simulate actual ec2 instances, we have an internal timer in each object of mock ec2 instance that continuously check
- * and set the states of it, within the life cycle of start-pending-running-stopping-stopped-terminated for a single ec2
- * instance, and with random time deviations (e.g. random boot/shutdown time within predefined values).
+ * Generic class for mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances' life
+ * cycle. Any extra implementation of more customized ec2 mock instances should extend this class (and override the
+ * events) and be defined as "ec2.instance.class" in aws-mock.properties (or if not overridden, as defined in
+ * aws-mock-default.properties). To simulate actual ec2 instances, we have an internal timer in each object of mock ec2
+ * instance that continuously check and set the states of it, within the life cycle of
+ * start-pending-running-stopping-stopped-terminated for a single ec2 instance, and with random time deviations (e.g.
+ * random boot/shutdown time within predefined values).
  *
  * @author xma
  *
@@ -28,7 +29,7 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
 public abstract class AbstractMockEc2Instance implements Serializable {
 
     /**
-     * Default serial version ID for this class which implements. {@link Serializable}.
+     * Default serial version ID for this class which implements {@link Serializable}.
      *
      * @see Serializable
      */
@@ -335,57 +336,57 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     /**
      * instance ID, randomly assigned on creating.
      */
-    protected String instanceID = null;
+    private String instanceID = null;
 
     /**
      * AMI for this ec2 instance.
      */
-    protected String imageId = null;
+    private String imageId = null;
 
     /**
      * Instance type, by default is "m1.small".
      */
-    protected InstanceType instanceType = InstanceType.M1_SMALL;
+    private InstanceType instanceType = InstanceType.M1_SMALL;
 
     /**
      * Security groups for this ec2 instance.
      */
-    protected Set<String> securityGroups = new TreeSet<String>();
+    private Set<String> securityGroups = new TreeSet<String>();
 
     /**
      * Flag that indicates whether internal timer of this mock ec2 instance has been started (on instance start()).
      */
-    protected boolean internalTimerInitialized = false;
+    private boolean internalTimerInitialized = false;
 
     /**
      * Flag that indicates whether this is ec2 instance is booting (pending).
      */
-    protected boolean booting = false;
+    private boolean booting = false;
 
     /**
      * Flag that indicates whether this is ec2 instance is running (started).
      */
-    protected boolean running = false;
+    private boolean running = false;
 
     /**
      * Flag that indicates whether this is ec2 instance is stopping (shutting-down).
      */
-    protected boolean stopping = false;
+    private boolean stopping = false;
 
     /**
      * Flag that indicates whether this is ec2 instance is terminated.
      */
-    protected boolean terminated = false;
+    private boolean terminated = false;
 
     /**
      * Randomly assigned public dns name for this ec2 instance (dns name is assigned each time instance is started).
      */
-    protected String pubDns = null;
+    private String pubDns = null;
 
     /**
      * Internal timer for simulating the behaviors and states of this mock ec2 instance.
      */
-    protected SerializableTimer timer = null;
+    private SerializableTimer timer = null;
 
 
     /**
@@ -709,37 +710,37 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     /**
      * Triggered right after the 'instance' is 'powered-on'.
      */
-    abstract public void onStarted();
+    public abstract void onStarted();
 
 
     /**
      * Triggered after the 'instance' boots into 'OS'.
      */
-    abstract public void onBooted();
+    public abstract void onBooted();
 
 
     /**
      * Triggered on 'instance' entering the process of shutdown.
      */
-    abstract public void onStopping();
+    public abstract void onStopping();
 
 
     /**
      * Triggered right after the 'instance' is 'powered-off'.
      */
-    abstract public void onStopped();
+    public abstract void onStopped();
 
 
     /**
      * Triggered on 'instance' entering the process of termination.
      */
-    abstract public void onTerminating();
+    public abstract void onTerminating();
 
 
     /**
      * Triggered right after the 'instance' is terminated.
      */
-    abstract public void onTerminated();
+    public abstract void onTerminated();
 
 
     /**
@@ -749,6 +750,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
      *
      * @see #TIMER_INTERVAL_MILLIS
      */
-    abstract public void onInternalTimer();
+    public abstract void onInternalTimer();
 
 }

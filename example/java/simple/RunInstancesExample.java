@@ -1,5 +1,3 @@
-package simple;
-
 import java.util.List;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -14,11 +12,20 @@ import com.amazonaws.services.ec2.model.RunInstancesResult;
  * @author xma
  *
  */
-public class RunInstancesExample {
+public final class RunInstancesExample {
+
+    /**
+     * Private constructor for compliance with checkstyle.
+     */
+    private RunInstancesExample() {
+
+    }
+
 
     /**
      *
      * @param args
+     *            args
      */
     public static void main(final String[] args) {
 
@@ -27,7 +34,8 @@ public class RunInstancesExample {
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
 
         // the mock endpoint for ec2 which runs on your computer
-        String ec2Endpoint = "http://localhost:8000/aws-mock/ec2-endpoint/";
+        // String ec2Endpoint = "http://localhost:8000/aws-mock/ec2-endpoint/";
+        String ec2Endpoint = "http://localhost:8480/aws-mock-propellerlabs/ec2-endpoint/";
         amazonEC2Client.setEndpoint(ec2Endpoint);
 
         /*-
@@ -41,8 +49,10 @@ public class RunInstancesExample {
 
         // run 10 instances
         RunInstancesRequest request = new RunInstancesRequest();
+        final int minRunCount = 10;
+        final int maxRunCount = 10;
         request.withImageId(imageId).withInstanceType(instanceType)
-                .withMinCount(10).withMaxCount(10);
+                .withMinCount(minRunCount).withMaxCount(maxRunCount);
         RunInstancesResult result = amazonEC2Client.runInstances(request);
 
         List<Instance> instances = result.getReservation().getInstances();

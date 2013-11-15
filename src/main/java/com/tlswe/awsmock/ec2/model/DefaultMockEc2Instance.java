@@ -2,10 +2,16 @@ package com.tlswe.awsmock.ec2.model;
 
 import java.io.Serializable;
 
+/**
+ * Default type of mock ec2 instance (extends {@link AbstractMockEc2Instance}).
+ *
+ * @author xma
+ *
+ */
 public class DefaultMockEc2Instance extends AbstractMockEc2Instance {
 
     /**
-     * Default serial version ID for this class which implements. {@link Serializable}.
+     * Default serial version ID for this class which implements {@link Serializable}.
      *
      * @see Serializable
      */

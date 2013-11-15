@@ -46,7 +46,8 @@ public final class MockEc2Controller {
     /**
      * A map of all the mock ec2 instances, instanceID as key and {@link AbstractMockEc2Instance} as value.
      */
-    private final Map<String, AbstractMockEc2Instance> allMockEc2Instances = new ConcurrentHashMap<String, AbstractMockEc2Instance>();
+    private final Map<String, AbstractMockEc2Instance> allMockEc2Instances =
+            new ConcurrentHashMap<String, AbstractMockEc2Instance>();
 
 
     /**
@@ -79,8 +80,8 @@ public final class MockEc2Controller {
      *
      * @param instanceIDs
      *            a filter of specified instance IDs for the target instance to describe
-     * @return a collection of {@link AbstractMockEc2Instance} with specifed instance IDs, or all of the mock ec2 instances if
-     *         no instance IDs as filtered
+     * @return a collection of {@link AbstractMockEc2Instance} with specifed instance IDs, or all of the mock ec2
+     *         instances if no instance IDs as filtered
      */
     public Collection<AbstractMockEc2Instance> describeInstances(final Set<String> instanceIDs) {
         if (null == instanceIDs || instanceIDs.size() == 0) {

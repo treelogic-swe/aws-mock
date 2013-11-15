@@ -3,29 +3,29 @@ import java.util.List;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeInstancesResult;
-import com.amazonaws.services.ec2.model.Instance;
-import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
+import com.amazonaws.services.ec2.model.Image;
 
 /**
+ * Describe all AMIs.
  *
  * @author xma
  *
  */
-public final class DescribeInstancesExample {
+public final class DescribeImagesExample {
 
     /**
      * Private constructor for compliance with checkstyle.
      */
-    private DescribeInstancesExample() {
+    private DescribeImagesExample() {
 
     }
 
 
     /**
-     *
      * @param args
-     *            args
+     *            (not needed)
+     *
      */
     public static void main(final String[] args) {
 
@@ -38,22 +38,16 @@ public final class DescribeInstancesExample {
         String ec2Endpoint = "http://localhost:8480/aws-mock-propellerlabs/ec2-endpoint/";
         amazonEC2Client.setEndpoint(ec2Endpoint);
 
-        // DescribeInstancesRequest request = new DescribeInstancesRequest();
-        // describe all instances
-        DescribeInstancesResult response = amazonEC2Client.describeInstances();
-        List<Reservation> reservations = response.getReservations();
+        // describe all AMIs in aws-mock.
+        DescribeImagesResult result = amazonEC2Client.describeImages();
 
-        for (Reservation reservation : reservations) {
-            List<Instance> instances = reservation.getInstances();
+        List<Image> images = result.getImages();
 
-            if (null != instances) {
-
-                for (Instance i : instances) {
-                    System.out.println(i.getInstanceId() + " - " + i.getState().getName());
-                }
+        if (null != images) {
+            for (Image image : images) {
+                System.out.println(image.getImageId());
             }
         }
 
     }
-
 }
