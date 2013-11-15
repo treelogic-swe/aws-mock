@@ -8,6 +8,7 @@ import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.Reservation;
 
 /**
+ * This example shows how to describe all instances in local aws-mock.
  *
  * @author xma
  *
@@ -34,12 +35,9 @@ public final class DescribeInstancesExample {
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
 
         // the mock endpoint for ec2 which runs on your computer
-        // String ec2Endpoint = "http://localhost:8000/aws-mock/ec2-endpoint/";
-        String ec2Endpoint = "http://localhost:8480/aws-mock-propellerlabs/ec2-endpoint/";
+        String ec2Endpoint = "http://localhost:8000/aws-mock/ec2-endpoint/";
         amazonEC2Client.setEndpoint(ec2Endpoint);
 
-        // DescribeInstancesRequest request = new DescribeInstancesRequest();
-        // describe all instances
         DescribeInstancesResult response = amazonEC2Client.describeInstances();
         List<Reservation> reservations = response.getReservations();
 

@@ -8,6 +8,7 @@ import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 
 /**
+ * This example shows how to terminate instances in local aws-mock.
  *
  * @author xma
  *
@@ -33,8 +34,7 @@ public final class TerminateInstancesExample {
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
 
         // the mock endpoint for ec2 which runs on your computer
-        // String ec2Endpoint = "http://localhost:8000/aws-mock/ec2-endpoint/";
-        String ec2Endpoint = "http://localhost:8480/aws-mock-propellerlabs/ec2-endpoint/";
+        String ec2Endpoint = "http://localhost:8000/aws-mock/ec2-endpoint/";
         amazonEC2Client.setEndpoint(ec2Endpoint);
 
         // send the terminate request with args as instance IDs
@@ -52,6 +52,7 @@ public final class TerminateInstancesExample {
             }
         } else {
             System.out.println("Nothing happened! Make sure you input the right instance IDs.");
+            System.out.println("usage: java TerminateInstancesExample <instanceID-1> [instanceID-2] [instanceID-3] ...");
         }
 
     }
