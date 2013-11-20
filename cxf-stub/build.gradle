@@ -84,12 +84,13 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment)  }
  
-            // for uploading to local folder
-            // repository(url: "file://c:/tmp_repo")
+            // for publishing to local folder
+            repository(url: "file:/tmp/tlswe/repo")
  
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-              authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
+            // for publishing to public maven repo
+            // repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            //   authentication(userName: sonatypeUsername, password: sonatypePassword)
+            // }
 
             pom.project {
                name 'cxf-stub'
