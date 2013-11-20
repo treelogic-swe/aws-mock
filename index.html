@@ -26,7 +26,12 @@
     $('#main_content').html('<img src="loading.gif"/>').load('http://markdown.io/https://raw.github.com/treelogic-swe/aws-mock/master/README.md #md-content', function() {
     });
     });*/
-     function Editor(input, preview) {
+     *$(document).ready(function() {
+    $('#main_content').html('<img src="loading.gif"/>').load('http://markdown.io/https://raw.github.com/treelogic-swe/aws-mock/master/README.md #md-content', function() {
+    });
+    });
+    
+    /* function Editor(input, preview) {
         this.update = function () {
           preview.innerHTML = markdown.toHTML(input.value);
         };
@@ -34,7 +39,7 @@
         this.update();
       }
       var $ = function (id) { return document.getElementById(id); };
-      new Editor($("text-input"), $("preview"));
+      new Editor($("text-input"), $("preview"));*/
     </script>
 
     <!-- HEADER -->
