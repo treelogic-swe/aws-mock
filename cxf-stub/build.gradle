@@ -1,9 +1,17 @@
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+group = 'com.treelogic-swe'
+version = 'ec2-2013-02-01'
+ext.packaging = 'jar'
 
 def ec2ApiVersion = "ec2-2013-02-01"
 def stubJarFilename = "cxf-stub-" + ec2ApiVersion + ".jar"
 
-task wsdl2java (type: JavaExec/*, dependsOn: clean*/) {
+
+task wsdl2java (type: JavaExec) {
+    
     inputs.file file('ec2-2013-02-01.wsdl')
     outputs.dir new File('build', 'stub_src')
     dependencies{
@@ -14,7 +22,12 @@ task wsdl2java (type: JavaExec/*, dependsOn: clean*/) {
     args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.ec2.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", ec2ApiVersion+".wsdl" ]
 }
 
-task cxfStubCompile (type: JavaCompile, dependsOn: wsdl2java) {
+// remove default dependency of 'classes' to avoid circular dependency
+wsdl2java.dependsOn=[]
+
+
+compileJava {
+    dependsOn "wsdl2java"
     inputs.dir new File('build', 'stub_src')
     outputs.dir new File('build', 'stub_classes')
     sourceCompatibility = '1.6'
@@ -24,17 +37,109 @@ task cxfStubCompile (type: JavaCompile, dependsOn: wsdl2java) {
     destinationDir = file ('build/stub_classes')
 }
 
-task cxfStubJar (type: Jar, dependsOn: cxfStubCompile) {
+
+jar {
     inputs.dir new File('build', 'stub_classes')
     outputs.file file('../libs/' + stubJarFilename)
     archiveName = stubJarFilename
     manifest.attributes provider: 'tlswe'
-    from 'build/stub_src', 'build/stub_classes'
+    from 'build/stub_classes' // ,'build/stub_src'
     destinationDir = file('../libs')
 }
+
+javadoc {
+    source 'build/stub_src'
+}
+
+
 
 task cxfStubJarClean (type: Delete) {
     delete '../libs/' + stubJarFilename
 }
 
 // clean.dependsOn cxfStubJarClean
+
+task sourcesJar(type:Jar, dependsOn: wsdl2java){
+    classifier = 'sources'
+    from 'build/stub_src'
+}
+
+task javadocJar(type: Jar) {
+    classifier = "javadoc"
+    from javadoc
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment)  }
+ 
+            // for uploading to local folder
+            // repository(url: "file://c:/tmp_repo")
+ 
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+              authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+               name 'cxf-stub'
+               packaging 'jar'
+               description 'Java API port of AWS WSDL by Apache CXF.'
+               url 'https://github.com/treelogic-swe/aws-mock'
+ 
+               scm {
+                   url 'scm:git@github.com:treelogic-swe/aws-mock.git'
+                   connection 'scm:git@github.com:treelogic-swe/aws-mock.git'
+                   developerConnection 'scm:git@github.com:treelogic-swe/aws-mock.git'
+               }
+ 
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+ 
+               developers {
+                   developer {
+                        id 'christopherbalz'
+                        name 'Christopher Balz'
+                        email 'christopherbalz@yahoo.com'
+                    }
+                    developer {
+                        id 'maxiaohao'
+                        name 'Ma Xiaohao'
+                        email 'maxiaohao@gmail.com'
+                    }
+                    developer {
+                        id 'deathspeeder'
+                        name 'Wang Jun'
+                        email 'deathspeeder@gmail.com'
+                    }
+                    developer {
+                        id 'Jayscrivner'
+                        name 'Jay Scrivner'
+                    }
+                    developer {
+                        id 'lhcxx'
+                        name 'Lu Huichun'
+                        email 'lhcxx0508@gmail.com'
+                    }
+               }
+            }
+            
+        }  
+    }
+}
+

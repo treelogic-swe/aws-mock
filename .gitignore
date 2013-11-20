@@ -12,8 +12,9 @@
 build/
 bin/
 private_doc/
+libs/
 
-# Project artifacts
+# Project factets
 .classpath
 .project
 .settings
