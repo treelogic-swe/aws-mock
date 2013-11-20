@@ -25,7 +25,7 @@ dependencies {
     compile 'org.slf4j:slf4j-log4j12:1.7.5'
     compile 'log4j:log4j:1.2.17'
     compile 'org.freemarker:freemarker:2.3.20'
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile 'com.treelogic-swe:cxf-stub:ec2-2013-02-01'
     
     testCompile "junit:junit:4.9"
     testCompile "com.amazonaws:aws-java-sdk:1.5.3"
@@ -51,14 +51,9 @@ sourceSets {
 }
 */
 
-compileJava.dependsOn ":cxf-stub:jar"
-eclipseClasspath.dependsOn ":cxf-stub:jar"
-
 task sourcesJar(type:Jar, dependsOn: classes){
     classifier = 'sources'
     from sourceSets.main.allSource
-    // from sourceSets.main.allJava.srcDirs
-    //include "**/*.java"
     exclude "**/log4j.properties"
 }
 
@@ -114,12 +109,12 @@ uploadArchives {
  
             // for uploading to local folder
             // repository(url: "file://c:/tmp_repo")
- 
+
 
             repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
               authentication(userName: sonatypeUsername, password: sonatypePassword)
             }
-         
+
             addFilter('upload_jars') {artifact, file ->
                  artifact.type != 'war'
             }
