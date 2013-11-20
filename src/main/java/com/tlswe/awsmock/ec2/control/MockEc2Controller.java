@@ -104,7 +104,7 @@ public final class MockEc2Controller {
      * @param imageId
      *            AMI of new mock ec2 instance(s)
      * @param instanceTypeName
-     *            type(scale) name of new mock ec2 instance(s), refer to {@link AbstractMockEc2Instance#InstanceType}
+     *            type(scale) name of new mock ec2 instance(s)
      * @param minCount
      *            max count of instances to run (but limited to {@link #MAX_RUN_INSTANCE_COUNT_AT_A_TIME})
      * @param maxCount
