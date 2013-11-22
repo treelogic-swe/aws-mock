@@ -23,13 +23,7 @@ public final class RunInstancesExample {
     }
 
 
-    /**
-     *
-     * @param args
-     *            args
-     */
-    public static void main(final String[] args) {
-
+    public static List<Instance> runInstances(final String imageId, final int runCount) {
         // pass any credentials as aws-mock does not authenticate them at all
         AWSCredentials credentials = new BasicAWSCredentials("foo", "bar");
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
@@ -38,33 +32,41 @@ public final class RunInstancesExample {
         String ec2Endpoint = "http://localhost:8000/aws-mock/ec2-endpoint/";
         amazonEC2Client.setEndpoint(ec2Endpoint);
 
-        /*-
-         * use one of the pre-defined amis
-         * (all amis are pre-defined in aws-mock-default.properties or aws-mock.properties)
-         */
-        String imageId = "ami-12345678";
-
         // instance type
         String instanceType = "m1.large";
 
         // run 10 instances
         RunInstancesRequest request = new RunInstancesRequest();
-        final int minRunCount = 10;
-        final int maxRunCount = 10;
+        final int minRunCount = runCount;
+        final int maxRunCount = runCount;
         request.withImageId(imageId).withInstanceType(instanceType)
                 .withMinCount(minRunCount).withMaxCount(maxRunCount);
         RunInstancesResult result = amazonEC2Client.runInstances(request);
 
-        List<Instance> instances = result.getReservation().getInstances();
+        return result.getReservation().getInstances();
+    }
+
+
+    /**
+     *
+     * @param args
+     *            args
+     */
+    public static void main(final String[] args) {
+        /*-
+         * use one of the pre-defined amis
+         * (all amis are pre-defined in aws-mock-default.properties or aws-mock.properties)
+         */
+        String imageId = "ami-12345678";
+        int runCount = 10;
+
+        List<Instance> startedInstances = runInstances(imageId, runCount);
 
         System.out.println("Started instances: ");
 
-        if (null != instances) {
-            for (Instance i : instances) {
-                System.out.println(i.getInstanceId() + " - " + i.getState().getName());
-            }
+        for (Instance i : startedInstances) {
+            System.out.println(i.getInstanceId() + " - " + i.getState().getName());
         }
-
     }
 
 }

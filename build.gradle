@@ -35,17 +35,18 @@ eclipse {
     }
 }
 
-/*
+/**/
 sourceSets {
     examples {
         java {
             srcDir 'example/java/simple'
             srcDir 'example/java/full/client-usage'
             srcDir 'example/java/full/extending-aws-mock/java'
+            srcDir 'example/java/test'
         }
     }
 }
-*/
+/**/
 
 compileJava.dependsOn ":cxf-stub:cxfStubJar"
 eclipseClasspath.dependsOn ":cxf-stub:cxfStubJar"
