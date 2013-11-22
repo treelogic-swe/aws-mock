@@ -3,22 +3,35 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'com.treelogic-swe'
-version = 'ec2-2013-02-01'
+version = '1.0.1'
 ext.packaging = 'jar'
 
 def ec2ApiVersion = "ec2-2013-02-01"
 def stubJarFilename = "cxf-stub-" + ec2ApiVersion + ".jar"
 
+configurations { cxf }
+
+ext {
+    cxfVersion = '2.7.5'
+    cxfArtifacts = [
+        'cxf-tools-wsdlto-frontend-jaxws',
+        'cxf-tools-wsdlto-databinding-jaxb',
+        'cxf-tools-common',
+        'cxf-tools-wsdlto-core'
+    ]
+}
+
+dependencies {
+    cxfArtifacts.each { artifact -> cxf "org.apache.cxf:$artifact:$cxfVersion" }
+}
 
 task wsdl2java (type: JavaExec) {
-    
     inputs.file file('ec2-2013-02-01.wsdl')
     outputs.dir new File('build', 'stub_src')
-    dependencies{
-	   	compile 'org.apache.cxf:apache-cxf:2.7.5'
-	}
+
 	main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
-    classpath = sourceSets.main.runtimeClasspath
+    //classpath = sourceSets.main.runtimeClasspath
+    classpath = configurations.cxf
     args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.ec2.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", ec2ApiVersion+".wsdl" ]
 }
 
@@ -37,29 +50,25 @@ compileJava {
     destinationDir = file ('build/stub_classes')
 }
 
-
 jar {
     inputs.dir new File('build', 'stub_classes')
-    outputs.file file('../libs/' + stubJarFilename)
-    archiveName = stubJarFilename
+    //outputs.file file('../libs/' + stubJarFilename)
+    //archiveName = stubJarFilename
     manifest.attributes provider: 'tlswe'
     from 'build/stub_classes' // ,'build/stub_src'
-    destinationDir = file('../libs')
+    //destinationDir = file('../libs')
 }
 
 javadoc {
-    source 'build/stub_src'
+    // commented and don't output javadoc because no javadoc needed for generated code 
+    //source 'build/stub_src'
 }
 
+//task cxfStubJarClean (type: Delete) {
+//    delete '../libs/' + stubJarFilename
+//}
 
-
-task cxfStubJarClean (type: Delete) {
-    delete '../libs/' + stubJarFilename
-}
-
-// clean.dependsOn cxfStubJarClean
-
-task sourcesJar(type:Jar, dependsOn: wsdl2java){
+task sourcesJar(type:Jar){
     classifier = 'sources'
     from 'build/stub_src'
 }
