@@ -15,7 +15,7 @@ ec2 = new AWS.EC2({
 // stop running instances by given IDs passed from command line as arguments
 ec2.stopInstances({
     InstanceIds : process.argv
-}, function(err, resp) {
+}, function handleResponse(err, resp) {
 
     if (err) {
         console.log("Could not stop instances", err);
@@ -24,7 +24,7 @@ ec2.stopInstances({
         if (resp.StoppingInstances.length > 0) {
             console.log("Instance state changes:")
 
-            resp.StoppingInstances.forEach(function(inst) {
+            resp.StoppingInstances.forEach(function printInstance(inst) {
                 console.log(inst.InstanceId, inst.PreviousState.Name, '->', inst.CurrentState.Name);
             });
         } else {

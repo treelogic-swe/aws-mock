@@ -15,7 +15,7 @@ ec2 = new AWS.EC2({
 // terminate instances by given IDs passed from command line as arguments
 ec2.terminateInstances({
     InstanceIds : process.argv
-}, function(err, resp) {
+}, function handleResponse(err, resp) {
 
     if (err) {
         console.log("Could not terminate instances", err);
@@ -24,7 +24,7 @@ ec2.terminateInstances({
         if (resp.TerminatingInstances.length > 0) {
             console.log("Instance state changes:")
 
-            resp.TerminatingInstances.forEach(function(inst) {
+            resp.TerminatingInstances.forEach(function printInstance(inst) {
                 console.log(inst.InstanceId, inst.PreviousState.Name, '->', inst.CurrentState.Name);
             });
         } else {

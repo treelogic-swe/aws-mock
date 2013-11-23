@@ -13,13 +13,13 @@ ec2 = new AWS.EC2({
 });
 
 // describe all AMIs by passing no filter params
-ec2.describeImages({}, function(err, resp) {
+ec2.describeImages({}, function handleResponse(err, resp) {
 
     if (err) {
         console.log("Could not describe images", err);
     } else {
         
-        resp.Images.forEach(function(image) {
+        resp.Images.forEach(function printAmi(image) {
             console.log(image.ImageId);
         });
     }

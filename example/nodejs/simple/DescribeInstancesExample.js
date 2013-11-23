@@ -13,13 +13,13 @@ ec2 = new AWS.EC2({
 });
 
 // describe all instances by passing no filter params
-ec2.describeInstances({}, function(err, resp) {
+ec2.describeInstances({}, function handleResponse(err, resp) {
 
     if (err) {
         console.log("Could not describe instances", err);
     } else {
         
-        resp.Reservations.forEach(function(rsv) {
+        resp.Reservations.forEach(function printInstances(rsv) {
             var inst = rsv.Instances[0];
             console.log(inst.InstanceId, inst.ImageId, inst.InstanceType, inst.State.Name);
         });

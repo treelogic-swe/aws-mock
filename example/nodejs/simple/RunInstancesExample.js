@@ -19,14 +19,14 @@ params = {
     MaxCount : 10
 };
 
-ec2.runInstances(params, function(err, resp) {
+ec2.runInstances(params, function handleResponse(err, resp) {
 
     if (err) {
         console.log("Could not create instances", err);
     } else {
         console.log("Created instances:")
         
-        resp.Instances.forEach(function(inst) {
+        resp.Instances.forEach(function printInstance(inst) {
             console.log(inst.InstanceId, inst.State.Name);
         });
     }
