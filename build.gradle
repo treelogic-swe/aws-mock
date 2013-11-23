@@ -98,7 +98,7 @@ artifacts {
     archives sourcesJar
 }
 
-// We commnet the signing task for avoiding travis-ci build failure 
+// We comment the signing task for avoiding travis-ci build failure 
 // because we don't commit secret key for siging jars to github.com.
 //signing {
 //    sign configurations.archives
