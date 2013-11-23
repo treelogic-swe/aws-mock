@@ -28,7 +28,7 @@ gradle jettyRun
 ```
 That's all. 
 
-Necessary stuff will be all automatically built with dependencies downloaded, and a jetty server will be started that runs aws-mock locally on your computer. 
+This will run a build that automatically downloads all dependencies and prepares the code for use, and then it will start a jetty server that runs aws-mock locally on your computer. 
 
 Now you are able to interact with your "local Amazon Web Services" (though only EC2 for now), in your own client applications which use [AWS-SDK](http://aws.amazon.com/tools/), or with [EC2-API-TOOLS](http://aws.amazon.com/developertools/Amazon-EC2/351), or with other third-party client tools such as elasticfox. To manage instances on mock EC2, just point to the custom EC2 endpoint like:
 `http://localhost:8000/aws-mock/ec2-endpoint/` (equivalent to the official endpoint url like `https://ec2.us-west-1.amazonaws.com/`)
