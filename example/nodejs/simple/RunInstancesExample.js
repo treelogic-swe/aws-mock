@@ -1,3 +1,5 @@
+'use strict';
+
 var AWS, ec2, params;
 
 AWS = require('aws-sdk');

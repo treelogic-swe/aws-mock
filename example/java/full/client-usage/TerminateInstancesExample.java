@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.List;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -24,11 +25,13 @@ public final class TerminateInstancesExample {
 
 
     /**
-     * @param args
-     *            instance IDs
+     * Terminate specified instances (power-on the instances).
+     *
+     * @param instanceIDs
+     *            IDs of the instances to terminate
+     * @return a list of state changes for the instances
      */
-    public static void main(final String[] args) {
-
+    public static List<InstanceStateChange> terminateInstances(final List<String> instanceIDs) {
         // pass any credentials as aws-mock does not authenticate them at all
         AWSCredentials credentials = new BasicAWSCredentials("foo", "bar");
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
@@ -39,10 +42,22 @@ public final class TerminateInstancesExample {
 
         // send the terminate request with args as instance IDs
         TerminateInstancesRequest request = new TerminateInstancesRequest();
-        request.withInstanceIds(args);
+        request.withInstanceIds(instanceIDs);
         TerminateInstancesResult result = amazonEC2Client.terminateInstances(request);
 
-        List<InstanceStateChange> iscs = result.getTerminatingInstances();
+        return result.getTerminatingInstances();
+    }
+
+
+    /**
+     * Main method for command line use.
+     *
+     * @param args
+     *            parameters from command line - IDs of the instances to terminate
+     */
+    public static void main(final String[] args) {
+
+        List<InstanceStateChange> iscs = terminateInstances(Arrays.asList(args));
 
         if (null != iscs && iscs.size() > 0) {
             System.out.println("Instance state changes: ");
@@ -52,7 +67,8 @@ public final class TerminateInstancesExample {
             }
         } else {
             System.out.println("Nothing happened! Make sure you input the right instance IDs.");
-            System.out.println("usage: java TerminateInstancesExample <instanceID-1> [instanceID-2] [instanceID-3] ...");
+            System.out
+                    .println("usage: java TerminateInstancesExample <instanceID-1> [instanceID-2] [instanceID-3] ...");
         }
 
     }

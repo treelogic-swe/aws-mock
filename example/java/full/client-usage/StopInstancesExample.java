@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.List;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -22,13 +23,14 @@ public final class StopInstancesExample {
 
     }
 
-
     /**
-     * @param args
-     *            instance IDs
+     * Stop specified instances (power-on the instances).
+     *
+     * @param instanceIDs
+     *            IDs of the instances to stop
+     * @return a list of state changes for the instances
      */
-    public static void main(final String[] args) {
-
+    public static List<InstanceStateChange> stopInstances(final List<String> instanceIDs) {
         // pass any credentials as aws-mock does not authenticate them at all
         AWSCredentials credentials = new BasicAWSCredentials("foo", "bar");
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
@@ -39,10 +41,22 @@ public final class StopInstancesExample {
 
         // send the stop request with args as instance IDs to stop running instances
         StopInstancesRequest request = new StopInstancesRequest();
-        request.withInstanceIds(args);
+        request.withInstanceIds(instanceIDs);
         StopInstancesResult result = amazonEC2Client.stopInstances(request);
 
-        List<InstanceStateChange> iscs = result.getStoppingInstances();
+        return result.getStoppingInstances();
+    }
+
+
+    /**
+     * Main method for command line use.
+     *
+     * @param args
+     *            parameters from command line - IDs of the instances to stop
+     */
+    public static void main(final String[] args) {
+
+        List<InstanceStateChange> iscs = stopInstances(Arrays.asList(args));
 
         if (null != iscs && iscs.size() > 0) {
             System.out.println("Instance state changes: ");

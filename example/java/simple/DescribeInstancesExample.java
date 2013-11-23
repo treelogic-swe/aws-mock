@@ -26,6 +26,11 @@ public final class DescribeInstancesExample {
     }
 
 
+    /**
+     * Describe all mock instances within aws-mock.
+     *
+     * @return a list of all instances
+     */
     public static List<Instance> describeAllInstances() {
         // pass any credentials as aws-mock does not authenticate them at all
         AWSCredentials credentials = new BasicAWSCredentials("foo", "bar");
@@ -55,6 +60,13 @@ public final class DescribeInstancesExample {
     }
 
 
+    /**
+     * Describe specified instances within aws-mock.
+     *
+     * @param instanceIDs
+     *            a list of instance IDs to describe
+     * @return a list of specified instances
+     */
     public static List<Instance> describeInstances(final List<String> instanceIDs) {
         // pass any credentials as aws-mock does not authenticate them at all
         AWSCredentials credentials = new BasicAWSCredentials("foo", "bar");
@@ -88,9 +100,10 @@ public final class DescribeInstancesExample {
 
 
     /**
+     * Main method for command line use.
      *
      * @param args
-     *            args
+     *            parameters from command line (no need here)
      */
     public static void main(final String[] args) {
 

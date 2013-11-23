@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.List;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -24,11 +25,13 @@ public final class StartInstancesExample {
 
 
     /**
-     * @param args
-     *            instance IDs
+     * Start specified instances (power-on the instances).
+     *
+     * @param instanceIDs
+     *            IDs of the instances start
+     * @return a list of state changes for the instances
      */
-    public static void main(final String[] args) {
-
+    public static List<InstanceStateChange> startInstances(final List<String> instanceIDs) {
         // pass any credentials as aws-mock does not authenticate them at all
         AWSCredentials credentials = new BasicAWSCredentials("foo", "bar");
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
@@ -39,10 +42,22 @@ public final class StartInstancesExample {
 
         // send the start request with args as instance IDs to start existing instances
         StartInstancesRequest request = new StartInstancesRequest();
-        request.withInstanceIds(args);
+        request.withInstanceIds(instanceIDs);
         StartInstancesResult result = amazonEC2Client.startInstances(request);
 
-        List<InstanceStateChange> iscs = result.getStartingInstances();
+        return result.getStartingInstances();
+    }
+
+
+    /**
+     * Main method for command line use.
+     *
+     * @param args
+     *            parameters from command line - IDs of the instances to start
+     */
+    public static void main(final String[] args) {
+
+        List<InstanceStateChange> iscs = startInstances(Arrays.asList(args));
 
         if (null != iscs && iscs.size() > 0) {
             System.out.println("Instance state changes: ");

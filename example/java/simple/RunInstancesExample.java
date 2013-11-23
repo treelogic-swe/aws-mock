@@ -23,6 +23,15 @@ public final class RunInstancesExample {
     }
 
 
+    /**
+     * Run some new ec2 instances.
+     *
+     * @param imageId
+     *            AMI for running new instances from
+     * @param runCount
+     *            count of instances to run
+     * @return a list of started instances
+     */
     public static List<Instance> runInstances(final String imageId, final int runCount) {
         // pass any credentials as aws-mock does not authenticate them at all
         AWSCredentials credentials = new BasicAWSCredentials("foo", "bar");
@@ -48,9 +57,10 @@ public final class RunInstancesExample {
 
 
     /**
+     * Main method for command line use.
      *
      * @param args
-     *            args
+     *            parameters from command line (no need here)
      */
     public static void main(final String[] args) {
         /*-
@@ -58,7 +68,7 @@ public final class RunInstancesExample {
          * (all amis are pre-defined in aws-mock-default.properties or aws-mock.properties)
          */
         String imageId = "ami-12345678";
-        int runCount = 10;
+        final int runCount = 10;
 
         List<Instance> startedInstances = runInstances(imageId, runCount);
 

@@ -23,12 +23,11 @@ public final class DescribeImagesExample {
 
 
     /**
-     * @param args
-     *            (not needed)
+     * Describe all available AMIs within aws-mock.
      *
+     * @return a list of AMIs
      */
-    public static void main(final String[] args) {
-
+    public static List<Image> describeAllImages() {
         // pass any credentials as aws-mock does not authenticate them at all
         AWSCredentials credentials = new BasicAWSCredentials("foo", "bar");
         AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
@@ -40,7 +39,19 @@ public final class DescribeImagesExample {
         // describe all AMIs in aws-mock.
         DescribeImagesResult result = amazonEC2Client.describeImages();
 
-        List<Image> images = result.getImages();
+        return result.getImages();
+    }
+
+
+    /**
+     * Main method for command line use.
+     *
+     * @param args
+     *            parameters from command line (no need here)
+     */
+    public static void main(final String[] args) {
+
+        List<Image> images = describeAllImages();
 
         if (null != images) {
             for (Image image : images) {
