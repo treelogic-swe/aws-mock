@@ -165,11 +165,11 @@ public class Ec2EndpointTest extends BaseTest {
      */
     @Test(timeout = TIMEOUT_LEVEL2)
     public final void hundredsStartTest() {
-        log.info("Start thousands of instances test");
+        log.info("Start hundreds of instances test");
 
         final int startCount = 100;
         final int maxRandomCount = 200;
-        // random 1000 to 9999 instances
+        // random 100 to 300 instances
         int count = startCount + new Random().nextInt(maxRandomCount);
 
         // run
