@@ -33,6 +33,8 @@ Necessary stuff will be all automatically built with dependencies downloaded, an
 Now you are able to interact with your "local Amazon Web Services" (though only EC2 for now), in your own client applications which use [AWS-SDK](http://aws.amazon.com/tools/), or with [EC2-API-TOOLS](http://aws.amazon.com/developertools/Amazon-EC2/351), or with other third-party client tools such as elasticfox. To manage instances on mock EC2, just point to the custom EC2 endpoint like:
 `http://localhost:8000/aws-mock/ec2-endpoint/` (equivalent to the official endpoint url like `https://ec2.us-west-1.amazonaws.com/`)
 
+For detailed usage instructions, please look into our [Full User's Guide](https://github.com/treelogic-swe/aws-mock/wiki/User's-Guide).
+
 For detailed specification and usage reference for those interfaces already available in aws-mock, here is a list of them: [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Implemented-Requests-and-Responses).
 
 
