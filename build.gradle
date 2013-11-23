@@ -44,6 +44,8 @@ sourceSets {
             srcDir 'example/java/full/extending-aws-mock/java'
             srcDir 'example/java/test'
         }
+        compileClasspath += sourceSets.main.runtimeClasspath
+        compileClasspath += sourceSets.test.runtimeClasspath
     }
 }
 /**/
@@ -81,9 +83,21 @@ test {
     testLogging.showStandardStreams = true
 }
 
+task testExamples(type: Test) {
+    testClassesDir = sourceSets.examples.output.classesDir
+    classpath = sourceSets.examples.runtimeClasspath + sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+    testLogging.showStandardStreams = true
+}
+
+testExamples.doFirst {
+    println '---- starting aws-mock on jetty before testExamples start ----'
+    jettyRun.daemon = true
+    tasks.jettyRun.execute()
+}
+
 // this is one working way to finally run jettyStop after test despite of success or failure
 gradle.taskGraph.afterTask { Task task, TaskState state ->
-    if(task == test) {
+    if(task == test || task == testExamples) {
         tasks.jettyStop.execute()
         println '---- stopped jetty after tests ended ----'
     }
