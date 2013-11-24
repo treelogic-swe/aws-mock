@@ -3,8 +3,12 @@ apply plugin: 'war'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'jetty'
 apply plugin: 'checkstyle'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
-version = '0.1'
+group = 'com.treelogic-swe'
+version = '1.0.1'
+ext.packaging = 'jar'
 
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
@@ -21,7 +25,7 @@ dependencies {
     compile 'org.slf4j:slf4j-log4j12:1.7.5'
     compile 'log4j:log4j:1.2.17'
     compile 'org.freemarker:freemarker:2.3.20'
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile 'com.treelogic-swe:cxf-stub:1.0.1'
     
     testCompile "junit:junit:4.9"
     testCompile "com.amazonaws:aws-java-sdk:1.5.3"
@@ -50,14 +54,10 @@ sourceSets {
 }
 /**/
 
-compileJava.dependsOn ":cxf-stub:cxfStubJar"
-eclipseClasspath.dependsOn ":cxf-stub:cxfStubJar"
-
 task sourcesJar(type:Jar, dependsOn: classes){
     classifier = 'sources'
-    // from sourceSets.main.allSource
-    from sourceSets.main.allJava.srcDirs
-    include "**/*.java"
+    from sourceSets.main.allSource
+    exclude "**/log4j.properties"
 }
 
 task javadocJar(type: Jar) {
@@ -103,14 +103,87 @@ gradle.taskGraph.afterTask { Task task, TaskState state ->
     }
 }
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
-}
-
 jar {
     exclude('log4j.properties')
 }
 
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
 
+// We comment the signing task for avoiding travis-ci build failure 
+// because we don't commit secret key for siging jars to github.com.
+//signing {
+//    sign configurations.archives
+//}
 
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment)  }
+ 
+            // for publishing to local folder - for normal travis-ci builds
+            repository(url: "file:/tmp/tlswe/repo")
+
+            // for publishing to public maven repo - for manually releasing to maven repo
+            //repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            //  authentication(userName: sonatypeUsername, password: sonatypePassword)
+            //}
+
+            addFilter('upload_jars') {artifact, file ->
+                 artifact.type != 'war'
+            }
+ 
+            pom('upload_jars').project {
+               name 'aws-mock'
+               packaging 'jar'
+               description 'A lightweight, language-agnostic mock of essential AWS services, for test automation.'
+               url 'https://github.com/treelogic-swe/aws-mock'
+ 
+               scm {
+                   url 'scm:git@github.com:treelogic-swe/aws-mock.git'
+                   connection 'scm:git@github.com:treelogic-swe/aws-mock.git'
+                   developerConnection 'scm:git@github.com:treelogic-swe/aws-mock.git'
+               }
+ 
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+ 
+               developers {
+                   developer {
+                        id 'christopherbalz'
+                        name 'Christopher Balz'
+                        email 'christopherbalz@yahoo.com'
+                    }
+                    developer {
+                        id 'maxiaohao'
+                        name 'Ma Xiaohao'
+                        email 'maxiaohao@gmail.com'
+                    }
+                    developer {
+                        id 'deathspeeder'
+                        name 'Wang Jun'
+                        email 'deathspeeder@gmail.com'
+                    }
+                    developer {
+                        id 'Jayscrivner'
+                        name 'Jay Scrivner'
+                    }
+                    developer {
+                        id 'lhcxx'
+                        name 'Lu Huichun'
+                        email 'lhcxx0508@gmail.com'
+                    }
+               }
+            }
+            
+        }  
+    }
+}
