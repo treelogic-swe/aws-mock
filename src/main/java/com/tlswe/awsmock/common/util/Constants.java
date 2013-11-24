@@ -1,7 +1,7 @@
 package com.tlswe.awsmock.common.util;
 
 /**
- * Some common constants.
+ * Some common constants, mainly the property names in aws-mock(-defalut).properties.
  *
  * @author xma
  *
