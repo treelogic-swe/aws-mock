@@ -12,8 +12,6 @@ import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 
-//import com.tlswe.awsmock.common.util.SerializedTimer;
-
 /**
  * Generic class for mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances' life
  * cycle. Any extra implementation of more customized ec2 mock instances should extend this class (and override the

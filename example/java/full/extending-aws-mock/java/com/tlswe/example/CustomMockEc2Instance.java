@@ -3,8 +3,11 @@ package com.tlswe.example;
 import java.io.Serializable;
 
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
+import com.tlswe.awsmock.ec2.model.DefaultMockEc2Instance;
 
 /**
+ * An example custom class for a replacement of {@link DefaultMockEc2Instance} as 'ec2.instance.class', taking
+ * customized actions on events.
  *
  * @author xma
  *
