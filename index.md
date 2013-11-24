@@ -1,7 +1,7 @@
 aws-mock [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
 ========
 
-A lightweight, very modular mock of essential [AWS services](http://aws.amazon.com/) that works with official aws-sdk, api-tools, or third-party tools, generally for test automation.  Although the mock is written in Java, it is language-agnostic since its API is exposed via http.
+A lightweight, very modular mock of essential [AWS services](http://aws.amazon.com/) that works with official aws-sdk, api-tools, or third-party tools, for test automation.  Although the mock is written in Java, it is language-agnostic since its API is exposed via http.
 
 For now we have implemented only a few interfaces (and only necessary data in response) of Amazon EC2: 
 - describeImages
@@ -49,6 +49,8 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 - There are a few options in `src/main/resources/aws-mock.properties` to tune. 
 - For eclipse users, `gradle cleanEclipse eclipse` will initialize the ready-to-import eclipse wtp project facets. 
 
+### License
+'aws-mock' is released under version 2.0 of the [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
 
 ### Your Contribution
 Any contribution to aws-mock is strongly welcomed - including any adding of the unimplemented interfaces/data of EC2 and other mock of Amazon Web Services. 
