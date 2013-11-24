@@ -3,6 +3,7 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   echo -e "Start to publish lastest Javadoc to gh-pages...\n"
 
   cp -R build/docs/javadoc $HOME/javadoc-latest
+  cp -f README.md $HOME/index-latest.md
 
   cd $HOME
   git config --global user.email "travis@travis-ci.org"
@@ -10,10 +11,11 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   git clone --quiet --branch=gh-pages https://${GH_TOKEN}@github.com/treelogic-swe/aws-mock gh-pages > /dev/null
 
   cd gh-pages
-  git rm -rf ./javadoc
+  git rm -rf ./javadoc ./index.md
   cp -Rf $HOME/javadoc-latest ./javadoc
+  cp -f $HOME/index-latest.md ./index.md
   git add -f .
-  git commit -m "Lastest javadoc on successful travis build $TRAVIS_BUILD_NUMBER auto-pushed to gh-pages"
+  git commit -m "Auto-publishing on successful travis build $TRAVIS_BUILD_NUMBER"
   git push -fq origin gh-pages > /dev/null
 
   echo -e "Done magic with auto publishment to gh-pages.\n"

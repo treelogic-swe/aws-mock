@@ -10,4 +10,4 @@ env:
 
 script: gradle check Javadoc
 
-after_success: .utility/push-javadoc-to-gh-pages.sh
+after_success: .utility/push-to-gh-pages.sh
