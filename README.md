@@ -1,6 +1,8 @@
 aws-mock [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
 ========
 
+### Overview
+
 A lightweight, very modular mock of essential [AWS services](http://aws.amazon.com/) that works with official aws-sdk, api-tools, or third-party tools, for test automation.  Although currently all of the mock is written to target the JVM, it is language-agnostic since its API is exposed via http.
 
 For now we have implemented only a few interfaces (and only necessary data in response) of Amazon EC2: 
@@ -12,14 +14,6 @@ For now we have implemented only a few interfaces (and only necessary data in re
 - describeInstances
 
 This mock of EC2 could be helpful for testing your applications. 'aws-mock' can manage a large amount of mock EC2 instances. 
-
-
-### How It Works
-'aws-mock' works totally as a servlet web application, conforming to the protocols described in the WSDL defined by AWS. 
-Basically, take our mock "ec2-endpoint" as an example. It processes [Query Requests](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html) built by your client (such as AWS-SDK or EC2-API-Tools) and manages the internal mock EC2 instances as an emulation of the lifecycle of those in genuine EC2 (pending->running, stopping->stopped, terminated, etc), and returns an xml result body in responses which is recognized by your client.  
-Note again that, at this time, only the limited EC2 interfaces mentioned have been implemented. And only essential fields of data are filled in the response body. 
-
-Refer to the [Technical Specification](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specification) for more information. 
 
 
 ### Quick Start
@@ -38,6 +32,14 @@ Now you are able to interact with your "local Amazon Web Services" (though only 
 For more usage instructions, please look into our full [User's Guide](https://github.com/treelogic-swe/aws-mock/wiki/User's-Guide).
 
 For detailed specification and reference for those interfaces already available in aws-mock, here is a list of them: [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specification#implemented-requests-and-responses-ec2).
+
+
+### How It Works
+'aws-mock' works totally as a servlet web application, conforming to the protocols described in the WSDL defined by AWS. 
+Basically, take our mock "ec2-endpoint" as an example. It processes [Query Requests](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html) built by your client (such as AWS-SDK or EC2-API-Tools) and manages the internal mock EC2 instances as an emulation of the lifecycle of those in genuine EC2 (pending->running, stopping->stopped, terminated, etc), and returns an xml result body in responses which is recognized by your client.  
+Note again that, at this time, only the limited EC2 interfaces mentioned have been implemented. And only essential fields of data are filled in the response body. 
+
+Refer to the [Technical Specification](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specification) for more information. 
 
 
 ### Javadoc
