@@ -35,9 +35,14 @@ import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 
 /**
+ * Base underlying class for doing the fundamental calls to aws ec2 interfaces, with neat utility methods which can be
+ * made use of by test cases that test aws-mock.
+ *
  * @author Willard Wang
+ * @author xma
  */
 public class BaseTest {
+
     /**
      * Log writer for this class.
      */
@@ -64,8 +69,8 @@ public class BaseTest {
     private static final String PROPERTY_ENDPOINT = "ec2.endpoint";
 
     /**
-     * Property key for predefined AMI IDs. The key for predefined AMI id is a
-     * String in format "predefined.mock.ami.id" where id is an integer number.
+     * Property key for predefined AMI IDs. The key for predefined AMI id is a String in format "predefined.mock.ami.id"
+     * where id is an integer number.
      */
     private static final String PROPERTY_MOCK_AMI = "predefined.mock.ami.";
 
@@ -84,6 +89,7 @@ public class BaseTest {
      */
     private static List<String> predefinedAMIs;
 
+
     /**
      * Load test properties from file 'aws-mock.test.properties'.
      */
@@ -101,9 +107,9 @@ public class BaseTest {
         }
     }
 
+
     /**
-     * Load predefined AMIs from test properties. Invoked after
-     * {@link #initTestProperties()}.
+     * Load predefined AMIs from test properties. Invoked after {@link #initTestProperties()}.
      */
     private static synchronized void initPredefinedAMIs() {
         if (predefinedAMIs == null) {
@@ -115,9 +121,10 @@ public class BaseTest {
         }
     }
 
+
     /**
-     * Load ec2 client URL from test properties and create an ec2 client
-     * instance. Invoked after {@link #initTestProperties()}.
+     * Load ec2 client URL from test properties and create an ec2 client instance. Invoked after
+     * {@link #initTestProperties()}.
      */
     private static synchronized void initEc2Client() {
         if (amazonEC2Client == null) {
@@ -129,6 +136,7 @@ public class BaseTest {
                     .getProperty(PROPERTY_ENDPOINT));
         }
     }
+
 
     /**
      * @return a random predefined AMI id.
@@ -142,6 +150,7 @@ public class BaseTest {
         return predefinedAMIs.get(index);
     }
 
+
     /**
      * Read test properties, setup predefined AMIs and create EC2 client.
      */
@@ -151,6 +160,7 @@ public class BaseTest {
         initPredefinedAMIs();
         initEc2Client();
     }
+
 
     /**
      * Construct a List of Instances' IDs.
@@ -167,6 +177,7 @@ public class BaseTest {
         }
         return ids;
     }
+
 
     /**
      * Run instances with a random AMI ID.
@@ -194,6 +205,7 @@ public class BaseTest {
         return result.getReservation().getInstances();
     }
 
+
     /**
      * Start instances.
      *
@@ -211,6 +223,7 @@ public class BaseTest {
         return result.getStartingInstances();
     }
 
+
     /**
      * Start instances.
      *
@@ -222,6 +235,7 @@ public class BaseTest {
             final List<Instance> instances) {
         return startInstances(getInstanceIds(instances));
     }
+
 
     /**
      * Stop instances.
@@ -239,6 +253,7 @@ public class BaseTest {
         return result.getStoppingInstances();
     }
 
+
     /**
      * Stop instances.
      *
@@ -250,6 +265,7 @@ public class BaseTest {
             final List<Instance> instances) {
         return stopInstances(getInstanceIds(instances));
     }
+
 
     /**
      * Terminate instances.
@@ -268,6 +284,7 @@ public class BaseTest {
         return result.getTerminatingInstances();
     }
 
+
     /**
      * Terminate instances.
      *
@@ -279,6 +296,7 @@ public class BaseTest {
             final List<Instance> instances) {
         return terminateInstances(getInstanceIds(instances));
     }
+
 
     /**
      * @param instanceIds
@@ -300,19 +318,20 @@ public class BaseTest {
         return result.getReservations().get(0).getInstances();
     }
 
+
     /**
      * Describe instances.
      *
      * @param instances
      *            list of instances
-     * @return
-     *            list of described instances
+     * @return list of described instances
      */
     protected final List<Instance> describeInstances(
             final List<Instance> instances) {
 
         return describeInstances(getInstanceIds(instances));
     }
+
 
     /**
      * Describe instances.
@@ -326,9 +345,10 @@ public class BaseTest {
         return describeInstances(instanceIds, true);
     }
 
+
     /**
-     * Wait an instance reaching target {@link InstanceState} by describing the
-     * instance every second until it reach target state.
+     * Wait an instance reaching target {@link InstanceState} by describing the instance every second until it reach
+     * target state.
      *
      * @param instanceId
      *            instance's ID
@@ -341,9 +361,10 @@ public class BaseTest {
         waitForState(instanceId, state, Long.MAX_VALUE);
     }
 
+
     /**
-     * Wait an instance reaching target {@link InstanceState} by describing the
-     * instance every second until it reach target state or time out.
+     * Wait an instance reaching target {@link InstanceState} by describing the instance every second until it reach
+     * target state or time out.
      *
      * @param instanceId
      *            instance's ID
@@ -373,6 +394,7 @@ public class BaseTest {
             }
         }
     }
+
 
     /**
      * Convert a collection of instance IDS into a whitespace-separated String.

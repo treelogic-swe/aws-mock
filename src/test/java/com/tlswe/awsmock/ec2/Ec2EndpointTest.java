@@ -17,9 +17,14 @@ import com.amazonaws.services.ec2.model.InstanceStateChange;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
 
 /**
+ * This test class covers some sequential test cases to mock ec2 instances in aws-mock (run->stop->start-terminate,
+ * etc), along with a case that tests running hundreds of instances.
+ *
  * @author Willard Wang
+ * @author xma
  */
 public class Ec2EndpointTest extends BaseTest {
+
     /**
      * 2 minutes timeout.
      */
@@ -39,6 +44,7 @@ public class Ec2EndpointTest extends BaseTest {
      * Log writer for this class.
      */
     private static Logger log = LoggerFactory.getLogger(Ec2EndpointTest.class);
+
 
     /**
      * Test one instance by run->stop.
@@ -70,6 +76,7 @@ public class Ec2EndpointTest extends BaseTest {
         waitForState(instances.get(0).getInstanceId(),
                 AbstractMockEc2Instance.InstanceState.STOPPED);
     }
+
 
     /**
      * Test one instance by run->stop->start->terminate.
@@ -113,9 +120,9 @@ public class Ec2EndpointTest extends BaseTest {
                 AbstractMockEc2Instance.InstanceState.TERMINATED);
     }
 
+
     /**
-     * Test one instance by run->terminate->start. A terminated instance can not
-     * start.
+     * Test one instance by run->terminate->start. A terminated instance can not start.
      */
     @Test(timeout = TIMEOUT_LEVEL2)
     public final void sequenceRunTerminateStartTest() {
@@ -159,6 +166,7 @@ public class Ec2EndpointTest extends BaseTest {
                         .equals(AbstractMockEc2Instance.InstanceState.TERMINATED
                                 .getName()));
     }
+
 
     /**
      * Test starting thousands of instances.
