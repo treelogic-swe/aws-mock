@@ -49,6 +49,8 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 - There are a few options in `src/main/resources/aws-mock.properties` to tune. 
 - For eclipse users, `gradle cleanEclipse eclipse` will initialize the ready-to-import eclipse wtp project facets. 
 
+### License
+'aws-mock' is released under version 2.0 of the [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
 
 ### Your Contribution
 Any contribution to aws-mock is strongly welcomed - including any adding of the unimplemented interfaces/data of EC2 and other mock of Amazon Web Services. 
