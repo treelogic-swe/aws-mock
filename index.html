@@ -23,8 +23,12 @@
     $('#main_content').html('<img src="loading.gif"/>').load('http://markdown.io/https://raw.github.com/treelogic-swe/aws-mock/master/README.md #md-content', function() {
     });
     });*/
-    $(document).ready(function() {
+    /*$(document).ready(function() {
     $.get("mdwiki.html#!index.md", function(data){ $("#main_content").html(data);});
+    });*/
+    $(document).ready(function() {
+    $('#main_content').load('mdwiki.html', function() {
+    });
     });
     </script>
 
