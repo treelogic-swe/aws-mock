@@ -19,6 +19,8 @@ This mock of EC2 could be helpful for testing your applications. 'aws-mock' can 
 Basically, take our mock "ec2-endpoint" as an example. It processes [Query Requests](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html) built by your client (such as AWS-SDK or EC2-API-Tools) and manages the internal mock EC2 instances as an emulation of the lifecycle of those in genuine EC2 (pending->running, stopping->stopped, terminated, etc), and returns an xml result body in responses which is recognized by your client.  
 Note again that, at this time, only the limited EC2 interfaces mentioned have been implemented. And only essential fields of data are filled in the response body. 
 
+Refer to the [Technical Specification](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specification) for more information. 
+
 
 ### Quick Start
 ```
@@ -33,9 +35,9 @@ This will run a build that automatically downloads all dependencies and prepares
 Now you are able to interact with your "local Amazon Web Services" (though only EC2 for now), in your own client applications which use [AWS-SDK](http://aws.amazon.com/tools/), or with [EC2-API-TOOLS](http://aws.amazon.com/developertools/Amazon-EC2/351), or with other third-party client tools such as elasticfox. To manage instances on mock EC2, just point to the custom EC2 endpoint like:
 `http://localhost:8000/aws-mock/ec2-endpoint/` (equivalent to the official endpoint url like `https://ec2.us-west-1.amazonaws.com/`)
 
-For detailed usage instructions, please look into our [Full User's Guide](https://github.com/treelogic-swe/aws-mock/wiki/User's-Guide).
+For more usage instructions, please look into our full [User's Guide](https://github.com/treelogic-swe/aws-mock/wiki/User's-Guide).
 
-For detailed specification and usage reference for those interfaces already available in aws-mock, here is a list of them: [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Implemented-Requests-and-Responses).
+For detailed specification and reference for those interfaces already available in aws-mock, here is a list of them: [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specification#implemented-requests-and-responses-ec2).
 
 
 ### Javadoc
