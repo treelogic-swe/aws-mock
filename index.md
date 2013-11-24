@@ -1,7 +1,7 @@
 aws-mock [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
 ========
 
-A lightweight, very modular mock of essential [AWS services](http://aws.amazon.com/) that works with official aws-sdk, api-tools, or third-party tools, for test automation.  Although the mock is written in Java, it is language-agnostic since its API is exposed via http.
+A lightweight, very modular mock of essential [AWS services](http://aws.amazon.com/) that works with official aws-sdk, api-tools, or third-party tools, for test automation.  Although currently all of the mock is written to target the JVM, it is language-agnostic since its API is exposed via http.
 
 For now we have implemented only a few interfaces (and only necessary data in response) of Amazon EC2: 
 - describeImages
