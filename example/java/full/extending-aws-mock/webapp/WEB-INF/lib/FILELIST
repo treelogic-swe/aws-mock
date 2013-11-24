@@ -1,3 +1,0 @@
-# build the following dependent jars with 'gradle cxf-stub:cxfStubJar jar' and put them here
-aws-mock-0.1.jar
-cxf-stub-ec2-2013-02-01.jar
