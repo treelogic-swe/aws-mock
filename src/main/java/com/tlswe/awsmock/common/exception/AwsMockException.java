@@ -9,7 +9,7 @@ package com.tlswe.awsmock.common.exception;
 public class AwsMockException extends RuntimeException {
 
     /**
-     * Default serial version ID for this class which implements. {@link java.io.Serializable}
+     * Default serial version ID for this class which implements {@link java.io.Serializable}.
      *
      * @see java.io.Serializable
      */

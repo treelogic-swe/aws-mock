@@ -37,7 +37,7 @@ import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.TerminateInstancesResponseType;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
-import com.tlswe.awsmock.ec2.model.MockEc2Instance;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
 import com.tlswe.awsmock.ec2.servlet.MockEc2EndpointServlet;
 import com.tlswe.awsmock.ec2.util.JAXBUtil;
 
@@ -66,7 +66,7 @@ public final class MockEC2QueryHandler {
     private final Logger log = LoggerFactory.getLogger(MockEC2QueryHandler.class);
 
     /**
-     * Class for all mock ec2 instances, which should extend {@link MockEc2Instance}.
+     * Class for all mock ec2 instances, which should extend {@link AbstractMockEc2Instance}.
      */
     private static final String MOCK_EC2_INSTANCE_CLASS_NAME = PropertiesUtils
             .getProperty(Constants.PROP_NAME_EC2_INSTANCE_CLASS);
@@ -297,9 +297,9 @@ public final class MockEC2QueryHandler {
 
         mockEc2Controller.getAllMockEc2Instances();
 
-        Collection<MockEc2Instance> instances = mockEc2Controller.describeInstances(instanceIDs);
+        Collection<AbstractMockEc2Instance> instances = mockEc2Controller.describeInstances(instanceIDs);
 
-        for (MockEc2Instance instance : instances) {
+        for (AbstractMockEc2Instance instance : instances) {
 
             if (null != instance) {
 
@@ -352,7 +352,7 @@ public final class MockEC2QueryHandler {
      * @param imageId
      *            AMI of new mock ec2 instance(s)
      * @param instanceType
-     *            type(scale) of new mock ec2 instance(s), refer to {@link MockEc2Instance#InstanceType}
+     *            type(scale) of new mock ec2 instance(s), refer to {@link AbstractMockEc2Instance#InstanceType}
      * @param minCount
      *            max count of instances to run
      * @param maxCount
@@ -366,24 +366,24 @@ public final class MockEC2QueryHandler {
 
         RunningInstancesSetType instSet = new RunningInstancesSetType();
 
-        Class<? extends MockEc2Instance> clazzOfMockEc2Instance = null;
+        Class<? extends AbstractMockEc2Instance> clazzOfMockEc2Instance = null;
 
         try {
             // clazzOfMockEc2Instance = (Class<? extends MockEc2Instance>) Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME);
 
             clazzOfMockEc2Instance = (Class.forName(MOCK_EC2_INSTANCE_CLASS_NAME)
-                    .asSubclass(MockEc2Instance.class));
+                    .asSubclass(AbstractMockEc2Instance.class));
 
         } catch (ClassNotFoundException e) {
             throw new AwsMockException("badly configured class '" + MOCK_EC2_INSTANCE_CLASS_NAME + "' not found", e);
         }
 
-        List<MockEc2Instance> newInstances = null;
+        List<AbstractMockEc2Instance> newInstances = null;
 
         newInstances = mockEc2Controller
                 .runInstances(clazzOfMockEc2Instance, imageId, instanceType, minCount, maxCount);
 
-        for (MockEc2Instance i : newInstances) {
+        for (AbstractMockEc2Instance i : newInstances) {
             RunningInstancesItemType instItem = new RunningInstancesItemType();
             instItem.setInstanceId(i.getInstanceID());
             instItem.setImageId(i.getImageId());

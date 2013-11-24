@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+    <display-name>example-webapp</display-name>
+    <listener>
+        <listener-class>com.tlswe.awsmock.common.listener.AppServletContextListener</listener-class>
+    </listener>
+    <servlet>
+        <description></description>
+        <display-name>MockEc2EndpointServlet</display-name>
+        <servlet-name>MockEc2EndpointServlet</servlet-name>
+        <servlet-class>com.tlswe.awsmock.ec2.servlet.MockEc2EndpointServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MockEc2EndpointServlet</servlet-name>
+        <url-pattern>/my-ec2-endpoint/*</url-pattern>
+    </servlet-mapping>
+</web-app>

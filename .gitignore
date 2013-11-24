@@ -22,4 +22,3 @@ gradle.properties
 
 # Generated Java stubs (with Apache-CXF)
 src/main/java/com/tlswe/awsmock/ec2/cxf_generated/*.java
-
