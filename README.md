@@ -55,7 +55,7 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 'aws-mock' is released under version 2.0 of the [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
 
 ### Your Contribution
-We welcome contributions in any language that targets the JVM (with accompanying build integration).
+We welcome contributions in any language that target the JVM (with accompanying build integration).
 
 Any contribution to aws-mock is strongly welcomed - including any adding of the unimplemented interfaces/data of EC2 and other mock of Amazon Web Services. 
 If you find aws-mock helpful in working with your applications and have added features, we encourage you fork and send your pull requests to us! 
