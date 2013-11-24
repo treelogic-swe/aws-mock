@@ -142,6 +142,7 @@ uploadArchives {
                     developer {
                         id 'Jayscrivner'
                         name 'Jay Scrivner'
+			email 'Jayscrivner@gmail.com'
                     }
                     developer {
                         id 'lhcxx'
