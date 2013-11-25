@@ -1,3 +1,4 @@
+### Contributing Your Code
 You may want to (or even did) add some new features/improvements to aws-mock. This is highly welcomed and we will definitely appreciate your contribution to aws-mock!
 
 Followings are some helpful instructions that could both make your development process easier, and fit your code for a better merging to aws-mock source tree. 
