@@ -29,7 +29,7 @@ In response it then returns an xml result body which is recognized by your clien
 
 Note: at this time, the only interfaces that have been implemented are the ones listed above. Only essential data fields in the response body are filled.
  
-For more information, please the [Technical Specifications](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications). 
+For more information, please refer to the [Technical Specifications](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications). 
 
 
 ### Quick Start
@@ -44,7 +44,7 @@ This will run a build that automatically downloads all dependencies and prepares
  
 Now you are able to interact with your local, mock version of Amazon Web Services (though only EC2 for now), in your own client applications.
 
-You can use [AWS-SDK](http://aws.amazon.com/tools/), or with [EC2-API-TOOLS](http://aws.amazon.com/developertools/Amazon-EC2/351) or a number of other third-party client tools such as elasticfox. 
+You can use [AWS-SDK](http://aws.amazon.com/tools/), or a number of other third-party client tools such as elasticfox. 
 
 To manage instances on mock EC2, just point to the custom EC2 endpoint as follows: 
 http://localhost:8000/aws-mock/ec2-endpoint/ (equivalent to the official endpoint url https://ec2.us-west-1.amazonaws.com/)
@@ -61,11 +61,11 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 
 
 ### Tips
-- To build a war file for deployment, run gradle war.
+- To build a war file for deployment, run `gradle war`.
 - Initially there are no mock instances in mock EC2, so you need to run one or more new instances first. 
 - Your client doesn't need to provide valid credentials since aws-mock skips the secretKey/accessKey check. 
 - There are a few options in src/main/resources/aws-mock.properties to tune.
-- For eclipse users, gradle clean Eclipse eclipse will initialize the ready-to-import eclipse wtp project facets. 
+- For eclipse users, `gradle clean Eclipse eclipse` will initialize the ready-to-import eclipse wtp project facets. 
 
 
 ### License
