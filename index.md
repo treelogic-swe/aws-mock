@@ -1,4 +1,4 @@
-aws-mock [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
+aws-mock automated testing [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
 ========
 
 ### Overview
@@ -55,7 +55,7 @@ For detailed specification and reference for those interfaces already available 
 
 
 ### Packages
-All packages for currently implemented interfaces can be found here. Don't worry about the word 'javadoc' – you don't have to write any Java, just pick your favorite language (Clojure, Jython etc) and off you go. 
+All packages for currently implemented interfaces can be found here. Don't worry about the word 'javadoc' – you don't have to write any Java, just pick your favorite language (Groovy, Clojure, JRuby, Jython, Scala, etc) and off you go. 
 
 http://treelogic-swe.github.io/aws-mock/javadoc/
 
