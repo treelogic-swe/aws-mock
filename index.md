@@ -68,9 +68,10 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 - For eclipse users, `gradle clean Eclipse eclipse` will initialize the ready-to-import eclipse wtp project facets. 
 
 
-### License
-'aws-mock' is released under version 2.0 of the [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
-
-
 ### Your Contribution
 Any contribution to aws-mock is strongly welcomed - including any adding of the unimplemented interfaces/data of EC2 and other mock of Amazon Web Services. If you find aws-mock helpful in working with your applications and have added features, we encourage you fork and send your pull requests to us! Bug reports are also very much appreciated.
+
+Adding features to aws-mock is really easy, and you can do it in any JVM language you want. Go [here](http://treelogic-swe.github.io/aws-mock/mdwiki.html#!contributing.md) to see the instructions.
+
+### License
+'aws-mock' is released under version 2.0 of the [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
