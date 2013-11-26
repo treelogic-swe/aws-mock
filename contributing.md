@@ -6,7 +6,7 @@ It will also make your code a better fit for merging it with the aws-mock source
 
 For example, let's say you want to add a mock of Amazon web service such as S3:
 
-- To mock S3, you put S3's WSDL to [note: should this not be 'in', instead of 'to'?] cxf-stub (the sub project under aws-mock)
+- To mock S3, you put S3's WSDL to `cxf-stub` (the sub project under aws-mock)
 - Then write a new 'wsdl2java' task according to `cxf-stub/build.gradle`
 - Generate the Java API stub for developing S3 interfaces
 - Add a new servlet as the mock S3 endpoint, which will parse interface call requests from clients
