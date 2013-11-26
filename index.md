@@ -74,4 +74,4 @@ Any contribution to aws-mock is strongly welcomed - including any adding of the 
 Adding features to aws-mock is really easy, and you can do it in any JVM language you want. Go [here](http://treelogic-swe.github.io/aws-mock/mdwiki.html#!contributing.md) to see the instructions.
 
 ### License
-'aws-mock' is released under version 2.0 of the [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
+aws-mock is released under version 2.0 of the [Apache License](http://www.apache.org/licenses/LICENSE-2.0).
