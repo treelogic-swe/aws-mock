@@ -4,6 +4,7 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
 
   cp -R build/docs/javadoc $HOME/javadoc-latest
   cp -f README.md $HOME/index-latest.md
+  cp -f contributing.md $HOME/contributing-latest.md
 
   cd $HOME
   git config --global user.email "travis@travis-ci.org"
@@ -14,6 +15,7 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   git rm -rf ./javadoc ./index.md
   cp -Rf $HOME/javadoc-latest ./javadoc
   cp -f $HOME/index-latest.md ./index.md
+  cp -f $HOME/contributing-latest.md ./contributing.md
   git add -f .
   git commit -m "Auto-publishing on successful travis build $TRAVIS_BUILD_NUMBER"
   git push -fq origin gh-pages > /dev/null
