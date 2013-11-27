@@ -57,7 +57,7 @@ For detailed specification and reference for those interfaces already available 
 
 
 ### API Documentation
-Please find API documentation for all currently implemented interfaces at the link below. Don't worry about the word 'javadoc' – you don't have to write any Java, just pick your favorite JVM-targeting language (Clojure, Scala, JRuby, Jython, Groovy, etc.) and off you go. The aws-mock contributors commit to supporting [Literate Programming](http://en.wikipedia.org/wiki/Literate_programming) in any JVM-targeting language you choose to contribute in.
+Please find API documentation for all currently implemented interfaces at the link below. Don't worry about the word 'javadoc' – you don't have to write any Java, just pick your favorite JVM-targeting language (Clojure, Scala, JRuby, Jython, Groovy, etc.) and off you go. The aws-mock contributors commit to supporting [Literate Programming](http://en.wikipedia.org/wiki/Literate_programming) in any JVM-targeting language you choose to use.
 
 http://treelogic-swe.github.io/aws-mock/javadoc/
 
