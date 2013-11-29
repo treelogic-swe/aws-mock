@@ -22,14 +22,14 @@ aws-mock is a pure servlet web application, conforming to the protocols describe
 
 
 ### How It Works
-Example: our ec2-endpoint mock. 
+Example: Our ec2-endpoint mock. 
 This mock processes [Query Requests](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html) built by your client (such as aws-sdk).
 
 It then manages the internal mock EC2 instances as an emulation of the lifecycle of those in genuine EC2 (pending->running, stopping->stopped, terminated, etc).
 
 In response it then returns an xml result body which is recognized by your client.
 
-Note: at this time, the only interfaces that have been implemented are the ones listed above. Only essential data fields in the response body are filled.
+Note: At this time, the only interfaces that have been implemented are the ones listed above. Only essential data fields in the response body are filled.
  
 For more information, please refer to the [Technical Specifications](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications). 
 
