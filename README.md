@@ -30,7 +30,7 @@ In response it then returns an xml result body which is recognized by your clien
 
 Note: At this time, the only interfaces that have been implemented are the ones listed above. Only essential data fields in the response body are filled.
 
-Inside aws-mock, the mock EC2 instances can programmably work in their own threads and behave just like real ones, and in that way, by extending aws-mock, it would be easy for you to add some custom behaviors to your mock EC2 instances (e.g. insert 'agents' that send heartbeat pings to your EC2 cluster controller, etc), for mocking and testing your EC2-based system more precisely. 
+Inside aws-mock, the mock EC2 instances can work in their own program threads and behave just like real ones, and in that way, by extending aws-mock, it would be easy for you to add some custom behaviors to your mock EC2 instances (e.g. insert 'agents' that send heartbeat pings to your EC2 cluster controller, etc), for mocking and testing your EC2-based system more precisely. 
  
 For more information, please refer to the [Technical Specifications](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications). 
 
