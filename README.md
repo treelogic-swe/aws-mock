@@ -29,6 +29,8 @@ It then manages the internal mock EC2 instances as an emulation of the lifecycle
 In response it then returns an xml result body which is recognized by your client.
 
 Note: At this time, the only interfaces that have been implemented are the ones listed above. Only essential data fields in the response body are filled.
+
+Inside aws-mock, the mock EC2 instances can programmably work in their own threads and behave just like real ones, and in that way, by extending aws-mock, it would be easy for you to add some custom behaviors to your mock EC2 instances (e.g. insert 'agents' that send heartbeat pings to your EC2 cluster controller, etc), for mocking and testing your EC2-based system more precisely. 
  
 For more information, please refer to the [Technical Specifications](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications). 
 
@@ -50,7 +52,7 @@ You can use [AWS-SDK](http://aws.amazon.com/tools/), or a number of other third-
 To manage instances on mock EC2, just point to the custom EC2 endpoint as follows: 
 http://localhost:8000/aws-mock/ec2-endpoint/ (equivalent to the official endpoint url https://ec2.us-west-1.amazonaws.com/)
 
-For more usage instructions, please look into our full [User's Guide](https://github.com/treelogic-swe/aws-mock/wiki/User's-Guide).
+For more usage instructions including how to extend aws-mock, please look into our full [User's Guide](https://github.com/treelogic-swe/aws-mock/wiki/User's-Guide).
 
 For detailed specification and reference for those interfaces already available in aws-mock, here is a list of them: [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications#implemented-requests-and-responses-ec2).
 
