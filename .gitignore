@@ -13,6 +13,7 @@ build/
 bin/
 private_doc/
 libs/
+node_modules/
 
 # Project factets
 .classpath

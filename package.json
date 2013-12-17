@@ -1,25 +1,29 @@
 {
-  "name": "aws-mock",
-  "version": "1.0.1",
-  "description": "Easily and automatically test essential AWS services with the language-agnostic aws-mock.",
-  "main": "build.gradle",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/treelogic-swe/aws-mock.git"
-  },
-  "keywords": [
-    "aws",
-    "mock",
-    "ec2"
-  ],
-  "author": {
-    "name": "treelogic-swe.com"
-  },
-  "license": "Apache",
-  "readmeFilename": "README.md",
-  "_id": "aws-mock@1.0.1",
-  "_from": "aws-mock@"
+    "name": "aws-mock",
+        "version": "1.0.1",
+        "description": "Easily and automatically test essential AWS services with the language-agnostic aws-mock.",
+        "main": "build.gradle",
+        "devDependencies": {
+            "mocha": "~1.15.1",
+            "chai": "~1.8.1"
+        },
+        "scripts": {
+            "test": "echo \"Error: no test specified\" && exit 1"
+        },
+        "repository": {
+            "type": "git",
+            "url": "git://github.com/treelogic-swe/aws-mock.git"
+        },
+        "keywords": [
+            "aws",
+        "mock",
+        "ec2"
+            ],
+        "author": {
+            "name": "treelogic-swe.com"
+        },
+        "license": "Apache",
+        "readmeFilename": "README.md",
+        "_id": "aws-mock@1.0.1",
+        "_from": "aws-mock@"
 }
