@@ -1,38 +1,19 @@
 'use strict';
 
-var AWS, ec2;
+exports.stopInstances = function(instanceIDs, ec2, fnCallback) {
+    // stop running instances by given IDs
+    ec2.stopInstances({
+        InstanceIds: instanceIDs
+    },
+    function handleResponse(err, resp) {
 
-AWS = require('aws-sdk');
-
-AWS.config.update({
-    accessKeyId : 'foo',
-    secretAccessKey : 'bar',
-    region : 'baz'
-});
-
-ec2 = new AWS.EC2({
-    endpoint : new AWS.Endpoint('http://localhost:9090/')
-});
-
-// stop running instances by given IDs passed from command line as arguments
-ec2.stopInstances({
-    InstanceIds : process.argv
-}, function handleResponse(err, resp) {
-
-    if (err) {
-        console.log("Could not stop instances", err);
-    } else {
-
-        if (resp.StoppingInstances.length > 0) {
-            console.log("Instance state changes:")
-
-            resp.StoppingInstances.forEach(function printInstance(inst) {
-                console.log(inst.InstanceId, inst.PreviousState.Name, '->', inst.CurrentState.Name);
-            });
+        if (err) {
+            console.log("Could not stop instances", err);
         } else {
-            console.log('Nothing happened! Make sure you input the right instance IDs.');
-            console.log('usage: node StopInstancesExample.js <instanceID-1> [instanceID-2] [instanceID-3] ...');
+            if (fnCallback) {
+                fnCallback(resp.StoppingInstances);
+            }
         }
+    });
+};
 
-    }
-});
