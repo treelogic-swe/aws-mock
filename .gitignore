@@ -2,6 +2,7 @@
 *~
 *.diff
 *.patch
+*.swp
 
 # Package Files #
 *.jar
