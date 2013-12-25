@@ -10,7 +10,14 @@ startInstancesExample = require('../full/StartInstancesExample.js'),
 stopInstancesExample = require('../full/StopInstancesExample.js'),
 terminateInstancesExample = require('../full/TerminateInstancesExample.js'),
 AWS,
-ec2;
+ec2,
+maxBootSeconds = 30,
+maxShutdownSeconds = 20,
+exampleImageID = null,
+instanceType = 'm1.small',
+runCount = 10,
+exampleInstanceIDs = [],
+exampleInstanceID = null;
 
 AWS = require('aws-sdk');
 AWS.config.update({
@@ -23,17 +30,10 @@ ec2 = new AWS.EC2({
 });
 
 describe('Test Examples -> ', function() {
-    var maxBootSeconds = 30,
-    maxShutdownSeconds = 20,
-    exampleImageID = null,
-    instanceType = 'm1.small',
-    runCount = 10,
-    exampleInstanceIDs = [],
-    exampleInstanceID = null;
 
     describe('Describe Images test ->', function() {
         it('should return at least one pre-defined images', function(done) {
-            describeImagesExample.describeImages(ec2, function(images) {
+            describeImagesExample.describeImages(ec2, function getImages(images) {
                 expect(images).to.have.length.above(0);
                 // pick the first imageID for running the new instances
                 exampleImageID = images[0].ImageId;
@@ -44,7 +44,7 @@ describe('Test Examples -> ', function() {
 
     describe('Run Instances test -> ', function() {
         it('should start ' + runCount + ' new pending instances successfully', function(done) {
-            runInstancesExample.runInstances(exampleImageID, instanceType, runCount, ec2, function getResult(instances) {
+            runInstancesExample.runInstances(exampleImageID, instanceType, runCount, ec2, function getInstances(instances) {
                 expect(instances).to.have.length(runCount);
                 instances.forEach(function(inst) {
                     expect(inst.State.Name).to.equal('pending');
@@ -61,7 +61,7 @@ describe('Test Examples -> ', function() {
             this.timeout((maxBootSeconds * 2 + 1) * 1000);
             // wait maxBootSeconds*2 seconds for instances turning into running and describe and assert again
             setTimeout(function() {
-                describeInstancesExample.describeInstances(exampleInstanceIDs, ec2, function(instances) {
+                describeInstancesExample.describeInstances(exampleInstanceIDs, ec2, function getInstances(instances) {
                     expect(instances).to.have.length(runCount);
                     instances.forEach(function(inst) {
                         expect(inst.State.Name).to.equal('running');
@@ -75,7 +75,7 @@ describe('Test Examples -> ', function() {
 
     describe('Stop Instance Test -> ', function() {
         it('should stop one picked instance successfully', function(done) {
-            stopInstancesExample.stopInstances([exampleInstanceID], ec2, function getResult(instances) {
+            stopInstancesExample.stopInstances([exampleInstanceID], ec2, function getInstances(instances) {
                 expect(instances).to.have.length(1);
                 instances.forEach(function(inst) {
                     expect(inst.PreviousState.Name).to.equal('running');
@@ -90,7 +90,7 @@ describe('Test Examples -> ', function() {
             this.timeout((maxShutdownSeconds * 2 + 1) * 1000);
             // wait maxShutdownSeconds*2 seconds for instances turning into stopped and describe and assert again
             setTimeout(function() {
-                describeInstancesExample.describeInstances([exampleInstanceID], ec2, function(instances) {
+                describeInstancesExample.describeInstances([exampleInstanceID], ec2, function getInstances(instances) {
                     expect(instances).to.have.length(1);
                     instances.forEach(function(inst) {
                         expect(inst.State.Name).to.equal('stopped');
@@ -104,7 +104,7 @@ describe('Test Examples -> ', function() {
 
     describe('Start Instance Test -> ', function() {
         it('should start that instance again successfully', function(done) {
-            startInstancesExample.startInstances([exampleInstanceID], ec2, function getResult(instances) {
+            startInstancesExample.startInstances([exampleInstanceID], ec2, function getInstances(instances) {
                 expect(instances).to.have.length(1);
                 instances.forEach(function(inst) {
                     expect(inst.PreviousState.Name).to.equal('stopped');
@@ -133,7 +133,7 @@ describe('Test Examples -> ', function() {
 
     describe('Terminate Instances Test -> ', function() {
         it('should terminate all the ' + runCount + ' instances successfully', function(done) {
-            terminateInstancesExample.terminateInstances(exampleInstanceIDs, ec2, function getResult(instances) {
+            terminateInstancesExample.terminateInstances(exampleInstanceIDs, ec2, function getInstances(instances) {
                 expect(instances).to.have.length(runCount);
                 instances.forEach(function(inst) {
                     expect(inst.CurrentState.Name).to.equal('terminated');

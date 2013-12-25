@@ -5,7 +5,7 @@ exports.stopInstances = function(instanceIDs, ec2, fnCallback) {
     ec2.stopInstances({
         InstanceIds: instanceIDs
     },
-    function handleResponse(err, resp) {
+    function getStoppingInstances(err, resp) {
 
         if (err) {
             console.log("Could not stop instances", err);

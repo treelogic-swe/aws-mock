@@ -9,7 +9,7 @@ exports.runInstances = function(imageID, type, count, ec2, fnCallback) {
         MaxCount: count
     };
 
-    ec2.runInstances(params, function handleResponse(err, resp) {
+    ec2.runInstances(params, function getInstances(err, resp) {
 
         if (err) {
             console.log("Could not create instances", err);

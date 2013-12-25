@@ -5,7 +5,7 @@ exports.terminateInstances = function(instanceIDs, ec2, fnCallback) {
     ec2.terminateInstances({
         InstanceIds: instanceIDs
     },
-    function handleResponse(err, resp) {
+    function getTerminatingInstances(err, resp) {
 
         if (err) {
             console.log("Could not terminate instances", err);

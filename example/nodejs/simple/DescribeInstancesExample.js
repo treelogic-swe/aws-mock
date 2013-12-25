@@ -5,7 +5,7 @@ exports.describeInstances = function(instanceIDs, ec2, fnCallback) {
     ec2.describeInstances(instanceIDs === null || instanceIDs.length === 0 ? {}: {
         InstanceIds: instanceIDs
     },
-    function handleResponse(err, resp) {
+    function getReservations(err, resp) {
 
         if (err) {
             console.log("Could not describe instances", err);

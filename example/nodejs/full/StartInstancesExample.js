@@ -5,7 +5,7 @@ exports.startInstances = function(instanceIDs, ec2, fnCallback) {
     ec2.startInstances({
         InstanceIds: instanceIDs
     },
-    function handleResponse(err, resp) {
+    function getStartingInstances(err, resp) {
 
         if (err) {
             console.log("Could not start instance", err);
