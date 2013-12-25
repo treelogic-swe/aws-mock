@@ -4,7 +4,7 @@
     "description": "Easily and automatically test essential AWS services with the language-agnostic aws-mock.",
     "main": "build.gradle",
     "devDependencies": {
-        "aws-sdk": "~1.16.0",
+        "aws-sdk": "~2.0.0",
         "yahoo-arrow": "~0.0.87",
         "http-proxy": "~0.10.3"
     },
