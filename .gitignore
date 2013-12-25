@@ -1,8 +1,10 @@
+# Trivial files
 *.class
 *~
 *.diff
 *.patch
 *.swp
+*.out
 
 # Package Files #
 *.jar
@@ -15,6 +17,7 @@ bin/
 private_doc/
 libs/
 node_modules/
+coverage/
 
 # Project factets
 .classpath
