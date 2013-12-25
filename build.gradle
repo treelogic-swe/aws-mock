@@ -65,6 +65,7 @@ task javadocJar(type: Jar) {
     from javadoc
 }
 
+jettyRun.daemon = false
 jettyRun.httpPort = 8000                // Port for test
 [jettyRun,jettyStop]*.stopPort = 8091   // Port for stop signal
 [jettyRun,jettyStop]*.stopKey = 'foobar'
@@ -73,11 +74,11 @@ task run(dependsOn: jettyRun) {
 
 }
 
-test.doFirst {
-    println '---- starting aws-mock on jetty before tests start ----'
-    jettyRun.daemon = true
-    tasks.jettyRun.execute()
-}
+//test.doFirst {
+//    println '---- starting aws-mock on jetty before tests start ----'
+//    jettyRun.daemon = true
+//    tasks.jettyRun.execute()
+//}
 
 test {
     testLogging.showStandardStreams = true
@@ -89,19 +90,19 @@ task testExamples(type: Test) {
     testLogging.showStandardStreams = true
 }
 
-testExamples.doFirst {
-    println '---- starting aws-mock on jetty before testExamples start ----'
-    jettyRun.daemon = true
-    tasks.jettyRun.execute()
-}
+//testExamples.doFirst {
+//    println '---- starting aws-mock on jetty before testExamples start ----'
+//    jettyRun.daemon = true
+//    tasks.jettyRun.execute()
+//}
 
 // this is one working way to finally run jettyStop after test despite of success or failure
-gradle.taskGraph.afterTask { Task task, TaskState state ->
-    if(task == test || task == testExamples) {
-        tasks.jettyStop.execute()
-        println '---- stopped jetty after tests ended ----'
-    }
-}
+//gradle.taskGraph.afterTask { Task task, TaskState state ->
+//    if(task == test || task == testExamples) {
+//        tasks.jettyStop.execute()
+//        println '---- stopped jetty after tests ended ----'
+//    }
+//}
 
 jar {
     exclude('log4j.properties')
@@ -175,7 +176,7 @@ uploadArchives {
                     developer {
                         id 'Jayscrivner'
                         name 'Jay Scrivner'
-			email 'Jayscrivner@gmail.com'
+                        email 'Jayscrivner@gmail.com'
                     }
                     developer {
                         id 'lhcxx'

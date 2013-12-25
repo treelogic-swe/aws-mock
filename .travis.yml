@@ -1,13 +1,21 @@
-language: java
-jdk:
-  - oraclejdk7
-  - openjdk7
-  - openjdk6
-
 env:
   global:
     secure: d8h/SF0QVN0h/h5aFzPX27XfgkJXgl8ohv1K1T1ghZOzEuVneL1amczml4O6yzVWyMcsIKRj2O1UR0gstU3em4A0fKQpskPB78r4iUzWICHIkgQdW7fyIAua5PNdR/VS5feC21B9Yxf0aEFc0MvwMOiP3NNblQutMIiZVntmi7s=
 
-script: gradle check Javadoc
+install:
+    - npm install
+
+before_script: 
+    - nohup gradle jettyRun &
+    - node example/nodejs/LocalProxy.js &
+    - sleep 5
+
+script: 
+    - gradle Javadoc test
+    - npm test
 
 after_success: .utility/push-to-gh-pages.sh
+
+after_script:
+    - ps axu|grep example/nodejs/LocalProxy.js|grep -v grep|awk '{print $2}'|xargs kill -9
+    - gradle jettyStop
