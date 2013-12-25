@@ -2,9 +2,9 @@
 Client code examples demonstrating usage of aws-mock with AWS-SDK in JavaScript.
 
 ## Installation ##
-1. Install aws-sdk by running `npm install -g aws-sdk`.
-2. In your web server such as Nginx or Apache, add a reverse proxy route for actual backend endpoint url `http://localhost:8000/aws-mock/ec2-endpoint/` to a root directory `http://localhost:9090/`.
-3. Run the tests with node.
+1. Install dependencies including aws-sdk by running `npm install`.
+2. Add a reverse proxy route for actual backend endpoint url `http://localhost:8000/aws-mock/ec2-endpoint/` to a root directory `http://localhost:9090/`. You can have that done by running `node LocalProxy.js`, or alternatively, add such a proxy route to your favourate web server such as Apache or Nginx. 
+3. Run the tests with `node RunExamples.js <options>`.
 
 ## Why endpoint on "/" ? ##
 Endpoint for mock ec2 should be running on "/" (root context) as Amazon's node.js aws-sdk doesn't support endpoint in a directory (while java version of aws-sdk does). 
