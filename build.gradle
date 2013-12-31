@@ -169,19 +169,9 @@ uploadArchives {
                         email 'maxiaohao@gmail.com'
                     }
                     developer {
-                        id 'deathspeeder'
-                        name 'Wang Jun'
-                        email 'deathspeeder@gmail.com'
-                    }
-                    developer {
                         id 'Jayscrivner'
                         name 'Jay Scrivner'
                         email 'Jayscrivner@gmail.com'
-                    }
-                    developer {
-                        id 'lhcxx'
-                        name 'Lu Huichun'
-                        email 'lhcxx0508@gmail.com'
                     }
                }
             }
