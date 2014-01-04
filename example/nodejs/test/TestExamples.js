@@ -17,7 +17,9 @@ exampleImageID = null,
 instanceType = 'm1.small',
 runCount = 10,
 exampleInstanceIDs = [],
-exampleInstanceID = null;
+exampleInstanceID = null,
+A_SECOND_IN_MILLSECOND = 1000,
+FIVE_SECONDS_IN_MILLSECOND = 5000;
 
 AWS = require('aws-sdk');
 AWS.config.update({
@@ -56,9 +58,10 @@ describe('Test Examples -> ', function() {
             });
         });
 
-        it('should find all the ' + runCount + ' instances turned into running after ' + maxBootSeconds * 2 + ' seconds', function(done) {
-            // alter the timeout to maxBootSeconds*2+1 seconds to make sure the test can wait until instances turned into running
-            this.timeout((maxBootSeconds * 2 + 1) * 1000);
+        var delayTime = getDelayTime(maxBootSeconds);
+        it('should find all the ' + runCount + ' instances turned into running after ' + delayTime + ' millsecs', function(done) {
+            // explicitly alter the timeout to maxBootSeconds+1 seconds to make sure the test can wait until instances turned into stopped
+            this.timeout(delayTime + FIVE_SECONDS_IN_MILLSECOND);
             // wait maxBootSeconds*2 seconds for instances turning into running and describe and assert again
             setTimeout(function() {
                 describeInstancesExample.describeInstances(exampleInstanceIDs, ec2, function getInstances(instances) {
@@ -69,7 +72,7 @@ describe('Test Examples -> ', function() {
                     done();
                 });
             },
-            1000 * 2 * maxBootSeconds);
+            delayTime);
         });
     });
 
@@ -85,9 +88,10 @@ describe('Test Examples -> ', function() {
             });
         });
 
-        it('should find that instance turned into stopped after ' + maxShutdownSeconds * 2 + ' seconds', function(done) {
-            // alter the timeout to maxShutdownSeconds*2+1 seconds to make sure the test can wait until instances turned into stopped
-            this.timeout((maxShutdownSeconds * 2 + 1) * 1000);
+        var delayTime = getDelayTime(maxShutdownSeconds);
+        it('should find that instance turned into stopped after ' + delayTime + ' millsecs', function(done) {
+            // explicitly alter the timeout to maxShutdownSeconds*2+1 seconds to make sure the test can wait until instances turned into stopped
+            this.timeout(delayTime + FIVE_SECONDS_IN_MILLSECOND);
             // wait maxShutdownSeconds*2 seconds for instances turning into stopped and describe and assert again
             setTimeout(function() {
                 describeInstancesExample.describeInstances([exampleInstanceID], ec2, function getInstances(instances) {
@@ -98,7 +102,7 @@ describe('Test Examples -> ', function() {
                     done();
                 });
             },
-            1000 * 2 * maxShutdownSeconds);
+            delayTime);
         });
     });
 
@@ -114,9 +118,10 @@ describe('Test Examples -> ', function() {
             });
         });
 
-        it('should find that instance turned into running again after ' + maxBootSeconds * 2 + ' seconds', function(done) {
-            // alter the timeout to maxBootSeconds*2+1 seconds to make sure the test can wait until instances turned into running
-            this.timeout((maxBootSeconds * 2 + 1) * 1000);
+        var delayTime = getDelayTime(maxBootSeconds);
+        it('should find that instance turned into running again after ' + delayTime + ' millsecs', function(done) {
+            // explicitly alter the timeout to maxBootSeconds*2+1 seconds to make sure the test can wait until instances turned into running
+            this.timeout(delayTime + FIVE_SECONDS_IN_MILLSECOND);
             // wait maxBootSeconds*2 seconds for instances turning into running and describe and assert again
             setTimeout(function() {
                 describeInstancesExample.describeInstances([exampleInstanceID], ec2, function(instances) {
@@ -127,7 +132,7 @@ describe('Test Examples -> ', function() {
                     done();
                 });
             },
-            1000 * 2 * maxBootSeconds);
+            delayTime);
         });
     });
 
@@ -143,4 +148,11 @@ describe('Test Examples -> ', function() {
         });
     });
 });
+
+/**
+Return (seconds*1.5) in millseconds.
+*/
+function getDelayTime(seconds) {
+    return seconds * 1.5 * A_SECOND_IN_MILLSECOND;
+}
 
