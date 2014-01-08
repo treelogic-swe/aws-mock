@@ -1,29 +1,23 @@
 'use strict';
 
-var AWS, ec2;
+exports.describeInstances = function(instanceIDs, ec2, fnCallback) {
+    // describe specified instances by passing filter params, or all instances if no filter
+    ec2.describeInstances(instanceIDs === null || instanceIDs.length === 0 ? {}: {
+        InstanceIds: instanceIDs
+    },
+    function getReservations(err, resp) {
 
-AWS = require('aws-sdk');
+        if (err) {
+            console.log("Could not describe instances", err);
+        } else {
+            if (fnCallback) {
+                var instances = [];
+                resp.Reservations.forEach(function printInstances(rsv) {
+                    instances.push(rsv.Instances[0]);
+                });
+                fnCallback(instances);
+            }
+        }
+    });
+};
 
-AWS.config.update({
-    accessKeyId : 'foo',
-    secretAccessKey : 'bar',
-    region : 'baz'
-});
-
-ec2 = new AWS.EC2({
-    endpoint : new AWS.Endpoint('http://localhost:9090/')
-});
-
-// describe all instances by passing no filter params
-ec2.describeInstances({}, function handleResponse(err, resp) {
-
-    if (err) {
-        console.log("Could not describe instances", err);
-    } else {
-        
-        resp.Reservations.forEach(function printInstances(rsv) {
-            var inst = rsv.Instances[0];
-            console.log(inst.InstanceId, inst.ImageId, inst.InstanceType, inst.State.Name);
-        });
-    }
-});

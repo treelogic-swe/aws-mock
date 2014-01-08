@@ -1,35 +1,24 @@
 'use strict';
 
-var AWS, ec2, params;
+exports.runInstances = function(imageID, type, count, ec2, fnCallback) {
 
-AWS = require('aws-sdk');
+    var params = {
+        ImageId: imageID,
+        InstanceType: type,
+        MinCount: count,
+        MaxCount: count
+    };
 
-AWS.config.update({
-    accessKeyId : 'foo',
-    secretAccessKey : 'bar',
-    region : 'baz'
-});
+    ec2.runInstances(params, function getInstances(err, resp) {
 
-ec2 = new AWS.EC2({
-    endpoint : new AWS.Endpoint('http://localhost:9090/')
-});
-
-params = {
-    ImageId : 'ami-12345678', // a pre-defined AMI in aws-mock
-    InstanceType : 't1.micro',
-    MinCount : 10,
-    MaxCount : 10
+        if (err) {
+            console.log("Could not create instances", err);
+            throw err;
+        } else {
+            if (fnCallback) {
+                fnCallback(resp.Instances);
+            }
+        }
+    });
 };
 
-ec2.runInstances(params, function handleResponse(err, resp) {
-
-    if (err) {
-        console.log("Could not create instances", err);
-    } else {
-        console.log("Created instances:")
-        
-        resp.Instances.forEach(function printInstance(inst) {
-            console.log(inst.InstanceId, inst.State.Name);
-        });
-    }
-});
