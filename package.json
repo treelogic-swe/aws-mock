@@ -10,7 +10,7 @@
         "http-proxy": "~0.10.3"
     },
     "scripts": {
-        "test": "./node_modules/yahoo-arrow/node_modules/mocha/bin/mocha ./example/nodejs/test/TestExamples.js -R spec"
+        "test": "./node_modules/.bin/arrow ./example/nodejs/test/TestExamples.js --engine=mocha --testTimeOut=180000"
     },
     "repository": {
         "type": "git",
