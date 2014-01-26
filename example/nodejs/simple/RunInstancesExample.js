@@ -10,15 +10,8 @@ exports.runInstances = function(imageID, type, count, ec2, fnCallback) {
     };
 
     ec2.runInstances(params, function getInstances(err, resp) {
-
-        if (err) {
-            console.log("Could not create instances", err);
-            throw err;
-        } else {
-            if (fnCallback) {
-                fnCallback(resp.Instances);
-            }
-        }
+        /*jshint unused:vars */
+        fnCallback(resp.Instances);
     });
 };
 

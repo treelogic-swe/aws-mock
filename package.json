@@ -5,12 +5,11 @@
     "main": "build.gradle",
     "devDependencies": {
         "aws-sdk": "~2.0.0",
-        "yahoo-arrow": "~0.0.87",
-        "chai": "~1.8.1",
+        "yahoo-arrow": "~0.1.0",
         "http-proxy": "~0.10.3"
     },
     "scripts": {
-        "test": "./node_modules/.bin/arrow ./example/nodejs/test/TestExamples.js --engine=mocha --testTimeOut=180000"
+        "test": "./node_modules/yahoo-arrow/node_modules/.bin/istanbul cover ./node_modules/yahoo-arrow/node_modules/.bin/_mocha ./example/nodejs/test/TestExamples.js -- -R spec; ./node_modules/yahoo-arrow/node_modules/.bin/istanbul check-coverage --statements 85 --functions 85 --branches 85 --lines 85"
     },
     "repository": {
         "type": "git",

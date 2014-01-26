@@ -6,14 +6,8 @@ exports.startInstances = function(instanceIDs, ec2, fnCallback) {
         InstanceIds: instanceIDs
     },
     function getStartingInstances(err, resp) {
-
-        if (err) {
-            console.log("Could not start instance", err);
-        } else {
-            if (fnCallback) {
-                fnCallback(resp.StartingInstances);
-            }
-        }
+        /*jshint unused:vars */
+        fnCallback(resp.StartingInstances);
     });
 };
 

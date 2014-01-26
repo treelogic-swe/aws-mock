@@ -6,14 +6,8 @@ exports.terminateInstances = function(instanceIDs, ec2, fnCallback) {
         InstanceIds: instanceIDs
     },
     function getTerminatingInstances(err, resp) {
-
-        if (err) {
-            console.log("Could not terminate instances", err);
-        } else {
-            if (fnCallback) {
-                fnCallback(resp.TerminatingInstances);
-            }
-        }
+        /*jshint unused:vars */
+        fnCallback(resp.TerminatingInstances);
     });
 
 };
