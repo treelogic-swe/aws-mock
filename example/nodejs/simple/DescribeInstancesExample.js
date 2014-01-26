@@ -6,18 +6,12 @@ exports.describeInstances = function(instanceIDs, ec2, fnCallback) {
         InstanceIds: instanceIDs
     },
     function getReservations(err, resp) {
-
-        if (err) {
-            console.log("Could not describe instances", err);
-        } else {
-            if (fnCallback) {
-                var instances = [];
-                resp.Reservations.forEach(function printInstances(rsv) {
-                    instances.push(rsv.Instances[0]);
-                });
-                fnCallback(instances);
-            }
-        }
+        /*jshint unused:vars */
+        var instances = [];
+        resp.Reservations.forEach(function printInstances(rsv) {
+            instances.push(rsv.Instances[0]);
+        });
+        fnCallback(instances);
     });
 };
 
