@@ -147,6 +147,16 @@ describe('Test Examples -> ', function() {
             });
         });
     });
+
+    describe('Describe No Instances Test -> ', function() {
+        it('should return nothing', function(done) {
+            describeInstancesExample.describeInstances(null, ec2, function getInstances(instances) {
+                expect(instances).to.have.length.of.at.least(runCount);
+                done();
+            });
+
+        });
+    });
 });
 
 /**
