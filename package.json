@@ -5,7 +5,8 @@
     "main": "build.gradle",
     "devDependencies": {
         "aws-sdk": "~2.0.0",
-        "yahoo-arrow": "~0.1.0",
+        "chai": "~1.8.1",
+        "yahoo-arrow": "~0.2.0",
         "http-proxy": "~0.10.3"
     },
     "scripts": {
