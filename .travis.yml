@@ -11,7 +11,7 @@ before_script:
     - sleep 5
 
 script: 
-    - gradle Javadoc test
+    - gradle checkstylejs Javadoc test
     - npm test
 
 after_success: .utility/push-to-gh-pages.sh
