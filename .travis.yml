@@ -12,7 +12,7 @@ before_script:
     - sleep 5
 
 script: 
-    - gradle checkstylejs Javadoc test
+    - gradle Javadoc check cobertura coberturaCheck
     - npm test
 
 after_success: .utility/push-to-gh-pages.sh

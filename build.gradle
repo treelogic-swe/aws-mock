@@ -19,6 +19,26 @@ allprojects {
     }
 }
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }   
+    dependencies {
+        classpath "net.saliman:gradle-cobertura-plugin:2.2.4"
+    }   
+}
+apply plugin: 'cobertura'
+
+cobertura {
+    coverageCheckHaltOnFailure = true
+    coverageCheckBranchRate = 0 
+    coverageCheckLineRate = 0 
+    coverageCheckPackageBranchRate = 0 
+    coverageCheckPackageLineRate = 0 
+    coverageCheckTotalBranchRate = 0 
+    coverageCheckTotalLineRate = 0 
+}
+
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5'
     compile 'org.apache.commons:commons-lang3:3.1'
