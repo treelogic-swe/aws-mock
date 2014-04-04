@@ -39,6 +39,7 @@ cobertura {
     coverageCheckTotalLineRate = 0 
 }
 
+
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5'
     compile 'org.apache.commons:commons-lang3:3.1'
