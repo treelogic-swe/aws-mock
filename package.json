@@ -27,7 +27,7 @@
     "author": {
         "name": "treelogic-swe.com"
     },
-    "license": "Apache",
+    "license": "MIT",
     "readmeFilename": "README.md",
     "_id": "aws-mock@1.0.1",
     "_from": "aws-mock@"
