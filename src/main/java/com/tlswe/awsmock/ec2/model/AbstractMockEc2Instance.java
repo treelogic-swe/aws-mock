@@ -1,16 +1,11 @@
 package com.tlswe.awsmock.ec2.model;
 
-import java.io.Serializable;
-import java.util.Random;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.TreeSet;
-import java.util.UUID;
-
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Generic class for mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances' life
@@ -294,7 +289,7 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     }
 
     /**
-     * Interval for the internal timer thread that triggered for state chacking and changing - we set it for 10 seconds.
+     * Interval for the internal timer thread that triggered for state checking and changing - we set it for 10 seconds.
      */
     public static final int TIMER_INTERVAL_MILLIS = 10 * 1000;
 
