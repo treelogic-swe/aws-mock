@@ -492,13 +492,15 @@ public abstract class AbstractMockEc2Instance implements Serializable {
                         if (booting) {
 
                             // delay a random 'boot time'
-                            try {
-                                Thread.sleep(MIN_BOOT_TIME_MILLS
-                                        + random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
-                            } catch (InterruptedException e) {
-                                throw new AwsMockException(
-                                        "InterruptedException caught when delaying a mock random 'boot time'",
-                                        e);
+                            if (MAX_BOOT_TIME_MILLS != 0) {
+                                try {
+                                    Thread.sleep(MIN_BOOT_TIME_MILLS
+                                            + random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
+                                } catch (InterruptedException e) {
+                                    throw new AwsMockException(
+                                            "InterruptedException caught when delaying a mock random 'boot time'",
+                                            e);
+                                }
                             }
 
                             // booted, assign a mock pub dns name
@@ -511,14 +513,16 @@ public abstract class AbstractMockEc2Instance implements Serializable {
                         } else if (stopping) {
 
                             // delay a random 'shutdown time'
-                            try {
-                                Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
-                                        + random.nextInt((int) (MAX_SHUTDOWN_TIME_MILLS
-                                                - MIN_SHUTDOWN_TIME_MILLS)));
-                            } catch (InterruptedException e) {
-                                throw new AwsMockException(
-                                        "InterruptedException caught when delaying a mock random 'shutdown time'",
-                                        e);
+                            if (MAX_SHUTDOWN_TIME_MILLS != 0) {
+                                try {
+                                    Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
+                                            + random.nextInt((int) (MAX_SHUTDOWN_TIME_MILLS
+                                                    - MIN_SHUTDOWN_TIME_MILLS)));
+                                } catch (InterruptedException e) {
+                                    throw new AwsMockException(
+                                            "InterruptedException caught when delaying a mock random 'shutdown time'",
+                                            e);
+                                }
                             }
 
                             // unset pub dns name
