@@ -301,30 +301,37 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     /**
      * Minimal boot time.
      */
-    public static final long MIN_BOOT_TIME_MILLS = Integer
-            .parseInt(PropertiesUtils
-                    .getProperty(Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS)) * 1000L;
+    public static final long MIN_BOOT_TIME_MILLS;
 
     /**
      * Maximum boot time.
      */
-    protected static final long MAX_BOOT_TIME_MILLS = Integer
-            .parseInt(PropertiesUtils
-                    .getProperty(Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS)) * 1000L;
+    protected static final long MAX_BOOT_TIME_MILLS;
 
     /**
      * Minimal shutdown time.
      */
-    protected static final long MIN_SHUTDOWN_TIME_MILLS = Integer
-            .parseInt(PropertiesUtils
-                    .getProperty(Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME_SECONDS)) * 1000L;
+    protected static final long MIN_SHUTDOWN_TIME_MILLS;
 
     /**
      * maximum shutdown time.
      */
-    protected static final long MAX_SHUTDOWN_TIME_MILLS = Integer
-            .parseInt(PropertiesUtils
-                    .getProperty(Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS)) * 1000L;
+    protected static final long MAX_SHUTDOWN_TIME_MILLS;
+
+    private static long getMsFromProperty(String propertyName, String propertyNameInSeconds) {
+        String property = PropertiesUtils.getProperty(propertyName);
+        if (property != null) {
+            return Long.parseLong(property);
+        }
+        return Integer.parseInt(PropertiesUtils.getProperty(propertyNameInSeconds)) * 1000L;
+    }
+
+    static {
+        MIN_BOOT_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME, Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS);
+        MAX_BOOT_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME, Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS);
+        MIN_SHUTDOWN_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME, Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME_SECONDS);
+        MAX_SHUTDOWN_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME, Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS);
+    }
 
     /**
      * instance ID, randomly assigned on creating.

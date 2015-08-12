@@ -49,22 +49,42 @@ public interface Constants {
     String PROP_NAME_XMLNS_CURRENT = "xmlns.current";
 
     /**
-     * Property name for max shutdown time of a mock EC2 instance.
+     * Property name for max shutdown time of a mock EC2 instance in milliseconds.
+     */
+    String PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME = "instance.max.shutdown.time";
+
+    /**
+     * Property name for max shutdown time of a mock EC2 instance in seconds.
      */
     String PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS = "instance.max.shutdown.time.seconds";
 
     /**
-     * Property name for min shutdown time of a mock EC2 instance.
+     * Property name for min shutdown time of a mock EC2 instance in milliseconds.
+     */
+    String PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME = "instance.min.shutdown.time";
+
+    /**
+     * Property name for min shutdown time of a mock EC2 instance in seconds.
      */
     String PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME_SECONDS = "instance.min.shutdown.time.seconds";
 
     /**
-     * Property name for max boot time of a mock EC2 instance.
+     * Property name for max boot time of a mock EC2 instance in milliseconds.
+     */
+    String PROP_NAME_INSTANCE_MAX_BOOT_TIME = "instance.max.boot.time";
+
+    /**
+     * Property name for max boot time of a mock EC2 instance in seconds.
      */
     String PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS = "instance.max.boot.time.seconds";
 
     /**
-     * Property name for min boot time of a mock EC2 instance.
+     * Property name for min boot time of a mock EC2 instance in milliseconds.
+     */
+    String PROP_NAME_INSTANCE_MIN_BOOT_TIME = "instance.min.boot.time";
+
+    /**
+     * Property name for min boot time of a mock EC2 instance in seconds.
      */
     String PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS = "instance.min.boot.time.seconds";
 }
