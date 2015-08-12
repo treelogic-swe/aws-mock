@@ -1,16 +1,11 @@
 package com.tlswe.awsmock.ec2.model;
 
-import java.io.Serializable;
-import java.util.Random;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.TreeSet;
-import java.util.UUID;
-
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * Generic class for mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances' life
@@ -294,7 +289,7 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     }
 
     /**
-     * Interval for the internal timer thread that triggered for state chacking and changing - we set it for 10 seconds.
+     * Interval for the internal timer thread that triggered for state checking and changing - we set it for 10 seconds.
      */
     public static final int TIMER_INTERVAL_MILLIS = 10 * 1000;
 
@@ -306,30 +301,37 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     /**
      * Minimal boot time.
      */
-    public static final long MIN_BOOT_TIME_MILLS = Integer
-            .parseInt(PropertiesUtils
-                    .getProperty(Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS)) * 1000L;
+    public static final long MIN_BOOT_TIME_MILLS;
 
     /**
      * Maximum boot time.
      */
-    protected static final long MAX_BOOT_TIME_MILLS = Integer
-            .parseInt(PropertiesUtils
-                    .getProperty(Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS)) * 1000L;
+    protected static final long MAX_BOOT_TIME_MILLS;
 
     /**
      * Minimal shutdown time.
      */
-    protected static final long MIN_SHUTDOWN_TIME_MILLS = Integer
-            .parseInt(PropertiesUtils
-                    .getProperty(Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME_SECONDS)) * 1000L;
+    protected static final long MIN_SHUTDOWN_TIME_MILLS;
 
     /**
      * maximum shutdown time.
      */
-    protected static final long MAX_SHUTDOWN_TIME_MILLS = Integer
-            .parseInt(PropertiesUtils
-                    .getProperty(Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS)) * 1000L;
+    protected static final long MAX_SHUTDOWN_TIME_MILLS;
+
+    private static long getMsFromProperty(String propertyName, String propertyNameInSeconds) {
+        String property = PropertiesUtils.getProperty(propertyName);
+        if (property != null) {
+            return Long.parseLong(property);
+        }
+        return Integer.parseInt(PropertiesUtils.getProperty(propertyNameInSeconds)) * 1000L;
+    }
+
+    static {
+        MIN_BOOT_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME, Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS);
+        MAX_BOOT_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME, Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS);
+        MIN_SHUTDOWN_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME, Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME_SECONDS);
+        MAX_SHUTDOWN_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME, Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS);
+    }
 
     /**
      * instance ID, randomly assigned on creating.
@@ -490,13 +492,15 @@ public abstract class AbstractMockEc2Instance implements Serializable {
                         if (booting) {
 
                             // delay a random 'boot time'
-                            try {
-                                Thread.sleep(MIN_BOOT_TIME_MILLS
-                                        + random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
-                            } catch (InterruptedException e) {
-                                throw new AwsMockException(
-                                        "InterruptedException caught when delaying a mock random 'boot time'",
-                                        e);
+                            if (MAX_BOOT_TIME_MILLS != 0) {
+                                try {
+                                    Thread.sleep(MIN_BOOT_TIME_MILLS
+                                            + random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
+                                } catch (InterruptedException e) {
+                                    throw new AwsMockException(
+                                            "InterruptedException caught when delaying a mock random 'boot time'",
+                                            e);
+                                }
                             }
 
                             // booted, assign a mock pub dns name
@@ -509,14 +513,16 @@ public abstract class AbstractMockEc2Instance implements Serializable {
                         } else if (stopping) {
 
                             // delay a random 'shutdown time'
-                            try {
-                                Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
-                                        + random.nextInt((int) (MAX_SHUTDOWN_TIME_MILLS
-                                                - MIN_SHUTDOWN_TIME_MILLS)));
-                            } catch (InterruptedException e) {
-                                throw new AwsMockException(
-                                        "InterruptedException caught when delaying a mock random 'shutdown time'",
-                                        e);
+                            if (MAX_SHUTDOWN_TIME_MILLS != 0) {
+                                try {
+                                    Thread.sleep(MIN_SHUTDOWN_TIME_MILLS
+                                            + random.nextInt((int) (MAX_SHUTDOWN_TIME_MILLS
+                                                    - MIN_SHUTDOWN_TIME_MILLS)));
+                                } catch (InterruptedException e) {
+                                    throw new AwsMockException(
+                                            "InterruptedException caught when delaying a mock random 'shutdown time'",
+                                            e);
+                                }
                             }
 
                             // unset pub dns name
