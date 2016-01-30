@@ -20,7 +20,8 @@ if (args) {
 
     switch (action) {
     case 'runInstances':
-        runInstances(ec2);
+        var imageId=args[3]?args[3]:'ami-12345678', instType=args[4]?args[4]:'m1.small', count=args[5]?args[5]:1;
+        runInstances(imageId, instType, count, ec2);
         break;
 
     case 'describeInstances':
@@ -44,13 +45,15 @@ if (args) {
         break;
 
     default:
-        console.log('usage: node RunExamples <runInstances|describeInstances|stopInstances|startInstances|terminateInstances|describeImages> [instanceID-1] [instanceID-2] ...');
+        console.log('usage1: node RunExamples <describeImages>');
+        console.log('usage2: node RunExamples <runInstances> [<imageId> <inst-type> <count>]');
+        console.log('usage3: node RunExamples <describeInstances|stopInstances|startInstances|terminateInstances> [instanceID-1] [instanceID-2] ...');
     }
 }
 
-function runInstances(ec2) {
+function runInstances(imageID, type, count, ec2) {
     var runInstancesExample = require('./simple/RunInstancesExample.js');
-    runInstancesExample.runInstances(ec2, function getNewInstances(instances) {
+    runInstancesExample.runInstances(imageID, type, count, ec2, function getNewInstances(instances) {
         console.log("Created instances:");
         instances.forEach(function printInstance(inst) {
             console.log(inst.InstanceId, inst.State.Name);

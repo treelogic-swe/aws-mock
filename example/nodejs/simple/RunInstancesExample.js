@@ -11,7 +11,11 @@ exports.runInstances = function(imageID, type, count, ec2, fnCallback) {
 
     ec2.runInstances(params, function getInstances(err, resp) {
         /*jshint unused:vars */
-        fnCallback(resp.Instances);
+        if(err){
+            console.log(err);
+        }else{
+            fnCallback(resp.Instances);
+        }
     });
 };
 

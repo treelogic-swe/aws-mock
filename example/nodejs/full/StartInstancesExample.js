@@ -7,7 +7,11 @@ exports.startInstances = function(instanceIDs, ec2, fnCallback) {
     },
     function getStartingInstances(err, resp) {
         /*jshint unused:vars */
-        fnCallback(resp.StartingInstances);
+        if(err){
+            console.log(err);
+        }else{
+            fnCallback(resp.StartingInstances);
+        }
     });
 };
 

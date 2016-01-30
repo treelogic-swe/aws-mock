@@ -7,11 +7,15 @@ exports.describeInstances = function(instanceIDs, ec2, fnCallback) {
     },
     function getReservations(err, resp) {
         /*jshint unused:vars */
-        var instances = [];
-        resp.Reservations.forEach(function printInstances(rsv) {
-            instances.push(rsv.Instances[0]);
-        });
-        fnCallback(instances);
+        if(err){
+            console.log(err);
+        }else{
+            var instances = [];
+            resp.Reservations.forEach(function printInstances(rsv) {
+                instances.push(rsv.Instances[0]);
+            });
+            fnCallback(instances);
+        }
     });
 };
 

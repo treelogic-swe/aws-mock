@@ -7,7 +7,11 @@ exports.stopInstances = function(instanceIDs, ec2, fnCallback) {
     },
     function getStoppingInstances(err, resp) {
         /*jshint unused:vars */
-        fnCallback(resp.StoppingInstances);
+        if(err){
+            console.log(err);
+        }else{
+            fnCallback(resp.StoppingInstances);
+        }
     });
 };
 

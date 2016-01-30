@@ -5,7 +5,11 @@ exports.describeImages = function(ec2, fnCallback) {
     ec2.describeImages({},
     function getImages(err, resp) {
         /*jshint unused:vars */
-        fnCallback(resp.Images);
+        if(err){
+            console.log(err);
+        }else{
+            fnCallback(resp.Images);
+        }
     });
 };
 

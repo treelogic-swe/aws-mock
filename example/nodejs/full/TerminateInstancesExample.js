@@ -7,7 +7,11 @@ exports.terminateInstances = function(instanceIDs, ec2, fnCallback) {
     },
     function getTerminatingInstances(err, resp) {
         /*jshint unused:vars */
-        fnCallback(resp.TerminatingInstances);
+        if(err){
+            console.log(err);
+        }else{
+            fnCallback(resp.TerminatingInstances);
+        }
     });
 
 };
