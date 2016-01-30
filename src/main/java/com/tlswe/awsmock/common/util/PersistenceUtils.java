@@ -43,7 +43,6 @@ public final class PersistenceUtils {
      *
      * @param obj
      *            the object to save, which should be serializable
-     * @throws MockEc2Exception
      */
     public static void saveAll(final Object obj) {
 
@@ -75,7 +74,6 @@ public final class PersistenceUtils {
      * Load object from the binary file defined as filename in property.
      *
      * @return the loaded object.
-     * @throws MockEc2Exception
      */
     public static Object loadAll() {
 

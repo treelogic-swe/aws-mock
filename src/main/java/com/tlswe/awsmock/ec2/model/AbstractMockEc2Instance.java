@@ -1,11 +1,16 @@
 package com.tlswe.awsmock.ec2.model;
 
+import java.io.Serializable;
+import java.util.Random;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.TreeSet;
+import java.util.UUID;
+
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
-
-import java.io.Serializable;
-import java.util.*;
 
 /**
  * Generic class for mock ec2 instance, with basic simulation of behaviors and states of genuine ec2 instances' life
@@ -318,19 +323,38 @@ public abstract class AbstractMockEc2Instance implements Serializable {
      */
     protected static final long MAX_SHUTDOWN_TIME_MILLS;
 
-    private static long getMsFromProperty(String propertyName, String propertyNameInSeconds) {
+    /**
+     * Millisecs in a second.
+     */
+    private static final long MILLISECS_IN_A_SECOND = 1000L;
+
+
+    /**
+     * Get millisecs from properties.
+     *
+     * @param propertyName
+     *            the property name
+     * @param propertyNameInSeconds
+     *            the property name for seconds
+     * @return millisecs
+     */
+    private static long getMsFromProperty(final String propertyName, final String propertyNameInSeconds) {
         String property = PropertiesUtils.getProperty(propertyName);
         if (property != null) {
             return Long.parseLong(property);
         }
-        return Integer.parseInt(PropertiesUtils.getProperty(propertyNameInSeconds)) * 1000L;
+        return Integer.parseInt(PropertiesUtils.getProperty(propertyNameInSeconds)) * MILLISECS_IN_A_SECOND;
     }
 
     static {
-        MIN_BOOT_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME, Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS);
-        MAX_BOOT_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME, Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS);
-        MIN_SHUTDOWN_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME, Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME_SECONDS);
-        MAX_SHUTDOWN_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME, Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS);
+        MIN_BOOT_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME,
+                Constants.PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS);
+        MAX_BOOT_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME,
+                Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS);
+        MIN_SHUTDOWN_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME,
+                Constants.PROP_NAME_INSTANCE_MIN_SHUTDOWN_TIME_SECONDS);
+        MAX_SHUTDOWN_TIME_MILLS = getMsFromProperty(Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME,
+                Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS);
     }
 
     /**
