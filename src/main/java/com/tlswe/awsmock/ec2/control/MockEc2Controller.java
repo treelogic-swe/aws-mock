@@ -168,7 +168,7 @@ public final class MockEc2Controller {
 
             // internal timer should be initialized once right after mock ec2
             // instance is created and run
-            inst.initializeInternalTimer();
+            inst.initAfterStart();
 
             ret.add(inst);
 
@@ -345,7 +345,7 @@ public final class MockEc2Controller {
             for (AbstractMockEc2Instance instance : instances) {
                 allMockEc2Instances.put(instance.getInstanceID(), instance);
                 // re-initialize the internal timer
-                instance.initializeInternalTimer();
+                instance.initAfterStart();
             }
         }
     }

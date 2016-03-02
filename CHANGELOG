@@ -1,0 +1,1 @@
+* 1.0.2: Extracted init/start/stop/terminate impl from AbstractMockEc2Instance to DefaultMockEc2Instance.

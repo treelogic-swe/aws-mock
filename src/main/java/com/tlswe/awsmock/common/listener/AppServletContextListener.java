@@ -77,7 +77,7 @@ public class AppServletContextListener implements ServletContextListener {
             for (AbstractMockEc2Instance instance : instances) {
                 // cancel and destroy the internal timers for all instances on
                 // web app stopping
-                instance.destroyInternalTimer();
+                instance.destroy();
             }
             // put all instances into an array which is serializable and type-cast safe for persistence
             AbstractMockEc2Instance[] array = new AbstractMockEc2Instance[instances.size()];

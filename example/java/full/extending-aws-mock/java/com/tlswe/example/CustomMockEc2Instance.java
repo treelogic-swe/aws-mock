@@ -91,4 +91,46 @@ public final class CustomMockEc2Instance extends AbstractMockEc2Instance {
         // do something
     }
 
+
+    @Override
+    public void initBeforeStart() {
+        // TODO Auto-generated method stub
+
+    }
+
+
+    @Override
+    public void initAfterStart() {
+        // TODO Auto-generated method stub
+
+    }
+
+
+    @Override
+    public boolean start() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+
+    @Override
+    public boolean stop() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+
+    @Override
+    public boolean terminate() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+
+    @Override
+    public void destroy() {
+        // TODO Auto-generated method stub
+
+    }
+
 }
