@@ -55,62 +55,61 @@ public abstract class AbstractMockEc2Instance implements Serializable {
      *
      */
     public static enum InstanceType {
-        /**
-         * t1.micro.
-         */
         T1_MICRO("t1.micro"),
-        /**
-         * m1.small.
-         */
         M1_SMALL("m1.small"),
-        /**
-         * m1.medium.
-         */
         M1_MEDIUM("m1.medium"),
-        /**
-         * m1.large.
-         */
         M1_LARGE("m1.large"),
-        /**
-         * m1.xlarge.
-         */
         M1_XLARGE("m1.xlarge"),
-        /**
-         * m2.xlarge.
-         */
+        M3_MEDIUM("m3.medium"),
+        M3_LARGE("m3.large"),
+        M3_XLARGE("m3.xlarge"),
+        M3_2XLARGE("m3.2xlarge"),
+        M4_LARGE("m4.large"),
+        M4_XLARGE("m4.xlarge"),
+        M4_2XLARGE("m4.2xlarge"),
+        M4_4XLARGE("m4.4xlarge"),
+        M4_10XLARGE("m4.10xlarge"),
+        T2_NANO("t2.nano"),
+        T2_MICRO("t2.micro"),
+        T2_SMALL("t2.small"),
+        T2_MEDIUM("t2.medium"),
+        T2_LARGE("t2.large"),
         M2_XLARGE("m2.xlarge"),
-        /**
-         * m2.2xlarge.
-         */
         M2_2XLARGE("m2.2xlarge"),
-        /**
-         * m2.4xlarge.
-         */
         M2_4XLARGE("m2.4xlarge"),
-        /**
-         * c1.medium.
-         */
+        CR_18XLARGE("cr1.8xlarge"),
+        I2_XLARGE("i2.xlarge"),
+        I2_2XLARGE("i2.2xlarge"),
+        I2_4XLARGE("i2.4xlarge"),
+        I2_8XLARGE("i2.8xlarge"),
+        HI_14XLARGE("hi1.4xlarge"),
+        HS_18XLARGE("hs1.8xlarge"),
         C1_MEDIUM("c1.medium"),
-        /**
-         * c1.xlarge.
-         */
         C1_XLARGE("c1.xlarge"),
-        /**
-         * cc1.4xlarge.
-         */
-        CC1_4XLARGE("cc1.4xlarge"),
-        /**
-         * cc2.8xlarge.
-         */
-        CC2_8XLARGE("cc2.8xlarge"),
-        /**
-         * cg1.4xlarge.
-         */
-        CG1_4XLARGE("cg1.4xlarge"),
-        /**
-         * hi1.4xlarge.
-         */
-        HI1_4XLARGE("hi1.4xlarge");
+        C3_LARGE("c3.large"),
+        C3_XLARGE("c3.xlarge"),
+        C3_2XLARGE("c3.2xlarge"),
+        C3_4XLARGE("c3.4xlarge"),
+        C3_8XLARGE("c3.8xlarge"),
+        C4_LARGE("c4.large"),
+        C4_XLARGE("c4.xlarge"),
+        C4_2XLARGE("c4.2xlarge"),
+        C4_4XLARGE("c4.4xlarge"),
+        C4_8XLARGE("c4.8xlarge"),
+        CC_14XLARGE("cc1.4xlarge"),
+        CC_28XLARGE("cc2.8xlarge"),
+        G2_2XLARGE("g2.2xlarge"),
+        G2_8XLARGE("g2.8xlarge"),
+        CG_14XLARGE("cg1.4xlarge"),
+        R3_LARGE("r3.large"),
+        R3_XLARGE("r3.xlarge"),
+        R3_2XLARGE("r3.2xlarge"),
+        R3_4XLARGE("r3.4xlarge"),
+        R3_8XLARGE("r3.8xlarge"),
+        D2_XLARGE("d2.xlarge"),
+        D2_2XLARGE("d2.2xlarge"),
+        D2_4XLARGE("d2.4xlarge"),
+        D2_8XLARGE("d2.8xlarge");
 
         /**
          * Name of instacne type.
