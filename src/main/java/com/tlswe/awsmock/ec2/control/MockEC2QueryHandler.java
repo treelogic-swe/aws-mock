@@ -36,6 +36,22 @@ import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.TerminateInstancesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeRouteTablesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.RouteTableSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.RouteTableType;
+import com.tlswe.awsmock.ec2.cxf_generated.RouteTableAssociationSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.RouteSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeInternetGatewaysResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.InternetGatewayType;
+import com.tlswe.awsmock.ec2.cxf_generated.InternetGatewaySetType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeSecurityGroupsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
+import com.tlswe.awsmock.ec2.cxf_generated.IpPermissionType;
+import com.tlswe.awsmock.ec2.cxf_generated.IpPermissionSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeVpcsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.VpcSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.VpcType;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
 import com.tlswe.awsmock.ec2.servlet.MockEc2EndpointServlet;
@@ -99,6 +115,76 @@ public final class MockEC2QueryHandler {
      * Instance of {@link MockEc2Controller} uesed in this class that controls mock EC2 instances.
      */
     private final MockEc2Controller mockEc2Controller = MockEc2Controller.getInstance();
+
+    /**
+     * Predefined mock vpc id.
+     */
+    private static final String MOCK_VPC_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_VPC_ID);
+
+    /**
+     * Predefined mock vpc state.
+     */
+    private static final String MOCK_VPC_STATE = PropertiesUtils.getProperty(Constants.PROP_NAME_VPC_STATE);
+
+    /**
+     * Predefined mock private ip address.
+     */
+    private static final String MOCK_PRIVATE_IP_ADDRESS = PropertiesUtils.
+            getProperty(Constants.PROP_NAME_PRIVATE_IP_ADDRESS);
+
+    /**
+     * Predefined mock subnet id.
+     */
+    private static final String MOCK_SUBNET_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_SUBNET_ID);
+
+    /**
+     * Predefined mock route table id.
+     */
+    private static final String MOCK_ROUTE_TABLE_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_ROUTE_TABLE_ID);
+
+    /**
+     * Predefined mock internet gateway id.
+     */
+    private static final String MOCK_GATEWAY_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_GATEWAY_ID);
+
+    /**
+     * Predefined mock security group id.
+     */
+    private static final String MOCK_SECURITY_GROUP_ID = PropertiesUtils.
+            getProperty(Constants.PROP_NAME_SECURITY_GROUP_ID);
+
+    /**
+     * Predefined mock security owner id.
+     */
+    private static final String MOCK_SECURITY_OWNER_ID = PropertiesUtils.
+            getProperty(Constants.PROP_NAME_SECURITY_OWNER_ID);
+
+    /**
+     * Predefined mock security group name.
+     */
+    private static final String MOCK_SECURITY_GROUP_NAME = PropertiesUtils.
+            getProperty(Constants.PROP_NAME_SECURITY_GROUP_NAME);
+
+    /**
+     * Predefined mock ip protocol.
+     */
+    private static final String MOCK_IP_PROTOCOL = PropertiesUtils.getProperty(Constants.PROP_NAME_IP_PROTOCOL);
+
+    /**
+     * Predefined mock cidr block.
+     */
+    private static final String MOCK_CIDR_BLOCK = PropertiesUtils.getProperty(Constants.PROP_NAME_CIDR_BLOCK);
+
+    /**
+     * Predefined mock source ip port.
+     */
+    private static final int MOCK_SOURCE_PORT = PropertiesUtils.getIntFromProperty(Constants.PROP_NAME_SOURCE_PORT);
+
+    /**
+     * Predefined mock destination ip port.
+     */
+    private static final int MOCK_DEST_PORT = PropertiesUtils.getIntFromProperty(Constants.PROP_NAME_DEST_PORT);
+
 
     static {
         DEFAULT_MOCK_PLACEMENT.setAvailabilityZone(PropertiesUtils.getProperty(Constants.PROP_NAME_EC2_PLACEMENT));
@@ -206,7 +292,9 @@ public final class MockEC2QueryHandler {
 
                             if ("DescribeInstances".equals(action)) {
 
-                                responseXml = JAXBUtil.marshall(describeInstances(instanceIDs),
+                                Set<String> instanceStates = parseInstanceStates(queryParams);
+
+                                responseXml = JAXBUtil.marshall(describeInstances(instanceIDs, instanceStates),
                                         "DescribeInstancesResponse", version);
 
                             } else if ("StartInstances".equals(action)) {
@@ -223,6 +311,26 @@ public final class MockEC2QueryHandler {
 
                                 responseXml = JAXBUtil.marshall(terminateInstances(instanceIDs),
                                         "TerminateInstancesResponse", version);
+
+                            } else if ("DescribeVpcs".equals(action)) {
+
+                                responseXml = JAXBUtil.marshall(describeVpcs(),
+                                        "DescribeVpcsResponse", version);
+
+                            } else if ("DescribeSecurityGroups".equals(action)) {
+
+                                responseXml = JAXBUtil.marshall(describeSecurityGroups(),
+                                        "DescribeSecurityGroupsResponse", version);
+
+                            } else if ("DescribeInternetGateways".equals(action)) {
+
+                                responseXml = JAXBUtil.marshall(describeInternetGateways(),
+                                        "DescribeInternetGatewaysResponse", version);
+
+                            } else if ("DescribeRouteTables".equals(action)) {
+
+                                responseXml = JAXBUtil.marshall(describeRouteTables(),
+                                        "DescribeRouteTablesResponse", version);
 
                             } else {
 
@@ -260,6 +368,28 @@ public final class MockEC2QueryHandler {
 
 
     /**
+     * Parse instance states from query parameters.
+     *
+     * @param queryParams
+     *            map of query parameters in http request
+     * @return a set of instance states in the parameter map
+     */
+    private Set<String> parseInstanceStates(final Map<String, String[]> queryParams) {
+        Set<String> instanceStates = new TreeSet<String>();
+
+        for (String queryKey : queryParams.keySet()) {
+            // e.g. Filter.1.Value.1: running, Filter.1.Value.2: pending
+            if (queryKey.startsWith("Filter.1.Value")) {
+                for (String state : queryParams.get(queryKey)) {
+                    instanceStates.add(state);
+                }
+            }
+        }
+        return instanceStates;
+    }
+
+
+    /**
      * Parse instance IDs from query parameters.
      *
      * @param queryParams
@@ -282,14 +412,17 @@ public final class MockEC2QueryHandler {
 
 
     /**
-     * Handles "describeInstances" request, with only a simplified filter of instanceIDs, and returns response with all
-     * mock ec2 instances if no instance IDs specified.
+     * Handles "describeInstances" request, with filters of instanceIDs and instanceStates, and
+     * returns response with all mock ec2 instances if no instance IDs specified.
      *
      * @param instanceIDs
      *            a filter of specified instance IDs for the target instance to describe
+     * @param instanceStates
+     *            a filter of specified instance states for the target instance to describe
      * @return a DescribeInstancesResponse with information for all mock ec2 instances to describe
      */
-    private DescribeInstancesResponseType describeInstances(final Set<String> instanceIDs) {
+    private DescribeInstancesResponseType describeInstances(final Set<String> instanceIDs,
+            final Set<String> instanceStates) {
 
         DescribeInstancesResponseType ret = new DescribeInstancesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
@@ -302,6 +435,11 @@ public final class MockEC2QueryHandler {
         for (AbstractMockEc2Instance instance : instances) {
 
             if (null != instance) {
+                String instanceState = instance.getInstanceState().getName();
+                // get instances with specified states
+                if (!instanceStates.isEmpty() && !instanceStates.contains(instanceState)) {
+                    continue;
+                }
 
                 ReservationInfoType resInfo = new ReservationInfoType();
                 resInfo.setReservationId(UUID.randomUUID().toString());
@@ -329,6 +467,11 @@ public final class MockEC2QueryHandler {
                 instItem.setInstanceType(instance.getInstanceType().getName());
                 instItem.setDnsName(instance.getPubDns());
 
+                // set network information
+                instItem.setVpcId(MOCK_VPC_ID);
+                instItem.setPrivateIpAddress(MOCK_PRIVATE_IP_ADDRESS);
+                instItem.setSubnetId(MOCK_SUBNET_ID);
+
                 instsSet.getItem().add(instItem);
 
                 resInfo.setInstancesSet(instsSet);
@@ -352,7 +495,7 @@ public final class MockEC2QueryHandler {
      * @param imageId
      *            AMI of new mock ec2 instance(s)
      * @param instanceType
-     *            type(scale) of new mock ec2 instance(s), refer to {@link AbstractMockEc2Instance#InstanceType}
+     *            type(scale) of new mock ec2 instance(s), refer to {@link AbstractMockEc2Instance#instanceType}
      * @param minCount
      *            max count of instances to run
      * @param maxCount
@@ -394,6 +537,11 @@ public final class MockEC2QueryHandler {
             instItem.setInstanceState(state);
             instItem.setDnsName(i.getPubDns());
             instItem.setPlacement(DEFAULT_MOCK_PLACEMENT);
+
+            // set network information
+            instItem.setVpcId(MOCK_VPC_ID);
+            instItem.setPrivateIpAddress(MOCK_PRIVATE_IP_ADDRESS);
+            instItem.setSubnetId(MOCK_SUBNET_ID);
 
             instSet.getItem().add(instItem);
 
@@ -474,6 +622,121 @@ public final class MockEC2QueryHandler {
             info.getItem().add(item);
         }
         ret.setImagesSet(info);
+
+        return ret;
+    }
+
+
+    /**
+     * Handles "describeRouteTables" request and returns response with a route table.
+     *
+     * @return a DescribeRouteTablesResponseType with our predefined route table in aws-mock.properties
+     * (or if not overridden, as defined in aws-mock-default.properties)
+     */
+    private DescribeRouteTablesResponseType describeRouteTables() {
+        DescribeRouteTablesResponseType ret = new DescribeRouteTablesResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+
+        RouteTableSetType routeTableSet = new RouteTableSetType();
+
+        RouteTableType routeTable = new RouteTableType();
+        routeTable.setVpcId(MOCK_VPC_ID);
+        routeTable.setRouteTableId(MOCK_ROUTE_TABLE_ID);
+
+        RouteTableAssociationSetType associationSet = new RouteTableAssociationSetType();
+        routeTable.setAssociationSet(associationSet);
+
+        RouteSetType routeSet = new RouteSetType();
+        routeTable.setRouteSet(routeSet);
+
+        routeTableSet.getItem().add(routeTable);
+        ret.setRouteTableSet(routeTableSet);
+
+        return ret;
+    }
+
+
+    /**
+     * Handles "describeInternetGateways" request and returns response with a internet gateway.
+     *
+     * @return a DescribeInternetGatewaysResponseType with our predefined internet gateway in aws-mock.properties
+     * (or if not overridden, as defined in aws-mock-default.properties)
+     */
+    private DescribeInternetGatewaysResponseType describeInternetGateways() {
+        DescribeInternetGatewaysResponseType ret = new DescribeInternetGatewaysResponseType();
+
+        InternetGatewayType internetGateway = new InternetGatewayType();
+        internetGateway.setInternetGatewayId(MOCK_GATEWAY_ID);
+
+        InternetGatewaySetType internetGatewaySet = new InternetGatewaySetType();
+        internetGatewaySet.getItem().add(internetGateway);
+
+        ret.setInternetGatewaySet(internetGatewaySet);
+
+        return ret;
+    }
+
+
+    /**
+     * Handles "describeSecurityGroups" request and returns response with a security group.
+     *
+     * @return a DescribeInternetGatewaysResponseType with our predefined internet gateway in aws-mock.properties
+     * (or if not overridden, as defined in aws-mock-default.properties)
+     */
+    private DescribeSecurityGroupsResponseType describeSecurityGroups() {
+        DescribeSecurityGroupsResponseType ret = new DescribeSecurityGroupsResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+
+        SecurityGroupSetType securityGroupSet = new SecurityGroupSetType();
+
+        // initialize securityGroupItem
+        SecurityGroupItemType securityGroupItem = new SecurityGroupItemType();
+        securityGroupItem.setOwnerId(MOCK_SECURITY_OWNER_ID);
+        securityGroupItem.setGroupName(MOCK_SECURITY_GROUP_NAME);
+        securityGroupItem.setGroupId(MOCK_SECURITY_GROUP_ID);
+        securityGroupItem.setVpcId(MOCK_VPC_ID);
+
+        // initialize ipPermission
+        IpPermissionType ipPermission = new IpPermissionType();
+        ipPermission.setFromPort(MOCK_SOURCE_PORT);
+        ipPermission.setToPort(MOCK_DEST_PORT);
+        ipPermission.setIpProtocol(MOCK_IP_PROTOCOL);
+
+        // initialize ipPermissionSet
+        IpPermissionSetType ipPermissionSet = new IpPermissionSetType();
+        ipPermissionSet.getItem().add(ipPermission);
+
+        securityGroupItem.setIpPermissions(ipPermissionSet);
+
+        securityGroupSet.getItem().add(securityGroupItem);
+        ret.setSecurityGroupInfo(securityGroupSet);
+
+        return ret;
+    }
+
+
+    /**
+     * Handles "describeVpcs" request and returns response with a vpc.
+     *
+     * @return a DescribeVpcsResponseType with our predefined vpc in aws-mock.properties
+     * (or if not overridden, as defined in aws-mock-default.properties)
+     */
+    private DescribeVpcsResponseType describeVpcs() {
+        DescribeVpcsResponseType ret = new DescribeVpcsResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+
+        VpcSetType vpcSet = new VpcSetType();
+
+        // initialize vpc
+        VpcType vpcType = new VpcType();
+        vpcType.setVpcId(MOCK_VPC_ID);
+        vpcType.setState(MOCK_VPC_STATE);
+        vpcType.setCidrBlock(MOCK_CIDR_BLOCK);
+        vpcType.setIsDefault(true);
+
+        vpcSet.getItem().add(vpcType);
+
+        ret.setVpcSet(vpcSet);
 
         return ret;
     }

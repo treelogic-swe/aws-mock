@@ -76,6 +76,62 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          */
         M1_XLARGE("m1.xlarge"),
         /**
+         * m3.medium.
+         */
+        M3_MEDIUM("m3.medium"),
+        /**
+         * m3.large.
+         */
+        M3_LARGE("m3.large"),
+        /**
+         * m3.xlarge.
+         */
+        M3_XLARGE("m3.xlarge"),
+        /**
+         * m3.2xlarge.
+         */
+        M3_2XLARGE("m3.2xlarge"),
+        /**
+         * m4.large.
+         */
+        M4_LARGE("m4.large"),
+        /**
+         * m4.xlarge.
+         */
+        M4_XLARGE("m4.xlarge"),
+        /**
+         * m4.2xlarge.
+         */
+        M4_2XLARGE("m4.2xlarge"),
+        /**
+         * m4.4xlarge.
+         */
+        M4_4XLARGE("m4.4xlarge"),
+        /**
+         * m4.10xlarge.
+         */
+        M4_10XLARGE("m4.10xlarge"),
+        /**
+         * t2.nano.
+         */
+        T2_NANO("t2.nano"),
+        /**
+         * t2.micro.
+         */
+        T2_MICRO("t2.micro"),
+        /**
+         * t2.small.
+         */
+        T2_SMALL("t2.small"),
+        /**
+         * t2.medium.
+         */
+        T2_MEDIUM("t2.medium"),
+        /**
+         * t2.large.
+         */
+        T2_LARGE("t2.large"),
+        /**
          * m2.xlarge.
          */
         M2_XLARGE("m2.xlarge"),
@@ -88,6 +144,34 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          */
         M2_4XLARGE("m2.4xlarge"),
         /**
+         * cr1.8xlarge.
+         */
+        CR1_8XLARGE("cr1.8xlarge"),
+        /**
+         * i2.xlarge.
+         */
+        I2_XLARGE("i2.xlarge"),
+        /**
+         * i2.2xlarge.
+         */
+        I2_2XLARGE("i2.2xlarge"),
+        /**
+         * i2.4xlarge.
+         */
+        I2_4XLARGE("i2.4xlarge"),
+        /**
+         * i2.8xlarge.
+         */
+        I2_8XLARGE("i2.8xlarge"),
+        /**
+         * hi1.4xlarge.
+         */
+        HI1_4XLARGE("hi1.4xlarge"),
+        /**
+         * hs1.8xlarge.
+         */
+        HS1_8XLARGE("hs1.8xlarge"),
+        /**
          * c1.medium.
          */
         C1_MEDIUM("c1.medium"),
@@ -95,6 +179,46 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          * c1.xlarge.
          */
         C1_XLARGE("c1.xlarge"),
+        /**
+         * c3.large.
+         */
+        C3_LARGE("c3.large"),
+        /**
+         * c3.xlarge.
+         */
+        C3_XLARGE("c3.xlarge"),
+        /**
+         * c3.2xlarge.
+         */
+        C3_2XLARGE("c3.2xlarge"),
+        /**
+         * c3.4xlarge.
+         */
+        C3_4XLARGE("c3.4xlarge"),
+        /**
+         * c3.8xlarge.
+         */
+        C3_8XLARGE("c3.8xlarge"),
+        /**
+         * c4.large.
+         */
+        C4_LARGE("c4.large"),
+        /**
+         * c4.xlarge.
+         */
+        C4_XLARGE("c4.xlarge"),
+        /**
+         * c4.2xlarge.
+         */
+        C4_2XLARGE("c4.2xlarge"),
+        /**
+         * c4.4xlarge.
+         */
+        C4_4XLARGE("c4.4xlarge"),
+        /**
+         * c4.8xlarge.
+         */
+        C4_8XLARGE("c4.8xlarge"),
         /**
          * cc1.4xlarge.
          */
@@ -104,13 +228,53 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          */
         CC2_8XLARGE("cc2.8xlarge"),
         /**
+         * g2.2xlarge.
+         */
+        G2_2XLARGE("g2.2xlarge"),
+        /**
+         * g2.8xlarge.
+         */
+        G2_8XLARGE("g2.8xlarge"),
+        /**
          * cg1.4xlarge.
          */
         CG1_4XLARGE("cg1.4xlarge"),
         /**
-         * hi1.4xlarge.
+         * r3.large.
          */
-        HI1_4XLARGE("hi1.4xlarge");
+        R3_LARGE("r3.large"),
+        /**
+         * r3.xlarge.
+         */
+        R3_XLARGE("r3.xlarge"),
+        /**
+         * r3.2xlarge.
+         */
+        R3_2XLARGE("r3.2xlarge"),
+        /**
+         * r3.4xlarge.
+         */
+        R3_4XLARGE("r3.4xlarge"),
+        /**
+         * r3.8xlarge.
+         */
+        R3_8XLARGE("r3.8xlarge"),
+        /**
+         * d2.xlarge.
+         */
+        D2_XLARGE("d2.xlarge"),
+        /**
+         * d2.2xlarge.
+         */
+        D2_2XLARGE("d2.2xlarge"),
+        /**
+         * d2.4xlarge.
+         */
+        D2_4XLARGE("d2.4xlarge"),
+        /**
+         * d2.8xlarge.
+         */
+        D2_8XLARGE("d2.8xlarge");
 
         /**
          * Name of instacne type.

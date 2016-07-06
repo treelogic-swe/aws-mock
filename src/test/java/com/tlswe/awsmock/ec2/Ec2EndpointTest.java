@@ -191,4 +191,52 @@ public class Ec2EndpointTest extends BaseTest {
                     AbstractMockEc2Instance.InstanceState.RUNNING);
         }
     }
+
+
+    /**
+     * Test describing instances with states filter.
+     */
+    @Test(timeout = TIMEOUT_LEVEL2)
+    public final void describeInstancesWithStatesFilterTest() {
+        log.info("Start describing instances with states filter test");
+
+        final int totalCount = 5;
+        final int nonTerminatedCount = 3;
+        final int terminateFromIndex = 1;
+        final int terminateToIndex = 3;
+        // run
+        List<Instance> instances = runInstances(
+                AbstractMockEc2Instance.InstanceType.M1_SMALL, totalCount, totalCount);
+        Assert.assertTrue("fail to start instances", instances.size() == totalCount);
+
+        // wait for running
+        for (Instance i : instances) {
+            waitForState(i.getInstanceId(),
+                    AbstractMockEc2Instance.InstanceState.RUNNING);
+        }
+
+        // stop the first instance
+        List<InstanceStateChange> stateChanges = stopInstances(instances.subList(0, 1));
+        Assert.assertTrue("fail to stop instances", stateChanges.size() == 1);
+
+        // wait for stopped
+        waitForState(instances.get(0).getInstanceId(),
+                AbstractMockEc2Instance.InstanceState.STOPPED);
+
+        // terminate the second and third instance
+        stateChanges = terminateInstances(instances.subList(terminateFromIndex, terminateToIndex));
+        Assert.assertTrue("fail to terminate instances", stateChanges.size() == 2);
+
+        // wait for terminated
+        waitForState(instances.get(1).getInstanceId(),
+                AbstractMockEc2Instance.InstanceState.TERMINATED);
+        waitForState(instances.get(2).getInstanceId(),
+                AbstractMockEc2Instance.InstanceState.TERMINATED);
+
+        // get non terminated instances
+        instances = describeNonTerminatedInstances(instances);
+
+        Assert.assertTrue("number of non terminated instances should be 3",
+                instances.size() == nonTerminatedCount);
+    }
 }
