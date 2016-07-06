@@ -87,4 +87,70 @@ public interface Constants {
      * Property name for min boot time of a mock EC2 instance in seconds.
      */
     String PROP_NAME_INSTANCE_MIN_BOOT_TIME_SECONDS = "instance.min.boot.time.seconds";
+
+    /**
+     * Property name for vpc id.
+     */
+    String PROP_NAME_VPC_ID = "vpcId";
+
+    /**
+     * Property name for vpc state.
+     */
+    String PROP_NAME_VPC_STATE = "vpcState";
+
+    /**
+     * Property name for subnet id.
+     */
+    String PROP_NAME_SUBNET_ID = "subnetId";
+
+    /**
+     * Property name for private ip address.
+     */
+    String PROP_NAME_PRIVATE_IP_ADDRESS = "privateIpAddress";
+
+    /**
+     * Property name for route table id.
+     */
+    String PROP_NAME_ROUTE_TABLE_ID = "routeTableId";
+
+    /**
+     * Property name for internet gateway id.
+     */
+    String PROP_NAME_GATEWAY_ID = "internetGatewayId";
+
+    /**
+     * Property name for security group id.
+     */
+    String PROP_NAME_SECURITY_GROUP_ID = "securityGroupId";
+
+    /**
+     * Property name for security owner id.
+     */
+    String PROP_NAME_SECURITY_OWNER_ID = "securityOwnerId";
+
+    /**
+     * Property name for security owner id.
+     */
+    String PROP_NAME_SECURITY_GROUP_NAME = "securityGroupName";
+
+    /**
+     * Property name for ip protocol.
+     */
+    String PROP_NAME_IP_PROTOCOL = "ipProtocol";
+
+    /**
+     * Property name for cidr block.
+     */
+    String PROP_NAME_CIDR_BLOCK = "cidrBlock";
+
+    /**
+     * Property name for source ip port.
+     */
+    String PROP_NAME_SOURCE_PORT = "sourcePort";
+
+    /**
+     * Property name for destination ip port.
+     */
+    String PROP_NAME_DEST_PORT = "destPort";
+
 }

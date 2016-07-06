@@ -117,4 +117,16 @@ public final class PropertiesUtils {
         return ret;
     }
 
+
+    /**
+     * Get int type of property value by name.
+     *
+     * @param propertyName
+     *            name of the property to get
+     * @return int type of value
+     */
+    public static int getIntFromProperty(final String propertyName) {
+        return Integer.parseInt(properties.getProperty(propertyName));
+    }
+
 }
