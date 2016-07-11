@@ -9,3 +9,4 @@ ADD . /project/
 CMD ["gradle", "jettyRun"]
 
 EXPOSE 8000
+
