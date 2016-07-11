@@ -222,11 +222,11 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         /**
          * cc1.4xlarge.
          */
-        CC1_4XLARGE("cc1.4xlarge"),
+        CC_14XLARGE("cc1.4xlarge"),
         /**
          * cc2.8xlarge.
          */
-        CC2_8XLARGE("cc2.8xlarge"),
+        CC_28XLARGE("cc2.8xlarge"),
         /**
          * g2.2xlarge.
          */
@@ -238,7 +238,7 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         /**
          * cg1.4xlarge.
          */
-        CG1_4XLARGE("cg1.4xlarge"),
+        CG_14XLARGE("cg1.4xlarge"),
         /**
          * r3.large.
          */

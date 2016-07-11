@@ -102,7 +102,6 @@ public interface Constants {
      * Property name for subnet id.
      */
     String PROP_NAME_SUBNET_ID = "network.subnetId";
-
     /**
      * Property name for private ip address.
      */
@@ -112,7 +111,6 @@ public interface Constants {
      * Property name for route table id.
      */
     String PROP_NAME_ROUTE_TABLE_ID = "network.routeTableId";
-
     /**
      * Property name for internet gateway id.
      */
