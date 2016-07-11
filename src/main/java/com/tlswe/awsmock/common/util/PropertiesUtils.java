@@ -117,4 +117,21 @@ public final class PropertiesUtils {
         return ret;
     }
 
+
+    /**
+     * Get int type of property value by name.
+     *
+     * @param propertyName
+     *            name of the property to get
+     * @return int type of value
+     */
+    public static int getIntFromProperty(final String propertyName) {
+        try {
+            return Integer.parseInt(properties.getProperty(propertyName));
+        } catch (NumberFormatException e) {
+            log.error("NumberFormatException caught during reading property from properties file: " + e.getMessage());
+            return 0;
+        }
+    }
+
 }

@@ -33,6 +33,20 @@ import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
+import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.Vpc;
+import com.amazonaws.services.ec2.model.DescribeVpcsResult;
+import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.InternetGateway;
+import com.amazonaws.services.ec2.model.DescribeInternetGatewaysRequest;
+import com.amazonaws.services.ec2.model.DescribeInternetGatewaysResult;
+import com.amazonaws.services.ec2.model.RouteTable;
+import com.amazonaws.services.ec2.model.DescribeRouteTablesRequest;
+import com.amazonaws.services.ec2.model.DescribeRouteTablesResult;
 
 /**
  * Base underlying class for doing the fundamental calls to aws ec2 interfaces, with neat utility methods which can be
@@ -315,7 +329,20 @@ public class BaseTest {
         DescribeInstancesResult result = amazonEC2Client
                 .describeInstances(request);
         Assert.assertTrue(result.getReservations().size() > 0);
-        return result.getReservations().get(0).getInstances();
+
+        List<Instance> instanceList = new ArrayList<Instance>();
+
+        for (Reservation reservation : result.getReservations()) {
+            List<Instance> instances = reservation.getInstances();
+
+            if (null != instances) {
+                for (Instance i : instances) {
+                    instanceList.add(i);
+                }
+            }
+        }
+
+        return instanceList;
     }
 
 
@@ -343,6 +370,125 @@ public class BaseTest {
     protected final List<Instance> describeInstances(
             final Collection<String> instanceIds) {
         return describeInstances(instanceIds, true);
+    }
+
+
+    /**
+     * Describe non terminated instances.
+     *
+     * @param instanceIds
+     *            instances' IDs
+     * @return list of non terminated instances
+     */
+    protected final List<Instance> describeNonTerminatedInstances(
+            final List<Instance> instanceIds) {
+        DescribeInstancesRequest request = new DescribeInstancesRequest();
+        request.setInstanceIds(getInstanceIds(instanceIds));
+
+        // set the request filter
+        Filter nonTerminatedFilter = getNonTerminatedInstancesFilter();
+        request.getFilters().add(nonTerminatedFilter);
+
+        DescribeInstancesResult result = amazonEC2Client
+                .describeInstances(request);
+        Assert.assertTrue(result.getReservations().size() > 0);
+
+        List<Instance> instanceList = new ArrayList<Instance>();
+
+        for (Reservation reservation : result.getReservations()) {
+            List<Instance> instances = reservation.getInstances();
+
+            if (null != instances) {
+                for (Instance i : instances) {
+                    instanceList.add(i);
+                }
+            }
+        }
+
+        return instanceList;
+    }
+
+
+    /**
+     * Create a filter to only get non terminated instances.
+     *
+     * @return list of instances
+     */
+    protected final Filter getNonTerminatedInstancesFilter() {
+        List<String> stateValues = new ArrayList<String>(Arrays.asList(InstanceState.RUNNING.getName(),
+                InstanceState.PENDING.getName(), InstanceState.STOPPING.getName(),
+                InstanceState.STOPPED.getName(), InstanceState.SHUTTING_DOWN.getName()));
+
+        Filter runningInstanceFilter = new Filter();
+        runningInstanceFilter.setValues(stateValues);
+        return runningInstanceFilter;
+    }
+
+
+    /**
+     * Describe VPCs.
+     *
+     * @return List of vpcs
+     */
+    protected final List<Vpc> describeVpcs() {
+        DescribeVpcsRequest req = new DescribeVpcsRequest();
+        DescribeVpcsResult result = amazonEC2Client.describeVpcs(req);
+        List<Vpc> vpcs = result.getVpcs();
+        return vpcs;
+    }
+
+
+    /**
+     * Describe security group.
+     *
+     * @return SecurityGroup
+     */
+    protected final SecurityGroup getSecurityGroup() {
+        SecurityGroup cellGroup = null;
+
+        DescribeSecurityGroupsRequest req = new DescribeSecurityGroupsRequest();
+        DescribeSecurityGroupsResult result = amazonEC2Client.describeSecurityGroups(req);
+        if (result != null && !result.getSecurityGroups().isEmpty()) {
+            cellGroup = result.getSecurityGroups().get(0);
+        }
+
+        return cellGroup;
+    }
+
+
+    /**
+     * Describe internet gateway.
+     *
+     * @return InternetGateway
+     */
+    protected final InternetGateway getInternetGateway() {
+        InternetGateway internetGateway = null;
+
+        DescribeInternetGatewaysRequest req = new DescribeInternetGatewaysRequest();
+        DescribeInternetGatewaysResult result = amazonEC2Client.describeInternetGateways(req);
+        if (result != null && !result.getInternetGateways().isEmpty()) {
+            internetGateway = result.getInternetGateways().get(0);
+        }
+
+        return internetGateway;
+    }
+
+
+    /**
+     * Describe route table.
+     *
+     * @return RouteTable
+     */
+    protected final RouteTable getRouteTable() {
+        RouteTable routeTable = null;
+
+        DescribeRouteTablesRequest req = new DescribeRouteTablesRequest();
+        DescribeRouteTablesResult result = amazonEC2Client.describeRouteTables(req);
+        if (result != null && !result.getRouteTables().isEmpty()) {
+            routeTable = result.getRouteTables().get(0);
+        }
+
+        return routeTable;
     }
 
 
