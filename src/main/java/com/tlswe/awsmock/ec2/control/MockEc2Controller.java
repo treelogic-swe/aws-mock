@@ -5,9 +5,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateChangeType;
@@ -54,7 +56,12 @@ public final class MockEc2Controller {
     /**
      * Internal timer for cleaning up terminated mock ec2 instances.
      */
-    private Timer cleanupTerminatedInstancesTimer = null;
+    private ScheduledExecutorService cleanupTerminatedInstancesTimer = null;
+
+    /**
+     * The result of scheduling a task with a {@link ScheduledExecutorService}.
+     */
+    private ScheduledFuture cleanupTerminatedInstancesScheduledFuture = null;
 
     /**
      * Constructor of MockEc2Controller is made private and only called once by {@link #getInstance()}.
@@ -366,7 +373,7 @@ public final class MockEc2Controller {
      */
     public void cleanupTerminatedInstances(final long period) {
 
-        TimerTask internalTimerTask = new TimerTask() {
+        Runnable cleanupTerminatedInstancesTask = new Runnable() {
 
             /**
              * this method is triggered every pre-defined period
@@ -385,8 +392,9 @@ public final class MockEc2Controller {
 
         };
 
-        cleanupTerminatedInstancesTimer = new Timer();
-        cleanupTerminatedInstancesTimer.schedule(internalTimerTask, 0L, period);
+        cleanupTerminatedInstancesTimer = Executors.newSingleThreadScheduledExecutor();
+        cleanupTerminatedInstancesScheduledFuture = cleanupTerminatedInstancesTimer.
+                scheduleAtFixedRate(cleanupTerminatedInstancesTask, 0L, period, TimeUnit.SECONDS);
     }
 
 
@@ -394,7 +402,9 @@ public final class MockEc2Controller {
      * Cancel the internal timer of cleaning up terminated mock ec2 instances.
      */
     public void destroyCleanupTerminatedInstanceTimer() {
-        cleanupTerminatedInstancesTimer.cancel();
+        cleanupTerminatedInstancesScheduledFuture.cancel(true);
+        cleanupTerminatedInstancesScheduledFuture = null;
+        cleanupTerminatedInstancesTimer.shutdown();
         cleanupTerminatedInstancesTimer = null;
     }
 

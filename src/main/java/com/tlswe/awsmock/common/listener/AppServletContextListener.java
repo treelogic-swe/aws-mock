@@ -72,7 +72,7 @@ public class AppServletContextListener implements ServletContextListener {
 
         // start a timer for cleaning up terminated instances
         MockEc2Controller.getInstance().
-                cleanupTerminatedInstances(cleanupTerminatedInstancesPeriod * MILLISECS_IN_A_SECOND);
+                cleanupTerminatedInstances(cleanupTerminatedInstancesPeriod);
     }
 
 
