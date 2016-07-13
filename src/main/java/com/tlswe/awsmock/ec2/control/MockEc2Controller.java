@@ -54,7 +54,7 @@ public final class MockEc2Controller {
     /**
      * Internal timer for cleaning up terminated mock ec2 instances.
      */
-    private Timer cleanTerminatedInstancesTimer = null;
+    private Timer cleanupTerminatedInstancesTimer = null;
 
     /**
      * Constructor of MockEc2Controller is made private and only called once by {@link #getInstance()}.
@@ -364,7 +364,7 @@ public final class MockEc2Controller {
      * @param period
      *            time period to clean up terminated instances
      */
-    public void cleanUpTerminatedInstances(final long period) {
+    public void cleanupTerminatedInstances(final long period) {
 
         TimerTask internalTimerTask = new TimerTask() {
 
@@ -385,17 +385,17 @@ public final class MockEc2Controller {
 
         };
 
-        cleanTerminatedInstancesTimer = new Timer();
-        cleanTerminatedInstancesTimer.schedule(internalTimerTask, 0L, period);
+        cleanupTerminatedInstancesTimer = new Timer();
+        cleanupTerminatedInstancesTimer.schedule(internalTimerTask, 0L, period);
     }
 
 
     /**
      * Cancel the internal timer of cleaning up terminated mock ec2 instances.
      */
-    public void destroyCleanTerminatedInstanceTimer() {
-        cleanTerminatedInstancesTimer.cancel();
-        cleanTerminatedInstancesTimer = null;
+    public void destroyCleanupTerminatedInstanceTimer() {
+        cleanupTerminatedInstancesTimer.cancel();
+        cleanupTerminatedInstancesTimer = null;
     }
 
 }

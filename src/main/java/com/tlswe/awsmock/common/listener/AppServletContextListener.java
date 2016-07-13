@@ -72,7 +72,7 @@ public class AppServletContextListener implements ServletContextListener {
 
         // start a timer for cleaning up terminated instances
         MockEc2Controller.getInstance().
-                cleanUpTerminatedInstances(cleanupTerminatedInstancesPeriod * MILLISECS_IN_A_SECOND);
+                cleanupTerminatedInstances(cleanupTerminatedInstancesPeriod * MILLISECS_IN_A_SECOND);
     }
 
 
@@ -99,7 +99,7 @@ public class AppServletContextListener implements ServletContextListener {
             PersistenceUtils.saveAll(array);
         }
 
-        MockEc2Controller.getInstance().destroyCleanTerminatedInstanceTimer();
+        MockEc2Controller.getInstance().destroyCleanupTerminatedInstanceTimer();
 
         log.info("aws-mock stopped...");
     }
