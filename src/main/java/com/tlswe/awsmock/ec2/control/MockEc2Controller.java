@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.tlswe.awsmock.common.exception.AwsMockException;
@@ -49,6 +51,10 @@ public final class MockEc2Controller {
     private final Map<String, AbstractMockEc2Instance> allMockEc2Instances =
             new ConcurrentHashMap<String, AbstractMockEc2Instance>();
 
+    /**
+     * Internal timer for cleaning up terminated mock ec2 instances.
+     */
+    private Timer cleanTerminatedInstancesTimer = null;
 
     /**
      * Constructor of MockEc2Controller is made private and only called once by {@link #getInstance()}.
@@ -348,6 +354,48 @@ public final class MockEc2Controller {
                 instance.initializeInternalTimer();
             }
         }
+    }
+
+
+    /**
+     * Clean up terminated mock instances after a pre-defined period.
+     * Period is defined in aws-mock.properties (or if not overridden, as defined in aws-mock-default.properties)
+     *
+     * @param period
+     *            time period to clean up terminated instances
+     */
+    public void cleanUpTerminatedInstances(final long period) {
+
+        TimerTask internalTimerTask = new TimerTask() {
+
+            /**
+             * this method is triggered every pre-defined period
+             */
+            private String terminatedState = AbstractMockEc2Instance.InstanceState.TERMINATED.getName();
+
+            @Override
+            public void run() {
+                // traverse the map allMockEc2Instances and clean up the terminated ones
+                for (AbstractMockEc2Instance instance : allMockEc2Instances.values()) {
+                    if (terminatedState.equals(instance.getInstanceState().getName())) {
+                        allMockEc2Instances.remove(instance.getInstanceID());
+                    }
+                }
+            }
+
+        };
+
+        cleanTerminatedInstancesTimer = new Timer();
+        cleanTerminatedInstancesTimer.schedule(internalTimerTask, 0L, period);
+    }
+
+
+    /**
+     * Cancel the internal timer of cleaning up terminated mock ec2 instances.
+     */
+    public void destroyCleanTerminatedInstanceTimer() {
+        cleanTerminatedInstancesTimer.cancel();
+        cleanTerminatedInstancesTimer = null;
     }
 
 }
