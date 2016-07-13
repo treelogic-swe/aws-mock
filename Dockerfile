@@ -1,6 +1,6 @@
 FROM java:8
 
-RUN apt-get update
+RUN apt-get clean && apt-get update
 RUN apt-get install -y gradle
 
 WORKDIR /project
