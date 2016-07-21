@@ -49,6 +49,11 @@ public interface Constants {
     String PROP_NAME_XMLNS_CURRENT = "xmlns.current";
 
     /**
+     * Property name for min boot time of a mock EC2 instance in seconds.
+     */
+    String PROP_NAME_EC2_CLEANUP_TERMINATED_INSTANCES_TIME_SECONDS = "ec2.cleanupTerminatedInstances.time.seconds";
+
+    /**
      * Property name for max shutdown time of a mock EC2 instance in milliseconds.
      */
     String PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME = "instance.max.shutdown.time";
