@@ -15,6 +15,10 @@ Aws-mock currently features the following implemented interfaces of Amazon EC2:
 - startInstances
 - terminateInstances
 - describeInstances
+- describeVpcs
+- describeSecurityGroups
+- describeInternetGateways
+- describeRouteTables
 
 This mock can manage a huge amount of EC2 instances, making it super easy for you to test your applications. 
 
