@@ -1,14 +1,19 @@
-aws-mock automated testing [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
+aws-mock  [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?branch=master)](https://travis-ci.org/treelogic-swe/aws-mock)
 ========
+*Automated testing for [AWS](https://aws.amazon.com).*
+========
+
+Used by  ![TreeLogic Software Logo](./images/used-by/tlswe-logo.jpg)  ![VMWare Logo](./images/used-by/vmware-logo-2016-08-21.png)
+
 
 ### Overview
 
-Easily test essential AWS services with the lightweight, very modular aws-mock. Works with official aws-sdk, api-tools and third-party tools. 
+Easily test [essential AWS services](https://aws.amazon.com/products/) with the lightweight, very modular aws-mock. Works with official aws-sdk, api-tools and third-party tools.
 Completely and safely automates the testing process of AWS services in a mock EC2 environment, using http to expose the API.
 
 Readily accessible: Ready-to-run examples included for NodeJS and Java. aws-mock is available as a package [from npmjs.org](https://npmjs.org/package/aws-mock) and [from maven.org](http://search.maven.org/#browse%7C-1342745620).
 
-Aws-mock currently features the following implemented interfaces of Amazon EC2: 
+Aws-mock currently features the following implemented interfaces of Amazon EC2:
 - describeImages
 - runInstances
 - stopInstances
@@ -20,9 +25,9 @@ Aws-mock currently features the following implemented interfaces of Amazon EC2:
 - describeInternetGateways
 - describeRouteTables
 
-This mock can manage a huge amount of EC2 instances, making it super easy for you to test your applications. 
+This mock can manage a huge amount of EC2 instances, making it super easy for you to test your applications.
 
-aws-mock is a pure servlet web application, conforming to the protocols described in the WSDL defined by AWS.  Contributions in any JVM-targeting language are welcome. 
+aws-mock is a pure servlet web application, conforming to the protocols described in the WSDL defined by AWS.  Contributions in any JVM-targeting language are welcome.
 
 
 ### How It Works
@@ -34,9 +39,9 @@ In response it then returns an xml result body which is recognized by your clien
 
 Note: At this time, the only interfaces that have been implemented are the ones listed above. Only essential data fields in the response body are filled.
 
-Inside aws-mock, the mock EC2 instances can work in their own program threads and behave just like real ones.  Thus, by extending aws-mock, it would be easy for you to add any custom behavior that you desire to your mock EC2 instances (e.g. insert 'agents' that send heartbeat pings to your EC2 cluster controller, etc).  This will enable you to mock and test your EC2-based system more precisely. 
- 
-For more information, please refer to the [Technical Specifications](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications). 
+Inside aws-mock, the mock EC2 instances can work in their own program threads and behave just like real ones.  Thus, by extending aws-mock, it would be easy for you to add any custom behavior that you desire to your mock EC2 instances (e.g. insert 'agents' that send heartbeat pings to your EC2 cluster controller, etc).  This will enable you to mock and test your EC2-based system more precisely.
+
+For more information, please refer to the [Technical Specifications](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications).
 
 
 ### Quick Start
@@ -45,15 +50,15 @@ git clone https://github.com/treelogic-swe/aws-mock.git
 cd aws-mock
 gradle jettyRun
 ```
-That's all. 
+That's all.
 
 This will run a build that automatically downloads all dependencies and prepares the code for use, and then it will start a jetty server that runs aws-mock locally on your computer.
- 
+
 Now you are able to interact with your local, mock version of Amazon Web Services (though only EC2 for now), in your own client applications.
 
-You can use [AWS-SDK](http://aws.amazon.com/tools/), or a number of other third-party client tools such as elasticfox. 
+You can use [AWS-SDK](http://aws.amazon.com/tools/), or a number of other third-party client tools such as elasticfox.
 
-To manage instances on mock EC2, just point to the custom EC2 endpoint as follows: 
+To manage instances on mock EC2, just point to the custom EC2 endpoint as follows:
 http://localhost:8000/aws-mock/ec2-endpoint/ (equivalent to the official endpoint url https://ec2.us-west-1.amazonaws.com/)
 
 For more usage instructions including how to extend aws-mock, please look into our full [User's Guide](https://github.com/treelogic-swe/aws-mock/wiki/User's-Guide).
@@ -69,10 +74,10 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 
 ### Tips
 - To build a war file for deployment, run `gradle war`.
-- Initially there are no mock instances in mock EC2, so you need to run one or more new instances first. 
-- Your client doesn't need to provide valid credentials since aws-mock skips the `secretKey`/`accessKey` check. 
+- Initially there are no mock instances in mock EC2, so you need to run one or more new instances first.
+- Your client doesn't need to provide valid credentials since aws-mock skips the `secretKey`/`accessKey` check.
 - There are a few options in `src/main/resources/aws-mock.properties` to tune.
-- For Eclipse users, `gradle clean Eclipse eclipse` will initialize the ready-to-import eclipse wtp project facets. 
+- For Eclipse users, `gradle clean Eclipse eclipse` will initialize the ready-to-import eclipse wtp project facets.
 
 
 ### Your Contribution, in Any JVM-Targeting Language
