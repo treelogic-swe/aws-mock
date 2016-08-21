@@ -3,7 +3,9 @@ aws-mock  [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?bran
 *Automated testing for [AWS](https://aws.amazon.com).*
 ========
 
-Used by  ![TreeLogic Software Logo](./images/used-by/tlswe-logo.jpg)  ![VMWare Logo](./images/used-by/vmware-logo-2016-08-21.png)
+*Used by:*
+
+![TreeLogic Software Logo](./images/used-by/treelogic-software-logo.png)  ![VMWare Logo](./images/used-by/vmware-logo-2016-08-21.png)
 
 
 ### Overview
