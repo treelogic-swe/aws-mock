@@ -4,10 +4,7 @@ import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
 public class PropertiesUtilsTest {
 
 
@@ -16,13 +13,13 @@ public class PropertiesUtilsTest {
 
     /* Test to see if it is possible to get properties from the default properties file*/
     @Test
-    public void TestPropertyInString(){
+    public void Test_getPropertyString(){
        Assert.assertTrue("6".equals(PropertiesUtils.getProperty(INSTANCE_MIN_SHUTDOWN_TIME_KEY)));
     }
 
 
     @Test
-    public void TestgetPropertyWithPrefix(){
+    public void Test_getPropertyWithPrefix(){
 
         String prefixOfProperty = "predefined.mock.ami";
         Collection<String> collection = PropertiesUtils.getPropertiesByPrefix(prefixOfProperty);
@@ -30,12 +27,12 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void TestgetIntFromProperty(){
+    public void Test_getIntFromProperty(){
        Assert.assertTrue(6==PropertiesUtils.getIntFromProperty(INSTANCE_MIN_SHUTDOWN_TIME_KEY));
     }
 
     @Test
-    public void TestgetPropertyNoneDefined(){
+    public void Test_getPropertyNoneDefined(){
        Assert.assertTrue(0==PropertiesUtils.getIntFromProperty(NO_PROPERTY_DEFINED));
        Assert.assertTrue(null==PropertiesUtils.getProperty(NO_PROPERTY_DEFINED));
     }

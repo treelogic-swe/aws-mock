@@ -55,12 +55,12 @@ public class PersistenceUtilsTest {
     }
 
     @Test
-    public void TestLoadAll(){
+    public void Test_loadAll(){
         Assert.assertTrue(PersistenceUtils.loadAll()==null);
     }
 
     @Test
-    public void TestLoadAllFileNotFoundException() {
+    public void Test_loadAllFileNotFoundException() {
 
         try {
             PowerMockito.whenNew(FileInputStream.class).withAnyArguments().thenThrow(new FileNotFoundException("Forced exception"));
@@ -72,7 +72,7 @@ public class PersistenceUtilsTest {
     }
 
     @Test
-    public void TestLoadAllIOException() {
+    public void Test_loadAllIOException() {
 
         try {
             PowerMockito.whenNew(FileInputStream.class).withAnyArguments().thenThrow(new IOException("Forced exception"));
@@ -84,7 +84,7 @@ public class PersistenceUtilsTest {
     }
 
     @Test
-    public void TestLoadAllClassNotFoundException() {
+    public void Test_loadAllClassNotFoundException() {
 
         try {
             PowerMockito.whenNew(FileInputStream.class).withAnyArguments().thenThrow(new ClassNotFoundException("Forced exception"));
@@ -96,7 +96,7 @@ public class PersistenceUtilsTest {
     }
 
     @Test
-    public void TestSaveAll() {
+    public void Test_saveAll() {
 
         Mockito.when(mockedFile.getParentFile()).thenReturn(mockedFile);
         Mockito.when(mockedFile.exists()).thenReturn(false);
@@ -105,7 +105,7 @@ public class PersistenceUtilsTest {
     }
 
     @Test
-    public void TestSaveAllFileNotFoundException() {
+    public void Test_saveAllFileNotFoundException() {
 
         Mockito.when(mockedFile.getParentFile()).thenReturn(mockedFile);
         Mockito.when(mockedFile.exists()).thenReturn(false);
@@ -120,7 +120,7 @@ public class PersistenceUtilsTest {
     }
 
     @Test
-    public void TestSaveAllIOException() {
+    public void Test_saveAllIOException() {
 
         Mockito.when(mockedFile.getParentFile()).thenReturn(mockedFile);
         Mockito.when(mockedFile.exists()).thenReturn(false);

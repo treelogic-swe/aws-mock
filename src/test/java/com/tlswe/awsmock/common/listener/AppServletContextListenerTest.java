@@ -53,24 +53,24 @@ public class AppServletContextListenerTest {
     }
 
     @Test
-    public void TestContextInitializedPersistenceDisabled(){
+    public void Test_contextInitializedPersistenceDisabled(){
         acl.contextInitialized(sce);
     }
 
     @Test
-    public void TestContextInitializedPersistenceEnabled(){
+    public void Test_contextInitializedPersistenceEnabled(){
         Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", true);
         acl.contextInitialized(sce);
         Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", false);
     }
 
     @Test
-    public void TestContextDestroyedPersistenceDisabled(){
+    public void Test_contextDestroyedPersistenceDisabled(){
         acl.contextDestroyed(sce);
     }
 
     @Test
-    public void TestContextDestroyedPersistenceEnabled(){
+    public void Test_contextDestroyedPersistenceEnabled(){
         Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", true);
         acl.contextDestroyed(sce);
         Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", false);
