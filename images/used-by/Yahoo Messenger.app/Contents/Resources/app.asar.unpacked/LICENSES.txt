@@ -1,0 +1,159 @@
+Yahoo Messenger Desktop Open Source Credits
+This application uses Open Source components. You can find the source code of their open source projects along with license information below. We acknowledge and are grateful to these developers for their contributions to open source.
+
+Project: auto-launch https://github.com/mawie81/electron-window-state
+Copyright (c) 2015 Jakub Szwacz 
+Copyright (c) Marcel Wiehle <marcel@wiehle.me> (http://marcel.wiehle.me)
+License: (MIT) https://github.com/mawie81/electron-window-state/blob/master/license 
+
+Project: Electron-debug https://github.com/sindresorhus/electron-debug
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+License: (MIT) https://github.com/sindresorhus/electron-debug/blob/master/license 
+
+Project: Electron-notification-shim https://github.com/seriema/electron-notification-shim
+Copyright (c) 2015 John-Philip Johansson
+License: (MIT) https://github.com/seriema/electron-notification-shim/blob/master/LICENSE 
+
+Project: Electron-settings https://github.com/nathanbuchar/electron-settings
+Copyright (c) 2015, Nathan Buchar
+License: (MIT) https://github.com/nathanbuchar/electron-settings/blob/master/LICENSE 
+
+Project: Electron-squirrel-startup https://github.com/mongodb-js/electron-squirrel-startup
+License: (Apache 2.0) https://github.com/mongodb-js/electron-squirrel-startup/blob/master/LICENSE 
+
+Project: Electron-window-state https://github.com/mawie81/electron-window-state
+Copyright (c) 2015 Jakub Szwacz
+Copyright (c) Marcel Wiehle <marcel@wiehle.me> (http://marcel.wiehle.me)
+License: (MIT)  https://github.com/mawie81/electron-window-state/blob/master/license 
+
+Project: Lcid https://github.com/sindresorhus/lcid
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+License: (MIT) https://github.com/sindresorhus/lcid/blob/master/license 
+
+Project: Lodash https://github.com/lodash/lodash
+Copyright jQuery Foundation and other contributors <https://jquery.org/>
+License: (MIT) https://github.com/lodash/lodash/blob/master/LICENSE 
+
+Project: Log4js https://github.com/nomiddlename/log4js-node
+Copyright 2015 Gareth Jones (with contributions from many other people)
+License: (Apache 2.0) https://github.com/nomiddlename/log4js-node/blob/master/LICENSE 
+
+Project: Minimist https://github.com/substack/minimist
+No declared copyright https://github.com/substack/minimist/pull/18 
+License: (MIT) https://github.com/substack/minimist/blob/master/LICENSE 
+
+Project: Musicplayer-api https://github.com/frabert/musicplayer-api
+Copyright (c) 2015 Francesco Bertolaccini
+License: (MIT) https://github.com/frabert/musicplayer-api/blob/master/LICENSE.md 
+
+Project: Nconf https://github.com/flatiron/nconf
+Copyright (C) 2011 Charlie Robbins and the Contributors.
+License: (MIT) https://github.com/indexzero/nconf/blob/master/LICENSE 
+
+Project: Node-uuid https://github.com/broofa/node-uuid
+Copyright (c) 2010-2012 Robert Kieffer
+License: (MIT) https://github.com/broofa/node-uuid/blob/master/LICENSE.md 
+
+Project: Electron-builder https://github.com/electron-userland/electron-builder
+Copyright (c) 2015 Loopline Systems
+License: (MIT) https://github.com/electron-userland/electron-builder/blob/master/LICENSE 
+
+Project: electron-osx-sign-tf https://github.com/electron-userland/electron-osx-sign
+Copyright (c) 2015-2016 Zhuo Lu, Jason Hinkle, et al.
+License : BSD-2-Clause https://github.com/electron-userland/electron-osx-sign/blob/master/LICENSE 
+
+Project: Electron-packager https://github.com/electron-userland/electron-packager
+Copyright (c) 2015 Max Ogden and other contributors
+License: (BSD-2-Clause) https://github.com/electron-userland/electron-packager/blob/master/LICENSE 
+
+Project: Electron-prebuilt https://github.com/electron-userland/electron-prebuilt 
+Copyright (c) 2015 Mathias Buus-Madsen, Max Ogden and contributors
+License: (MIT) https://github.com/electron-userland/electron-prebuilt/blob/master/LICENSE 
+
+Project: Mime https://github.com/broofa/node-mime
+Copyright (c) 2010 Benjamin Thomas, Robert Kieffer
+License: (MIT)  https://github.com/broofa/node-mime/blob/master/LICENSE 
+
+Project: Mkdirp https://github.com/substack/node-mkdirp 
+Copyright 2010 James Halliday (mail@substack.net)
+License: (MIT/X11) https://github.com/substack/node-mkdirp/blob/master/LICENSE 
+
+Project: Shelljs https://github.com/shelljs/shelljs 
+Copyright (c) 2012, Artur Adib <arturadib@gmail.com>
+License: (BSD 3-clause) https://github.com/shelljs/shelljs/blob/master/LICENSE 
+
+Project: sinon https://github.com/sinonjs/sinon
+Copyright (c) 2010-2014, Christian Johansen, christian@cjohansen.no
+License: (BSD 3-clause) https://github.com/sinonjs/sinon/blob/master/LICENSE 
+
+Project: Stream-to-promise https://github.com/bendrucker/stream-to-promise 
+Copyright (c) Ben Drucker <bvdrucker@gmail.com> (bendrucker.me)
+License: (MIT) https://github.com/bendrucker/stream-to-promise/blob/master/LICENSE 
+
+Project: Through2 https://github.com/rvagg/through2
+Copyright 2013, Rod Vagg (the "Original Author")
+License: (MIT +no-false-attribs License) https://github.com/rvagg/through2/blob/master/LICENSE 
+
+Project: Xml2js  https://github.com/Leonidas-from-XIV/node-xml2js
+(as found) Copyright 2010, 2011, 2012, 2013.
+License: (MIT) https://github.com/Leonidas-from-XIV/node-xml2js/blob/master/LICENSE 
+
+Project: File-type https://github.com/sindresorhus/file-type
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+License: (MIT) https://github.com/sindresorhus/file-type/blob/master/license 
+
+Project: Klaw https://github.com/jprichardson/node-klaw
+Copyright (c) 2015-2016 JP Richardson
+License: MIT https://github.com/jprichardson/node-klaw/blob/master/LICENSE 
+
+Project: Rimraf https://github.com/isaacs/rimraf
+Copyright (c) Isaac Z. Schlueter and Contributors
+License: The ISC License https://github.com/isaacs/rimraf/blob/master/LICENSE 
+
+Project: Cliui https://github.com/yargs/cliui
+(as found) Copyright (c) 2015, Contributors
+License: The ISC License https://github.com/yargs/cliui/blob/master/LICENSE.txt 
+
+Project: Decamelize https://github.com/sindresorhus/decamelize
+Copyright (c) Sindre Sorhus <sindresorhus@gmail.com> (sindresorhus.com)
+License: (MIT) https://github.com/sindresorhus/decamelize/blob/master/license 
+
+Project: Wrappy https://github.com/npm/wrappy
+Copyright (c) Isaac Z. Schlueter and Contributors
+License: (ISC) https://github.com/npm/wrappy/blob/master/LICENSE 
+
+Project: node-graceful-fs https://github.com/isaacs/node-graceful-fs
+Copyright (c) Isaac Z. Schlueter, Ben Noordhuis, and Contributors
+License: (ISC) https://github.com/isaacs/node-graceful-fs/blob/master/LICENSE 
+
+Project: keyMirror https://github.com/STRML/keyMirror
+Copyright 2013-2014 Facebook, Inc.
+License: (Apache 2.0) https://github.com/STRML/keyMirror/blob/master/index.js 
+
+Project: Inflight https://github.com/npm/inflight
+Copyright (c) Isaac Z. Schlueter
+License: (ISC) https://github.com/npm/inflight/blob/master/LICENSE 
+
+Project: Inherits https://github.com/isaacs/inherits
+Copyright (c) Isaac Z. Schlueter
+License: (ISC) https://github.com/isaacs/inherits/blob/master/LICENSE 
+
+Project: Once https://github.com/isaacs/once
+Copyright (c) Isaac Z. Schlueter and Contributors
+License: (ISC) https://github.com/isaacs/once/blob/master/LICENSE 
+
+Project: Longest https://github.com/jonschlinkert/longest 
+Copyright (c) 2014-2015, Jon Schlinkert.
+License: (MIT) https://github.com/jonschlinkert/longest/blob/master/LICENSE 
+
+Project: Window-size https://github.com/jonschlinkert/window-size
+Copyright (c) 2015, Jon Schlinkert.
+License: (MIT) https://github.com/jonschlinkert/window-size/blob/master/LICENSE 
+
+Project: Node-deep-equal https://github.com/substack/node-deep-equal
+No declared copyright https://github.com/substack/node-deep-equal/pull/14 
+License: (MIT) https://github.com/substack/node-deep-equal/blob/master/LICENSE 
+
+Project: KLib https://github.com/yesme2000/klib
+Copyright (c) 2013 yesme2000
+License: (MIT) https://github.com/yesme2000/klib/blob/master/LICENSE
