@@ -15,7 +15,7 @@ targetCompatibility = JavaVersion.VERSION_1_6
 
 allprojects {
     repositories {
-        mavenCentral()
+        maven { url 'http://repo2.maven.org/maven2/' }
     }
 }
 
@@ -27,15 +27,18 @@ dependencies {
     compile 'org.freemarker:freemarker:2.3.20'
     compile 'com.treelogic-swe:cxf-stub:1.0.1'
     
-    testCompile "junit:junit:4.9"
     testCompile "com.amazonaws:aws-java-sdk:1.5.3"
+    testCompile "org.powermock:powermock:1.6.5"
+    testCompile "org.powermock:powermock-module-junit4:1.6.5"
+    testCompile "org.powermock:powermock-api-mockito:1.6.5"
 }
 
-eclipse {
-    classpath {
-        containers.clear()
-        containers.add('org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6')
-        containers.add('org.eclipse.jst.j2ee.internal.web.container')
+// fix the issue that in eclipse workspace source/javadoc of dependency libs don't show correctly
+eclipse.classpath.file {
+    withXml { xml ->
+        def node = xml.asNode()
+        node.remove( node.find { it.@path == 'org.eclipse.jst.j2ee.internal.web.container' } )
+        node.appendNode( 'classpathentry', [ kind: 'con', path: 'org.eclipse.jst.j2ee.internal.web.container', exported: 'true'])
     }
 }
 
