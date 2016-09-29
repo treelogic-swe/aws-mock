@@ -5,6 +5,7 @@
 *.patch
 *.swp
 *.out
+.gradletasknamecache
 
 # Package Files #
 *.jar
