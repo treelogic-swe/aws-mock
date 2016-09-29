@@ -5,12 +5,12 @@ allprojects {
 }
 
 buildscript {
-  repositories {
-     maven { url 'http://repo2.maven.org/maven2/' }
-  }
-  dependencies {
-    classpath "net.saliman:gradle-cobertura-plugin:2.3.2"
-  }
+    repositories {
+        maven { url 'http://repo2.maven.org/maven2/' }
+    }
+    dependencies {
+        classpath "net.saliman:gradle-cobertura-plugin:2.3.2"
+    }
 }
 
 apply plugin: 'java'
@@ -28,6 +28,22 @@ ext.packaging = 'jar'
 
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
+
+//jettyRun.daemon = true
+//jettyRun.httpPort = 8000                // Port for test
+[jettyRun,jettyRunWar]*.daemon = true
+[jettyRun,jettyRunWar]*.httpPort = 8000
+[jettyRun,jettyRunWar,jettyStop]*.stopPort = 38091   // Port for stop signal
+[jettyRun,jettyRunWar,jettyStop]*.stopKey = 'foobar'
+
+// fix the issue that jetty not stops in daemon mode
+import org.gradle.api.plugins.jetty.internal.Monitor
+[jettyRun, jettyRunWar]*.doLast {
+   if (getStopPort() != null && getStopPort() > 0 && getStopKey() != null) {
+      Monitor monitor = new Monitor(getStopPort(), getStopKey(), server.getProxiedObject());
+      monitor.start();
+   }
+}
 
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5'
@@ -52,8 +68,8 @@ eclipse.classpath.file {
     }
 }
 
-/**/
 sourceSets {
+    // example code also in java source sets
     examples {
         java {
             srcDir 'example/java/simple'
@@ -61,12 +77,41 @@ sourceSets {
             srcDir 'example/java/full/extending-aws-mock/java'
             srcDir 'example/java/test'
         }
-        compileClasspath += sourceSets.main.runtimeClasspath
-        compileClasspath += sourceSets.test.runtimeClasspath
+        //compileClasspath += sourceSets.main.runtimeClasspath
+        //compileClasspath += sourceSets.test.runtimeClasspath
+    }
+
+    // integration test code are separated from src/test/java
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-test/java')
+        }
+        resources.srcDir file('src/integration-test/resources')
     }
 }
-/**/
 
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
+task integrationTest(type: Test) {
+    testClassesDir = sourceSets.integrationTest.output.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    //dependsOn jettyRun
+    //finalizedBy jettyStop
+    doFirst {
+        jettyRun.daemon = true
+        jettyRun.execute()
+    }
+      doLast {
+        jettyStop.execute()
+    }
+}
+
+check.dependsOn integrationTest
 
 task checkstylejs (type: Checkstyle) {
     source 'example/nodejs'
@@ -85,10 +130,6 @@ task javadocJar(type: Jar) {
     from javadoc
 }
 
-jettyRun.daemon = false
-jettyRun.httpPort = 8000                // Port for test
-[jettyRun,jettyStop]*.stopPort = 8091   // Port for stop signal
-[jettyRun,jettyStop]*.stopKey = 'foobar'
 
 task run(dependsOn: jettyRun) {
 
