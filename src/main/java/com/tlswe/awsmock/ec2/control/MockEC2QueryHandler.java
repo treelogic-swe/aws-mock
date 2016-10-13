@@ -198,6 +198,9 @@ public final class MockEC2QueryHandler {
 
     private static final String TOKEN_DICT = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+    /**
+     * AWS's token is 276 bytes in length (19 fixed + 240 generated per response + 17 fixed), we just mock that way.
+     */
     protected static final int TOKEN_PREFIX_LEN = 19;
 
     protected static final int TOKEN_SUFFIX_LEN = 17;
@@ -214,7 +217,7 @@ public final class MockEC2QueryHandler {
         MOCK_AMIS.addAll(PropertiesUtils.getPropertiesByPrefix("predefined.mock.ami."));
 
         /*
-         * We fix the token's prefix and suffix at the start of app
+         * We determine the token's prefix and suffix at the start of webapp and don't change them.
          */
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < TOKEN_PREFIX_LEN; i++) {
@@ -496,9 +499,9 @@ public final class MockEC2QueryHandler {
                 throw new BadEc2RequestException(
                         "DescribeInstances",
                         "AWS Error Code: InvalidParameterCombination, AWS Error Message: The parameter instancesSet cannot be used with the parameter maxResults");
-            } else {
-                maxResults = MAX_RESULTS_DEFAULT;
             }
+        } else {
+            maxResults = MAX_RESULTS_DEFAULT;
         }
 
         DescribeInstancesResponseType ret = new DescribeInstancesResponseType();
