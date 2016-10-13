@@ -51,9 +51,9 @@ dependencies {
     compile 'org.slf4j:slf4j-log4j12:1.7.5'
     compile 'log4j:log4j:1.2.17'
     compile 'org.freemarker:freemarker:2.3.20'
-    compile 'com.treelogic-swe:cxf-stub:1.0.1'
+    compile 'com.treelogic-swe:cxf-stub:1.0.2'
     
-    testCompile "com.amazonaws:aws-java-sdk:1.5.3"
+    testCompile "com.amazonaws:aws-java-sdk:1.7.4.2"
     testCompile "org.powermock:powermock:1.6.5"
     testCompile "org.powermock:powermock-module-junit4:1.6.5"
     testCompile "org.powermock:powermock-api-mockito:1.6.5"

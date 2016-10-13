@@ -1,17 +1,21 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,33 +27,33 @@ import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeInstancesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeInternetGatewaysResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeRouteTablesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeSecurityGroupsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeVpcsResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateChangeSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateType;
+import com.tlswe.awsmock.ec2.cxf_generated.InternetGatewaySetType;
+import com.tlswe.awsmock.ec2.cxf_generated.InternetGatewayType;
+import com.tlswe.awsmock.ec2.cxf_generated.IpPermissionSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.IpPermissionType;
 import com.tlswe.awsmock.ec2.cxf_generated.PlacementResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.ReservationInfoType;
 import com.tlswe.awsmock.ec2.cxf_generated.ReservationSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.RouteSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.RouteTableAssociationSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.RouteTableSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.RouteTableType;
 import com.tlswe.awsmock.ec2.cxf_generated.RunInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
+import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.TerminateInstancesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeRouteTablesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.RouteTableSetType;
-import com.tlswe.awsmock.ec2.cxf_generated.RouteTableType;
-import com.tlswe.awsmock.ec2.cxf_generated.RouteTableAssociationSetType;
-import com.tlswe.awsmock.ec2.cxf_generated.RouteSetType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeInternetGatewaysResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.InternetGatewayType;
-import com.tlswe.awsmock.ec2.cxf_generated.InternetGatewaySetType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeSecurityGroupsResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupSetType;
-import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
-import com.tlswe.awsmock.ec2.cxf_generated.IpPermissionType;
-import com.tlswe.awsmock.ec2.cxf_generated.IpPermissionSetType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeVpcsResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.VpcSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.VpcType;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
@@ -185,10 +189,44 @@ public final class MockEC2QueryHandler {
      */
     private static final int MOCK_DEST_PORT = PropertiesUtils.getIntFromProperty(Constants.PROP_NAME_DEST_PORT);
 
+    /**
+     * The remaining paged records of instance IDs per token by 'describeInstances'.
+     */
+    private static final Map<String, Set<String>> token2RemainingDescribedInstanceIDs = new ConcurrentHashMap<String, Set<String>>();
+
+    protected static final Random random = new Random();
+
+    private static final String TOKEN_DICT = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    protected static final int TOKEN_PREFIX_LEN = 19;
+
+    protected static final int TOKEN_SUFFIX_LEN = 17;
+
+    protected static final int TOKEN_MIDDLE_LEN = 240;
+
+    protected static final String TOKEN_PREFIX;
+    protected static final String TOKEN_SUFFIX;
+
+    protected static final int MAX_RESULTS_DEFAULT = 1000;
 
     static {
         DEFAULT_MOCK_PLACEMENT.setAvailabilityZone(PropertiesUtils.getProperty(Constants.PROP_NAME_EC2_PLACEMENT));
         MOCK_AMIS.addAll(PropertiesUtils.getPropertiesByPrefix("predefined.mock.ami."));
+
+        /*
+         * We fix the token's prefix and suffix at the start of app
+         */
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < TOKEN_PREFIX_LEN; i++) {
+            sb.append(TOKEN_DICT.charAt(random.nextInt(TOKEN_DICT.length())));
+        }
+        TOKEN_PREFIX = sb.toString();
+
+        sb = new StringBuilder();
+        for (int i = 0; i < TOKEN_SUFFIX_LEN; i++) {
+            sb.append(TOKEN_DICT.charAt(random.nextInt(TOKEN_DICT.length())));
+        }
+        TOKEN_SUFFIX = sb.toString();
     }
 
 
@@ -294,7 +332,15 @@ public final class MockEC2QueryHandler {
 
                                 Set<String> instanceStates = parseInstanceStates(queryParams);
 
-                                responseXml = JAXBUtil.marshall(describeInstances(instanceIDs, instanceStates),
+                                String[] paramNextToken = queryParams.get("NextToken");
+                                String nextToken = null == paramNextToken || paramNextToken.length == 0 ? null
+                                        : paramNextToken[0];
+                                String[] paramMaxResults = queryParams.get("MaxResults");
+                                int maxResults = null == paramMaxResults || paramMaxResults.length == 0 ? 0
+                                        : NumberUtils.toInt(paramMaxResults[0]);
+
+                                responseXml = JAXBUtil.marshall(
+                                        describeInstances(instanceIDs, instanceStates, nextToken, maxResults),
                                         "DescribeInstancesResponse", version);
 
                             } else if ("StartInstances".equals(action)) {
@@ -412,17 +458,48 @@ public final class MockEC2QueryHandler {
 
 
     /**
-     * Handles "describeInstances" request, with filters of instanceIDs and instanceStates, and
-     * returns response with all mock ec2 instances if no instance IDs specified.
+     * Handles "describeInstances" request, with filters of instanceIDs and instanceStates, and returns response with
+     * all mock ec2 instances if no instance IDs specified.
      *
      * @param instanceIDs
      *            a filter of specified instance IDs for the target instance to describe
      * @param instanceStates
      *            a filter of specified instance states for the target instance to describe
+     * @param token
+     *            token for next page
+     * @param maxResults
+     *            max result in page, if over 1000, only 1000 instances would be returned
+     *
      * @return a DescribeInstancesResponse with information for all mock ec2 instances to describe
      */
     private DescribeInstancesResponseType describeInstances(final Set<String> instanceIDs,
-            final Set<String> instanceStates) {
+            final Set<String> instanceStates, String token, int maxResults) {
+
+        Set<String> idsInThisPageIfToken = null;
+        if (null != token && token.length() > 0) {
+            if (null != instanceIDs && instanceIDs.size() > 0) {
+                throw new BadEc2RequestException(
+                        "DescribeInstances",
+                        "AWS Error Code: InvalidParameterCombination, AWS Error Message: The parameter instancesSet cannot be used with the parameter nextToken");
+            }
+            // should retrieve next page using token
+            idsInThisPageIfToken = token2RemainingDescribedInstanceIDs.get(token);
+            if (null == idsInThisPageIfToken) {
+                // mock real AWS' 400 error message in case of invalid token
+                throw new BadEc2RequestException("DescribeInstances",
+                        "AWS Error Code: InvalidParameterValue, AWS Error Message: Unable to parse pagination token");
+            }
+        }
+
+        if (maxResults > 0) {
+            if (null != instanceIDs && instanceIDs.size() > 0) {
+                throw new BadEc2RequestException(
+                        "DescribeInstances",
+                        "AWS Error Code: InvalidParameterCombination, AWS Error Message: The parameter instancesSet cannot be used with the parameter maxResults");
+            } else {
+                maxResults = MAX_RESULTS_DEFAULT;
+            }
+        }
 
         DescribeInstancesResponseType ret = new DescribeInstancesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
@@ -430,11 +507,38 @@ public final class MockEC2QueryHandler {
 
         mockEc2Controller.getAllMockEc2Instances();
 
-        Collection<AbstractMockEc2Instance> instances = mockEc2Controller.describeInstances(instanceIDs);
+        List<String> idsToDescribe = null;
 
-        for (AbstractMockEc2Instance instance : instances) {
+        if (null != token && token.length() > 0) {
+            idsToDescribe = new ArrayList<String>(token2RemainingDescribedInstanceIDs.get(token));
+        } else {
+            // will return all instance IDs if the param 'instanceIDs' is empty here
+            idsToDescribe = mockEc2Controller.listInstanceIDs(instanceIDs);
+        }
 
-            if (null != instance) {
+        if (idsToDescribe.size() > maxResults) {
+            // generate next token (for next page of results) and put the remaining IDs to the map for later use
+            String newToken = generateToken();
+            // deduct the current page instances from the total remaining and put the rest into map again, with new
+            // token as key
+            token2RemainingDescribedInstanceIDs.put(newToken,
+                    new TreeSet<String>(idsToDescribe.subList(maxResults, idsToDescribe.size())));
+
+            // put the new token into response
+            ret.setNextToken(newToken);
+
+        } else if (null != token && token.length() > 0) {
+            // clear the map entry for the token since no next page
+            token2RemainingDescribedInstanceIDs.remove(token);
+        }
+
+        List<String> invalidInstanceIDs = new ArrayList<String>();
+
+        for (String id : idsToDescribe) {
+            AbstractMockEc2Instance instance = mockEc2Controller.getMockEc2Instance(id);
+            if (null == instance) {
+                invalidInstanceIDs.add(id);
+            } else {
                 String instanceState = instance.getInstanceState().getName();
                 // get instances with specified states
                 if (!instanceStates.isEmpty() && !instanceStates.contains(instanceState)) {
@@ -482,10 +586,26 @@ public final class MockEC2QueryHandler {
 
         }
 
+        if (invalidInstanceIDs.size() > 0) {
+            throw new BadEc2RequestException(
+                    "DescribeInstances",
+                    "AWS Error Code: InvalidInstanceID.NotFound, AWS Error Message: The instance IDs '"
+                            + StringUtils.join(invalidInstanceIDs, ", ") + "' do not exist");
+        }
+
         ret.setReservationSet(resSet);
 
         return ret;
 
+    }
+
+
+    protected String generateToken() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < TOKEN_MIDDLE_LEN; i++) {
+            sb.append(TOKEN_DICT.charAt(random.nextInt(TOKEN_DICT.length())));
+        }
+        return TOKEN_PREFIX + sb.toString() + TOKEN_SUFFIX;
     }
 
 
@@ -630,8 +750,8 @@ public final class MockEC2QueryHandler {
     /**
      * Handles "describeRouteTables" request and returns response with a route table.
      *
-     * @return a DescribeRouteTablesResponseType with our predefined route table in aws-mock.properties
-     * (or if not overridden, as defined in aws-mock-default.properties)
+     * @return a DescribeRouteTablesResponseType with our predefined route table in aws-mock.properties (or if not
+     *         overridden, as defined in aws-mock-default.properties)
      */
     private DescribeRouteTablesResponseType describeRouteTables() {
         DescribeRouteTablesResponseType ret = new DescribeRouteTablesResponseType();
@@ -659,8 +779,8 @@ public final class MockEC2QueryHandler {
     /**
      * Handles "describeInternetGateways" request and returns response with a internet gateway.
      *
-     * @return a DescribeInternetGatewaysResponseType with our predefined internet gateway in aws-mock.properties
-     * (or if not overridden, as defined in aws-mock-default.properties)
+     * @return a DescribeInternetGatewaysResponseType with our predefined internet gateway in aws-mock.properties (or if
+     *         not overridden, as defined in aws-mock-default.properties)
      */
     private DescribeInternetGatewaysResponseType describeInternetGateways() {
         DescribeInternetGatewaysResponseType ret = new DescribeInternetGatewaysResponseType();
@@ -680,8 +800,8 @@ public final class MockEC2QueryHandler {
     /**
      * Handles "describeSecurityGroups" request and returns response with a security group.
      *
-     * @return a DescribeInternetGatewaysResponseType with our predefined internet gateway in aws-mock.properties
-     * (or if not overridden, as defined in aws-mock-default.properties)
+     * @return a DescribeInternetGatewaysResponseType with our predefined internet gateway in aws-mock.properties (or if
+     *         not overridden, as defined in aws-mock-default.properties)
      */
     private DescribeSecurityGroupsResponseType describeSecurityGroups() {
         DescribeSecurityGroupsResponseType ret = new DescribeSecurityGroupsResponseType();
@@ -718,8 +838,8 @@ public final class MockEC2QueryHandler {
     /**
      * Handles "describeVpcs" request and returns response with a vpc.
      *
-     * @return a DescribeVpcsResponseType with our predefined vpc in aws-mock.properties
-     * (or if not overridden, as defined in aws-mock-default.properties)
+     * @return a DescribeVpcsResponseType with our predefined vpc in aws-mock.properties (or if not overridden, as
+     *         defined in aws-mock-default.properties)
      */
     private DescribeVpcsResponseType describeVpcs() {
         DescribeVpcsResponseType ret = new DescribeVpcsResponseType();
