@@ -3,10 +3,10 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'com.treelogic-swe'
-version = '1.0.1'
+version = '1.0.2'
 ext.packaging = 'jar'
 
-def ec2ApiVersion = "ec2-2013-02-01"
+def ec2ApiVersion = "ec2-2014-02-01"
 def stubJarFilename = "cxf-stub-" + ec2ApiVersion + ".jar"
 
 configurations { cxf }
@@ -26,7 +26,7 @@ dependencies {
 }
 
 task wsdl2java (type: JavaExec) {
-    inputs.file file('ec2-2013-02-01.wsdl')
+    inputs.file file('ec2-2014-02-01.wsdl')
     outputs.dir new File('build', 'stub_src')
 
 	main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
@@ -61,7 +61,7 @@ jar {
 
 javadoc {
     // commented and don't output javadoc because no javadoc needed for generated code 
-    //source 'build/stub_src'
+    // source 'build/stub_src'
 }
 
 //task cxfStubJarClean (type: Delete) {
@@ -86,9 +86,9 @@ artifacts {
 
 // We comment the signing task for avoiding travis-ci build failure 
 // because we don't commit secret key for signing jars to github.com.
-//signing {
-//    sign configurations.archives
-//}
+signing {
+    sign configurations.archives
+}
 
 uploadArchives {
     repositories {
@@ -96,12 +96,12 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment)  }
  
             // for publishing to local folder - for normal travis-ci builds
-            repository(url: "file:/tmp/tlswe/repo")
+            //repository(url: "file:/tmp/tlswe/repo")
 
             // for publishing to public maven repo - for manually releasing to maven repo
-            //repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-            //  authentication(userName: sonatypeUsername, password: sonatypePassword)
-            //}
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+              authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
 
             pom.project {
                name 'cxf-stub'
