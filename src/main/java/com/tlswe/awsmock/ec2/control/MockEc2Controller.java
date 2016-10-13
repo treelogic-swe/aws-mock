@@ -120,7 +120,7 @@ public final class MockEc2Controller {
         } else {
             List<String> filteredInstanceIDs = new ArrayList<String>();
             for (String id : allInstanceIDs) {
-                if (null != id && allInstanceIDs.contains(id)) {
+                if (null != id && instanceIDs.contains(id)) {
                     filteredInstanceIDs.add(id);
                 }
             }
