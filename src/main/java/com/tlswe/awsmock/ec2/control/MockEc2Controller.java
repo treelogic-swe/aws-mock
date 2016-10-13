@@ -63,6 +63,7 @@ public final class MockEc2Controller {
      */
     private ScheduledFuture cleanupTerminatedInstancesScheduledFuture = null;
 
+
     /**
      * Constructor of MockEc2Controller is made private and only called once by {@link #getInstance()}.
      */
@@ -93,7 +94,7 @@ public final class MockEc2Controller {
      *
      * @param instanceIDs
      *            a filter of specified instance IDs for the target instance to describe
-     * @return a collection of {@link AbstractMockEc2Instance} with specifed instance IDs, or all of the mock ec2
+     * @return a collection of {@link AbstractMockEc2Instance} with specified instance IDs, or all of the mock ec2
      *         instances if no instance IDs as filtered
      */
     public Collection<AbstractMockEc2Instance> describeInstances(final Set<String> instanceIDs) {
@@ -101,6 +102,29 @@ public final class MockEc2Controller {
             return allMockEc2Instances.values();
         } else {
             return getInstances(instanceIDs);
+        }
+    }
+
+
+    /**
+     * List mock ec2 instance IDs in current aws-mock.
+     *
+     * @param instanceIDs
+     *            a filter of specified instance IDs for the target instance to describe
+     * @return a collection of IDs with specified instance IDs, or all of the mock ec2 instanceIDs if not filtered
+     */
+    public List<String> listInstanceIDs(final Set<String> instanceIDs) {
+        Set<String> allInstanceIDs = allMockEc2Instances.keySet();
+        if (null == instanceIDs || instanceIDs.size() == 0) {
+            return new ArrayList<String>(allInstanceIDs);
+        } else {
+            List<String> filteredInstanceIDs = new ArrayList<String>();
+            for (String id : allInstanceIDs) {
+                if (null != id && instanceIDs.contains(id)) {
+                    filteredInstanceIDs.add(id);
+                }
+            }
+            return filteredInstanceIDs;
         }
     }
 
@@ -365,8 +389,8 @@ public final class MockEc2Controller {
 
 
     /**
-     * Clean up terminated mock instances after a pre-defined period.
-     * Period is defined in aws-mock.properties (or if not overridden, as defined in aws-mock-default.properties)
+     * Clean up terminated mock instances after a pre-defined period. Period is defined in aws-mock.properties (or if
+     * not overridden, as defined in aws-mock-default.properties)
      *
      * @param period
      *            time period to clean up terminated instances
@@ -379,6 +403,7 @@ public final class MockEc2Controller {
              * this method is triggered every pre-defined period
              */
             private String terminatedState = AbstractMockEc2Instance.InstanceState.TERMINATED.getName();
+
 
             @Override
             public void run() {
