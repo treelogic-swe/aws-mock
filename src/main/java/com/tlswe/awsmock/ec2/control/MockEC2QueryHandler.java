@@ -513,7 +513,7 @@ public final class MockEC2QueryHandler {
         List<String> idsToDescribe = null;
 
         if (null != token && token.length() > 0) {
-            idsToDescribe = new ArrayList<String>(token2RemainingDescribedInstanceIDs.get(token));
+            idsToDescribe = new ArrayList<String>(token2RemainingDescribedInstanceIDs.remove(token));
         } else {
             // will return all instance IDs if the param 'instanceIDs' is empty here
             idsToDescribe = mockEc2Controller.listInstanceIDs(instanceIDs);
@@ -526,13 +526,10 @@ public final class MockEC2QueryHandler {
             // token as key
             token2RemainingDescribedInstanceIDs.put(newToken,
                     new TreeSet<String>(idsToDescribe.subList(maxResults, idsToDescribe.size())));
-
+            // set idsToDescribe as the top maxResults instance IDs
+            idsToDescribe = new ArrayList<String>(idsToDescribe.subList(0, maxResults));
             // put the new token into response
             ret.setNextToken(newToken);
-
-        } else if (null != token && token.length() > 0) {
-            // clear the map entry for the token since no next page
-            token2RemainingDescribedInstanceIDs.remove(token);
         }
 
         List<String> invalidInstanceIDs = new ArrayList<String>();
