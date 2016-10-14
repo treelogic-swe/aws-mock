@@ -86,9 +86,9 @@ artifacts {
 
 // We comment the signing task for avoiding travis-ci build failure 
 // because we don't commit secret key for signing jars to github.com.
-signing {
-    sign configurations.archives
-}
+//signing {
+//    sign configurations.archives
+//}
 
 uploadArchives {
     repositories {
@@ -96,12 +96,12 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment)  }
  
             // for publishing to local folder - for normal travis-ci builds
-            //repository(url: "file:/tmp/tlswe/repo")
+            repository(url: "file:/tmp/tlswe/repo")
 
             // for publishing to public maven repo - for manually releasing to maven repo
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-              authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
+            //repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            //  authentication(userName: sonatypeUsername, password: sonatypePassword)
+            //}
 
             pom.project {
                name 'cxf-stub'
