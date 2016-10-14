@@ -352,7 +352,7 @@ public class MockEC2QueryHandlerTest {
         Set<String> instanceStateSet = new HashSet<String>();
         instanceStateSet.add(InstanceState.STOPPED.getName());
 
-        DescribeInstancesResponseType ret = Whitebox.invokeMethod(handler, "describeInstances",instanceIDs, instanceStateSet);
+        DescribeInstancesResponseType ret = Whitebox.invokeMethod(handler, "describeInstances",instanceIDs, instanceStateSet, null, 0);
 
         // both of the instances should be returned as they are in stopped state
         Assert.assertTrue(ret.getReservationSet().getItem().size()==2);

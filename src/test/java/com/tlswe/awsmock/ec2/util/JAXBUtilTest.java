@@ -1,7 +1,6 @@
 package com.tlswe.awsmock.ec2.util;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -114,7 +113,7 @@ public class JAXBUtilTest {
                 .getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX));
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
-        Assert.assertTrue(xml.contains("xmlns:ns2=\"http://ec2.amazonaws.com/doc/" + PropertiesUtils
+        Assert.assertTrue(xml.contains("xmlns:ns3=\"http://ec2.amazonaws.com/doc/" + PropertiesUtils
                 .getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX)));
         Assert.assertTrue(xml.contains("<imageId>ami-1</imageId>"));
         Assert.assertTrue(xml.contains("<instanceType>c1.medium</instanceType>"));

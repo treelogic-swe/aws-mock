@@ -77,8 +77,13 @@ sourceSets {
             srcDir 'example/java/full/extending-aws-mock/java'
             srcDir 'example/java/test'
         }
-        //compileClasspath += sourceSets.main.runtimeClasspath
+        compileClasspath += sourceSets.main.runtimeClasspath
         //compileClasspath += sourceSets.test.runtimeClasspath
+    }
+
+    test {
+        compileClasspath += sourceSets.examples.runtimeClasspath
+        runtimeClasspath += sourceSets.examples.runtimeClasspath
     }
 
     // integration test code are separated from src/test/java
@@ -93,6 +98,8 @@ sourceSets {
 }
 
 configurations {
+    examplesCompile.extendsFrom testCompile
+    examplesRuntime.extendsFrom testRuntime
     integrationTestCompile.extendsFrom testCompile
     integrationTestRuntime.extendsFrom testRuntime
 }
@@ -142,14 +149,14 @@ task run(dependsOn: jettyRun) {
 //}
 
 test {
-    testLogging.showStandardStreams = true
+    testLogging.showStandardStreams = false
 }
 
-task testExamples(type: Test) {
-    testClassesDir = sourceSets.examples.output.classesDir
-    classpath = sourceSets.examples.runtimeClasspath + sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
-    testLogging.showStandardStreams = true
-}
+//task testExamples(type: Test) {
+//    testClassesDir = sourceSets.examples.output.classesDir
+//    classpath = sourceSets.examples.runtimeClasspath + sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
+//    testLogging.showStandardStreams = true
+//}
 
 //testExamples.doFirst {
 //    println '---- starting aws-mock on jetty before testExamples start ----'
@@ -246,8 +253,8 @@ cobertura {
     coverageCheckLineRate = 0
     coverageCheckPackageBranchRate = 0
     coverageCheckPackageLineRate = 0
-    coverageCheckTotalLineRate = 50
-    coverageCheckTotalBranchRate = 41
+    coverageCheckTotalLineRate = 90
+    coverageCheckTotalBranchRate = 90
     coverageReportDir = file("$buildDir/cobertura/")
 }
 
