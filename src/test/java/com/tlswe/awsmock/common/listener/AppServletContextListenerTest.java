@@ -58,6 +58,14 @@ public class AppServletContextListenerTest {
     }
 
     @Test
+    public void Test_contextInitializedPersistenceEnabledButLoadNull(){
+        Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", true);
+        Mockito.when(PersistenceUtils.loadAll()).thenReturn(null); // return null when loading array
+        acl.contextInitialized(sce);
+        Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", false);
+    }
+
+    @Test
     public void Test_contextInitializedPersistenceEnabled(){
         Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", true);
         acl.contextInitialized(sce);
