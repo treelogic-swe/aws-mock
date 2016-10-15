@@ -46,6 +46,7 @@ import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.VpcType;
+import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
@@ -53,7 +54,7 @@ import com.tlswe.awsmock.ec2.util.JAXBUtil;
 import com.tlswe.example.CustomMockEc2Instance;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MockEC2QueryHandler.class, MockEc2Controller.class, JAXBUtil.class})
+@PrepareForTest({ MockEC2QueryHandler.class, MockEc2Controller.class, JAXBUtil.class })
 public class MockEC2QueryHandlerTest {
 
     private static Properties properties = new Properties();
@@ -73,7 +74,7 @@ public class MockEC2QueryHandlerTest {
         inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(PropertiesUtils.FILE_NAME_AWS_MOCK_DEFAULT_PROPERTIES);
         if (null == inputStream) {
-          // do nothing
+            // do nothing
         } else {
             try {
                 properties.load(inputStream);
@@ -96,94 +97,112 @@ public class MockEC2QueryHandlerTest {
         }
     }
 
+
     @Before
-    public void doSetup(){
+    public void doSetup() {
         PowerMockito.mockStatic(JAXBUtil.class);
     }
 
+
     @Test
-    public void Test_getInstance(){
-        Assert.assertTrue(MockEC2QueryHandler.getInstance()!=null);
+    public void Test_getInstance() {
+        Assert.assertTrue(MockEC2QueryHandler.getInstance() != null);
     }
 
+
     @Test
-    public void Test_getXmlError() throws Exception{
+    public void Test_getXmlError() throws Exception {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
-        String output = Whitebox.invokeMethod(handler, "getXmlError", "101","Error had taken place!");
+        String output = Whitebox.invokeMethod(handler, "getXmlError", "101", "Error had taken place!");
 
         // check that the template file is populated
-        Assert.assertTrue(output!=null && !output.isEmpty());
+        Assert.assertTrue(output != null && !output.isEmpty());
         Assert.assertTrue(output.contains("<Code>101</Code>"));
         Assert.assertTrue(output.contains("<Message>Error had taken place!</Message>"));
 
     }
 
+
     @Test
-    public void Test_describeVpcs() throws Exception{
+    public void Test_describeVpcs() throws Exception {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
         DescribeVpcsResponseType vpcsResponseType = Whitebox.invokeMethod(handler, "describeVpcs");
 
-        Assert.assertTrue(vpcsResponseType!=null);
-        Assert.assertTrue(vpcsResponseType.getVpcSet().getItem().size()==1); // has one VPC
+        Assert.assertTrue(vpcsResponseType != null);
+        Assert.assertTrue(vpcsResponseType.getVpcSet().getItem().size() == 1); // has one VPC
 
         VpcType vpcType = vpcsResponseType.getVpcSet().getItem().get(0);
-        Assert.assertTrue(vpcType.getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID))); // from aws.mock-default.properties
+        Assert.assertTrue(vpcType.getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID))); // from
+                                                                                                  // aws.mock-default.properties
         Assert.assertTrue(vpcType.getState().equals(properties.get(Constants.PROP_NAME_VPC_STATE)));
         Assert.assertTrue(vpcType.getCidrBlock().equals(properties.get(Constants.PROP_NAME_CIDR_BLOCK)));
     }
 
+
     @Test
-    public void Test_describeSecurityGroups() throws Exception{
+    public void Test_describeSecurityGroups() throws Exception {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
-        DescribeSecurityGroupsResponseType describeSecurityGroupsResponseType = Whitebox.invokeMethod(handler, "describeSecurityGroups");
+        DescribeSecurityGroupsResponseType describeSecurityGroupsResponseType = Whitebox.invokeMethod(handler,
+                "describeSecurityGroups");
 
-        Assert.assertTrue(describeSecurityGroupsResponseType!=null);
-        Assert.assertTrue(describeSecurityGroupsResponseType.getSecurityGroupInfo().getItem().size()==1); // has one Security Group
+        Assert.assertTrue(describeSecurityGroupsResponseType != null);
+        Assert.assertTrue(describeSecurityGroupsResponseType.getSecurityGroupInfo().getItem().size() == 1); // has one
+                                                                                                            // Security
+                                                                                                            // Group
 
-        SecurityGroupItemType securityGroupItem = describeSecurityGroupsResponseType.getSecurityGroupInfo().getItem().get(0);
+        SecurityGroupItemType securityGroupItem = describeSecurityGroupsResponseType.getSecurityGroupInfo().getItem()
+                .get(0);
         Assert.assertTrue(securityGroupItem.getGroupId().equals(properties.get(Constants.PROP_NAME_SECURITY_GROUP_ID)));
-        Assert.assertTrue(securityGroupItem.getGroupName().equals(properties.get(Constants.PROP_NAME_SECURITY_GROUP_NAME)));
+        Assert.assertTrue(securityGroupItem.getGroupName().equals(
+                properties.get(Constants.PROP_NAME_SECURITY_GROUP_NAME)));
         Assert.assertTrue(securityGroupItem.getOwnerId().equals(properties.get(Constants.PROP_NAME_SECURITY_OWNER_ID)));
         Assert.assertTrue(securityGroupItem.getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID)));
 
         IpPermissionType ipPermission = securityGroupItem.getIpPermissions().getItem().get(0);
         Assert.assertTrue(ipPermission.getIpProtocol().equals(properties.get(Constants.PROP_NAME_IP_PROTOCOL)));
-        Assert.assertTrue(ipPermission.getFromPort().equals(Integer.parseInt((String)properties.get(Constants.PROP_NAME_SOURCE_PORT))));
-        Assert.assertTrue(ipPermission.getToPort().equals(Integer.parseInt((String)properties.get(Constants.PROP_NAME_DEST_PORT))));
+        Assert.assertTrue(ipPermission.getFromPort().equals(
+                Integer.parseInt((String) properties.get(Constants.PROP_NAME_SOURCE_PORT))));
+        Assert.assertTrue(ipPermission.getToPort().equals(
+                Integer.parseInt((String) properties.get(Constants.PROP_NAME_DEST_PORT))));
 
     }
 
+
     @Test
-    public void Test_describeInternetGateways() throws Exception{
+    public void Test_describeInternetGateways() throws Exception {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
-        DescribeInternetGatewaysResponseType describeInternetGatewaysResponseType = Whitebox.invokeMethod(handler, "describeInternetGateways");
+        DescribeInternetGatewaysResponseType describeInternetGatewaysResponseType = Whitebox.invokeMethod(handler,
+                "describeInternetGateways");
 
-        Assert.assertTrue(describeInternetGatewaysResponseType!=null);
-        Assert.assertTrue(describeInternetGatewaysResponseType.getInternetGatewaySet().getItem().size()==1);
+        Assert.assertTrue(describeInternetGatewaysResponseType != null);
+        Assert.assertTrue(describeInternetGatewaysResponseType.getInternetGatewaySet().getItem().size() == 1);
 
-        InternetGatewayType internetGateway = describeInternetGatewaysResponseType.getInternetGatewaySet().getItem().get(0);
+        InternetGatewayType internetGateway = describeInternetGatewaysResponseType.getInternetGatewaySet().getItem()
+                .get(0);
         Assert.assertTrue(internetGateway.getInternetGatewayId().equals(properties.get(Constants.PROP_NAME_GATEWAY_ID)));
 
-
     }
 
-    @Test
-    public void Test_describeRouteTables() throws Exception{
-        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
-        DescribeRouteTablesResponseType describeRouteTablesResponseType = Whitebox.invokeMethod(handler, "describeRouteTables");
 
-        Assert.assertTrue(describeRouteTablesResponseType!=null);
-        Assert.assertTrue(describeRouteTablesResponseType.getRouteTableSet().getItem().size()==1);
+    @Test
+    public void Test_describeRouteTables() throws Exception {
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+        DescribeRouteTablesResponseType describeRouteTablesResponseType = Whitebox.invokeMethod(handler,
+                "describeRouteTables");
+
+        Assert.assertTrue(describeRouteTablesResponseType != null);
+        Assert.assertTrue(describeRouteTablesResponseType.getRouteTableSet().getItem().size() == 1);
 
         RouteTableType routeTableSetType = describeRouteTablesResponseType.getRouteTableSet().getItem().get(0);
         Assert.assertTrue(routeTableSetType.getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID)));
-        Assert.assertTrue(routeTableSetType.getRouteTableId().equals(properties.get(Constants.PROP_NAME_ROUTE_TABLE_ID)));
-
+        Assert.assertTrue(routeTableSetType.getRouteTableId()
+                .equals(properties.get(Constants.PROP_NAME_ROUTE_TABLE_ID)));
 
     }
 
+
     @Test
-    public void Test_describeImages() throws Exception{
+    public void Test_describeImages() throws Exception {
 
         Set<String> MOCK_AMIS = new TreeSet<String>();
         MOCK_AMIS.add("ami-1");
@@ -200,19 +219,19 @@ public class MockEC2QueryHandlerTest {
         f.set(MockEC2QueryHandler.class, MOCK_AMIS);
 
         DescribeImagesResponseType describeImagesResponseType = Whitebox.invokeMethod(handler, "describeImages");
-        Assert.assertTrue(describeImagesResponseType!=null);
+        Assert.assertTrue(describeImagesResponseType != null);
 
         DescribeImagesResponseInfoType describeImagesResponseInfoType = describeImagesResponseType.getImagesSet();
 
-        Assert.assertTrue(describeImagesResponseInfoType.getItem().size()==2);
+        Assert.assertTrue(describeImagesResponseInfoType.getItem().size() == 2);
 
         boolean hasAMI1 = false, hasAMI2 = false;
 
-        for(DescribeImagesResponseItemType item :describeImagesResponseInfoType.getItem()){
-            if("ami-1".equals(item.getImageId())){
+        for (DescribeImagesResponseItemType item : describeImagesResponseInfoType.getItem()) {
+            if ("ami-1".equals(item.getImageId())) {
                 hasAMI1 = true;
             }
-            if("ami-2".equals(item.getImageId())){
+            if ("ami-2".equals(item.getImageId())) {
                 hasAMI2 = true;
             }
         }
@@ -224,8 +243,9 @@ public class MockEC2QueryHandlerTest {
 
     }
 
+
     @Test
-    public void Test_termianteInstances() throws Exception{
+    public void Test_termianteInstances() throws Exception {
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
 
@@ -240,8 +260,8 @@ public class MockEC2QueryHandlerTest {
         ec2Mocked2.setInstanceType(InstanceType.C3_8XLARGE);
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-        PowerMockito.when(controller,"getMockEc2Instance", "ec2Mocked1").thenReturn(ec2Mocked1);
-        PowerMockito.when(controller,"getMockEc2Instance", "ec2Mocked2").thenReturn(ec2Mocked2);
+        PowerMockito.when(controller, "getMockEc2Instance", "ec2Mocked1").thenReturn(ec2Mocked1);
+        PowerMockito.when(controller, "getMockEc2Instance", "ec2Mocked2").thenReturn(ec2Mocked2);
 
         Whitebox.setInternalState(handler, "mockEc2Controller", controller);
         Whitebox.invokeMethod(handler, "terminateInstances", instanceIDs);
@@ -249,8 +269,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(ec2Mocked2.isTerminated());
     }
 
+
     @Test
-    public void Test_stopInstances() throws Exception{
+    public void Test_stopInstances() throws Exception {
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
 
@@ -265,8 +286,8 @@ public class MockEC2QueryHandlerTest {
         ec2Mocked2.setInstanceType(InstanceType.C3_8XLARGE);
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-        PowerMockito.when(controller,"getMockEc2Instance", "ec2Mocked1").thenReturn(ec2Mocked1);
-        PowerMockito.when(controller,"getMockEc2Instance", "ec2Mocked2").thenReturn(ec2Mocked2);
+        PowerMockito.when(controller, "getMockEc2Instance", "ec2Mocked1").thenReturn(ec2Mocked1);
+        PowerMockito.when(controller, "getMockEc2Instance", "ec2Mocked2").thenReturn(ec2Mocked2);
 
         Whitebox.setInternalState(handler, "mockEc2Controller", controller);
 
@@ -277,8 +298,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(ec2Mocked2.isStopping());
     }
 
+
     @Test
-    public void Test_startInstances() throws Exception{
+    public void Test_startInstances() throws Exception {
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
 
@@ -293,8 +315,8 @@ public class MockEC2QueryHandlerTest {
         ec2Mocked2.setInstanceType(InstanceType.C3_8XLARGE);
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-        PowerMockito.when(controller,"getMockEc2Instance", "ec2Mocked1").thenReturn(ec2Mocked1);
-        PowerMockito.when(controller,"getMockEc2Instance", "ec2Mocked2").thenReturn(ec2Mocked2);
+        PowerMockito.when(controller, "getMockEc2Instance", "ec2Mocked1").thenReturn(ec2Mocked1);
+        PowerMockito.when(controller, "getMockEc2Instance", "ec2Mocked2").thenReturn(ec2Mocked2);
 
         Whitebox.setInternalState(handler, "mockEc2Controller", controller);
 
@@ -303,30 +325,34 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(ec2Mocked2.isBooting());
     }
 
+
     @Test
-    public void Test_runInstances() throws Exception{
+    public void Test_runInstances() throws Exception {
 
-       MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
 
-       MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-       Whitebox.setInternalState(handler, "mockEc2Controller", controller);
+        MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
+        Whitebox.setInternalState(handler, "mockEc2Controller", controller);
 
-       RunInstancesResponseType ret = Whitebox.invokeMethod(handler, "runInstances", "ami-1", InstanceType.C1_MEDIUM.getName(), 1, 1);
+        RunInstancesResponseType ret = Whitebox.invokeMethod(handler, "runInstances", "ami-1",
+                InstanceType.C1_MEDIUM.getName(), 1, 1);
 
-       Assert.assertTrue(ret !=null);
-       Assert.assertTrue(ret.getInstancesSet().getItem().size()==1);
+        Assert.assertTrue(ret != null);
+        Assert.assertTrue(ret.getInstancesSet().getItem().size() == 1);
 
-       RunningInstancesItemType instItem = ret.getInstancesSet().getItem().get(0);
-       Assert.assertTrue(instItem.getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID))); // from aws.mock-default.properties
-       Assert.assertTrue(instItem.getSubnetId().equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
-       Assert.assertTrue(instItem.getPrivateIpAddress().equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
-       Assert.assertTrue(instItem.getImageId().equals("ami-1"));
-       Assert.assertTrue(instItem.getInstanceId()!=null);
+        RunningInstancesItemType instItem = ret.getInstancesSet().getItem().get(0);
+        Assert.assertTrue(instItem.getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID))); // from
+                                                                                                   // aws.mock-default.properties
+        Assert.assertTrue(instItem.getSubnetId().equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
+        Assert.assertTrue(instItem.getPrivateIpAddress().equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
+        Assert.assertTrue(instItem.getImageId().equals("ami-1"));
+        Assert.assertTrue(instItem.getInstanceId() != null);
 
     }
 
+
     @Test
-    public void Test_describeInstances() throws Exception{
+    public void Test_describeInstances() throws Exception {
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
 
@@ -346,16 +372,17 @@ public class MockEC2QueryHandlerTest {
         instanceIDs.add(ec2Mocked1.getInstanceID());
         instanceIDs.add(ec2Mocked2.getInstanceID());
 
-        MemberModifier.field(MockEc2Controller.class,"allMockEc2Instances").set(controller, allMockEc2Instances);
+        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller, allMockEc2Instances);
         Whitebox.setInternalState(handler, "mockEc2Controller", controller);
 
         Set<String> instanceStateSet = new HashSet<String>();
         instanceStateSet.add(InstanceState.STOPPED.getName());
 
-        DescribeInstancesResponseType ret = Whitebox.invokeMethod(handler, "describeInstances",instanceIDs, instanceStateSet, null, 0);
+        DescribeInstancesResponseType ret = Whitebox.invokeMethod(handler, "describeInstances", instanceIDs,
+                instanceStateSet, null, 0);
 
         // both of the instances should be returned as they are in stopped state
-        Assert.assertTrue(ret.getReservationSet().getItem().size()==2);
+        Assert.assertTrue(ret.getReservationSet().getItem().size() == 2);
 
         List<ReservationInfoType> reservationList = ret.getReservationSet().getItem();
 
@@ -373,9 +400,12 @@ public class MockEC2QueryHandlerTest {
 
         // check if default params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID)));
-        Assert.assertTrue(runningSetType.getItem().get(0).getPrivateIpAddress().equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
-        Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId().equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
-        Assert.assertTrue(runningSetType.getItem().get(0).getInstanceState().getName().equals(InstanceState.STOPPED.getName()));
+        Assert.assertTrue(runningSetType.getItem().get(0).getPrivateIpAddress()
+                .equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
+        Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId()
+                .equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
+        Assert.assertTrue(runningSetType.getItem().get(0).getInstanceState().getName()
+                .equals(InstanceState.STOPPED.getName()));
 
         runningSetType = ret.getReservationSet().getItem().get(1).getInstancesSet();
 
@@ -383,23 +413,76 @@ public class MockEC2QueryHandlerTest {
 
         // check if default params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID)));
-        Assert.assertTrue(runningSetType.getItem().get(0).getPrivateIpAddress().equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
-        Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId().equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
-        Assert.assertTrue(runningSetType.getItem().get(0).getInstanceState().getName().equals(InstanceState.STOPPED.getName()));
+        Assert.assertTrue(runningSetType.getItem().get(0).getPrivateIpAddress()
+                .equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
+        Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId()
+                .equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
+        Assert.assertTrue(runningSetType.getItem().get(0).getInstanceState().getName()
+                .equals(InstanceState.STOPPED.getName()));
 
         // check if the instances are not equal and properly filtered
         Assert.assertFalse(instanceId1.equals(instanceId2));
         Assert.assertTrue(instanceIDs.contains(instanceId1));
         Assert.assertTrue(instanceIDs.contains(instanceId2));
+
+        // test the pagination functionality
+        ret = Whitebox.invokeMethod(handler, "describeInstances", new HashSet<String>(), instanceStateSet, null, 1);
+
+        Assert.assertTrue(ret.getReservationSet().getItem().size() == 1);
+
+        String token = ret.getNextToken();
+        Assert.assertTrue(token != null);
+
+        // expectedException.expect(BadEc2RequestException.class);
+        Throwable e = null;
+        try {
+            Whitebox.invokeMethod(handler, "describeInstances", instanceIDs, instanceStateSet, token, 0);
+        } catch (Throwable ex) {
+            e = ex;
+        }
+        Assert.assertTrue(null != e);
+        Assert.assertTrue(e instanceof BadEc2RequestException);
+        Assert.assertTrue(e.getMessage().contains(
+                "AWS Error Message: The parameter instancesSet cannot be used with the parameter nextToken"));
+
+        e = null;
+        try {
+            Whitebox.invokeMethod(handler, "describeInstances", new TreeSet<String>(), instanceStateSet,
+                    "invalid-string", 0);
+        } catch (Throwable ex) {
+            e = ex;
+        }
+        Assert.assertTrue(null != e);
+        Assert.assertTrue(e instanceof BadEc2RequestException);
+        Assert.assertTrue(e.getMessage().contains(
+                "AWS Error Message: Unable to parse pagination token"));
+
+        e = null;
+        try {
+            Whitebox.invokeMethod(handler, "describeInstances", instanceIDs, instanceStateSet, null, 100);
+        } catch (Throwable ex) {
+            e = ex;
+        }
+        Assert.assertTrue(null != e);
+        Assert.assertTrue(e instanceof BadEc2RequestException);
+        Assert.assertTrue(e.getMessage().contains(
+                "AWS Error Message: The parameter instancesSet cannot be used with the parameter maxResults"));
+
+        // get the second instance using next token
+        ret = Whitebox.invokeMethod(handler, "describeInstances", new TreeSet<String>(), instanceStateSet, token, 0);
+        Assert.assertTrue(ret.getReservationSet().getItem().size() == 1);
+        Assert.assertTrue(ret.getNextToken() == null);
+
     }
 
+
     @Test
-    public void Test_parseInstanceIDs() throws Exception{
+    public void Test_parseInstanceIDs() throws Exception {
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
-        queryParams.put("InstanceId.1", new String[]{"i-fd5bfd2"});
-        queryParams.put("InstanceId.2", new String[]{"i-fd5bfd3"});
-        queryParams.put("dummy", new String[]{"i-dummy"}); // should not be retrieved
+        queryParams.put("InstanceId.1", new String[] { "i-fd5bfd2" });
+        queryParams.put("InstanceId.2", new String[] { "i-fd5bfd3" });
+        queryParams.put("dummy", new String[] { "i-dummy" }); // should not be retrieved
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
         Set<String> instanceIDs = Whitebox.invokeMethod(handler, "parseInstanceIDs", queryParams);
@@ -409,13 +492,14 @@ public class MockEC2QueryHandlerTest {
         Assert.assertFalse(instanceIDs.contains("i-dummy"));
     }
 
+
     @Test
-    public void Test_parseInstanceStates() throws Exception{
+    public void Test_parseInstanceStates() throws Exception {
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
-        queryParams.put("Filter.1.Value.1", new String[]{"running"});
-        queryParams.put("Filter.1.Value.2", new String[]{"pending"});
-        queryParams.put("Filter.1.Dummy", new String[]{"none"});
+        queryParams.put("Filter.1.Value.1", new String[] { "running" });
+        queryParams.put("Filter.1.Value.2", new String[] { "pending" });
+        queryParams.put("Filter.1.Dummy", new String[] { "none" });
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
         Set<String> statesSet = Whitebox.invokeMethod(handler, "parseInstanceStates", queryParams);
@@ -425,8 +509,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertFalse(statesSet.contains("none"));
     }
 
+
     @Test
-    public void Test_handleNoParams() throws IOException{
+    public void Test_handleNoParams() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -448,15 +533,16 @@ public class MockEC2QueryHandlerTest {
         pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        handler.handle( new HashMap<String, String[]>(), response); // no query params
+        handler.handle(new HashMap<String, String[]>(), response); // no query params
 
         responseString = sw.toString();
         Assert.assertTrue(responseString.contains(INVALID_QUERY));
         Assert.assertTrue(responseString.contains(NO_PARAM_IN_QUERY));
     }
 
+
     @Test
-    public void Test_handleImproperVersionParams() throws IOException{
+    public void Test_handleImproperVersionParams() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -469,7 +555,7 @@ public class MockEC2QueryHandlerTest {
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
         // no version key here
-        queryParams.put("someKey", new String[]{"someValue"});
+        queryParams.put("someKey", new String[] { "someValue" });
 
         handler.handle(queryParams, response);
 
@@ -479,7 +565,7 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.contains(NO_VERSION_IN_QUERY));
 
         // more than two version values here
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1,"version2"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1, "version2" });
 
         sw = new StringWriter();
         pw = new PrintWriter(sw);
@@ -493,8 +579,9 @@ public class MockEC2QueryHandlerTest {
 
     }
 
+
     @Test
-    public void Test_handleImproperActionParam() throws IOException{
+    public void Test_handleImproperActionParam() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -507,7 +594,7 @@ public class MockEC2QueryHandlerTest {
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
         // no action key provided
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
 
         handler.handle(queryParams, response);
 
@@ -517,7 +604,7 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.contains(NO_ACTION_IN_QUERY));
 
         // more than two action values here
-        queryParams.put(ACTION_KEY, new String[]{"action1", "action2"});
+        queryParams.put(ACTION_KEY, new String[] { "action1", "action2" });
 
         sw = new StringWriter();
         pw = new PrintWriter(sw);
@@ -530,8 +617,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.contains(NO_ACTION_IN_QUERY));
     }
 
+
     @Test
-    public void Test_handleUnsupportedActionParam() throws IOException{
+    public void Test_handleUnsupportedActionParam() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -543,8 +631,8 @@ public class MockEC2QueryHandlerTest {
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"unsupportedAction"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "unsupportedAction" });
 
         handler.handle(queryParams, response);
 
@@ -554,8 +642,9 @@ public class MockEC2QueryHandlerTest {
 
     }
 
+
     @Test
-    public void Test_handleDescribeInstances() throws IOException{
+    public void Test_handleDescribeInstances() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -564,12 +653,13 @@ public class MockEC2QueryHandlerTest {
         PrintWriter pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeInstancesResponse"), Mockito.eq(VERSION_1))).thenReturn(DUMMY_XML_RESPONSE);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeInstancesResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"DescribeInstances"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeInstances" });
 
         handler.handle(queryParams, response);
 
@@ -577,8 +667,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+
     @Test
-    public void Test_handleStartInstances() throws IOException{
+    public void Test_handleStartInstances() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -587,12 +678,13 @@ public class MockEC2QueryHandlerTest {
         PrintWriter pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("StartInstancesResponse"), Mockito.eq(VERSION_1))).thenReturn(DUMMY_XML_RESPONSE);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("StartInstancesResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"StartInstances"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "StartInstances" });
 
         handler.handle(queryParams, response);
 
@@ -600,8 +692,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+
     @Test
-    public void Test_handleStopInstances() throws IOException{
+    public void Test_handleStopInstances() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -610,12 +703,13 @@ public class MockEC2QueryHandlerTest {
         PrintWriter pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("StopInstancesResponse"), Mockito.eq(VERSION_1))).thenReturn(DUMMY_XML_RESPONSE);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("StopInstancesResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"StopInstances"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "StopInstances" });
 
         handler.handle(queryParams, response);
 
@@ -623,8 +717,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+
     @Test
-    public void Test_handleTerminateInstances() throws IOException{
+    public void Test_handleTerminateInstances() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -633,12 +728,13 @@ public class MockEC2QueryHandlerTest {
         PrintWriter pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("TerminateInstancesResponse"), Mockito.eq(VERSION_1))).thenReturn(DUMMY_XML_RESPONSE);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("TerminateInstancesResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"TerminateInstances"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "TerminateInstances" });
 
         handler.handle(queryParams, response);
 
@@ -646,8 +742,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+
     @Test
-    public void Test_handleDescribeVpcs() throws IOException{
+    public void Test_handleDescribeVpcs() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -656,12 +753,13 @@ public class MockEC2QueryHandlerTest {
         PrintWriter pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeVpcsResponse"), Mockito.eq(VERSION_1))).thenReturn(DUMMY_XML_RESPONSE);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeVpcsResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"DescribeVpcs"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeVpcs" });
 
         handler.handle(queryParams, response);
 
@@ -669,8 +767,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+
     @Test
-    public void Test_handleDescribeSecurityGroups() throws IOException{
+    public void Test_handleDescribeSecurityGroups() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -679,12 +778,14 @@ public class MockEC2QueryHandlerTest {
         PrintWriter pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeSecurityGroupsResponse"), Mockito.eq(VERSION_1))).thenReturn(DUMMY_XML_RESPONSE);
+        Mockito.when(
+                JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeSecurityGroupsResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"DescribeSecurityGroups"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeSecurityGroups" });
 
         handler.handle(queryParams, response);
 
@@ -692,8 +793,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+
     @Test
-    public void Test_handleDescribeInternetGateways() throws IOException{
+    public void Test_handleDescribeInternetGateways() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -702,12 +804,14 @@ public class MockEC2QueryHandlerTest {
         PrintWriter pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeInternetGatewaysResponse"), Mockito.eq(VERSION_1))).thenReturn(DUMMY_XML_RESPONSE);
+        Mockito.when(
+                JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeInternetGatewaysResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"DescribeInternetGateways"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeInternetGateways" });
 
         handler.handle(queryParams, response);
 
@@ -715,8 +819,9 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+
     @Test
-    public void Test_handleDescribeRouteTables() throws IOException{
+    public void Test_handleDescribeRouteTables() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
@@ -725,12 +830,13 @@ public class MockEC2QueryHandlerTest {
         PrintWriter pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeRouteTablesResponse"), Mockito.eq(VERSION_1))).thenReturn(DUMMY_XML_RESPONSE);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeRouteTablesResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
 
         Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
-        queryParams.put(VERSION_KEY, new String[]{VERSION_1});
-        queryParams.put(ACTION_KEY, new String[]{"DescribeRouteTables"});
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeRouteTables" });
 
         handler.handle(queryParams, response);
 
