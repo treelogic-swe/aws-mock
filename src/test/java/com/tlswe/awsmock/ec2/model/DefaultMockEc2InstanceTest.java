@@ -2,6 +2,8 @@ package com.tlswe.awsmock.ec2.model;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,11 +78,20 @@ public class DefaultMockEc2InstanceTest {
         Assert.assertTrue(defaultMockEc2Instance.isBooting());
         Assert.assertTrue(defaultMockEc2Instance.isRunning());
 
-        defaultMockEc2Instance.stop();
+        boolean ret = defaultMockEc2Instance.stop();
+
+        Assert.assertTrue(ret);
 
         Assert.assertTrue(defaultMockEc2Instance.isStopping());
 
-        defaultMockEc2Instance.terminate();
+        ret = defaultMockEc2Instance.terminate();
+
+        Assert.assertTrue(ret);
+
+        // simply try to terminate again, this should fail
+        ret = defaultMockEc2Instance.terminate();
+
+        Assert.assertFalse(ret);
 
         Assert.assertTrue(defaultMockEc2Instance.isTerminated());
 
@@ -178,6 +189,21 @@ public class DefaultMockEc2InstanceTest {
         Assert.assertFalse(defaultMockEc2Instance.isStopping());
         Assert.assertFalse(defaultMockEc2Instance.isRunning());
         Assert.assertNull(defaultMockEc2Instance.getPubDns());
+    }
+
+    @Test
+    public void Test_securityGroups(){
+
+        AbstractMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
+        defaultMockEc2Instance.setSecurityGroups(null); // simply for branch coverage
+
+        Set<String> securityGroups = new HashSet<String>();
+        securityGroups.add("sec-1");
+        securityGroups.add("sec-2");
+
+        defaultMockEc2Instance.setSecurityGroups(securityGroups);
+
+        Assert.assertTrue(defaultMockEc2Instance.getSecurityGroups()== securityGroups);
     }
 
     static void setFinalStatic(Field field, Object newValue) throws Exception {

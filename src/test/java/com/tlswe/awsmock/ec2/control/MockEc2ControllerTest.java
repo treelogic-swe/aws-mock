@@ -291,6 +291,19 @@ public class MockEc2ControllerTest {
 
     }
 
+    @Test
+    public void Test_restoreAllMockEc2InstancesNull() {
+
+        MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
+
+        // nothing to return
+        controller.restoreAllMockEc2Instances(null);
+
+        Collection<AbstractMockEc2Instance> returnedInstances = controller.getAllMockEc2Instances();
+        Assert.assertTrue(returnedInstances.size() == 0);
+
+    }
+
 
     @Test
     public void Test_cleanupTerminatedInstances() throws Exception {
@@ -301,11 +314,15 @@ public class MockEc2ControllerTest {
         DefaultMockEc2Instance ec2Mocked2 = new DefaultMockEc2Instance();
         ec2Mocked2.setInstanceType(InstanceType.C3_8XLARGE);
 
+        DefaultMockEc2Instance ec2Mocked3 = new DefaultMockEc2Instance();
+        ec2Mocked3.setInstanceType(InstanceType.C3_8XLARGE);
+
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
 
         Map<String, AbstractMockEc2Instance> allMockEc2Instances = new ConcurrentHashMap<String, AbstractMockEc2Instance>();
         allMockEc2Instances.put(ec2Mocked1.getInstanceID(), ec2Mocked1);
         allMockEc2Instances.put(ec2Mocked2.getInstanceID(), ec2Mocked2);
+        allMockEc2Instances.put(ec2Mocked3.getInstanceID(), ec2Mocked3); // this will not be termianted
 
         MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller, allMockEc2Instances);
 
@@ -314,12 +331,13 @@ public class MockEc2ControllerTest {
         instanceIDs.add(ec2Mocked2.getInstanceID());
 
         controller.startInstances(instanceIDs); // first we need to start to bring to booting or starting state
-        controller.terminateInstances(instanceIDs); // instances should now be in terminated state
+
+        controller.terminateInstances(instanceIDs); // instances should now be in terminated state excepting the last one added
 
         controller.cleanupTerminatedInstances(1);
         Thread.sleep(1000); // delay needed to ensure thread gets executed
         controller.destroyCleanupTerminatedInstanceTimer(); // need to stop the timer
-        Assert.assertTrue(controller.getAllMockEc2Instances().size() == 0);
+        Assert.assertTrue(controller.getAllMockEc2Instances().size() == 1); // as ec2Mocked3 is not terminated and is returned
 
     }
 

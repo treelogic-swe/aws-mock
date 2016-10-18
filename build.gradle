@@ -253,8 +253,8 @@ cobertura {
     coverageCheckLineRate = 0
     coverageCheckPackageBranchRate = 0
     coverageCheckPackageLineRate = 0
-    coverageCheckTotalLineRate = 90
-    coverageCheckTotalBranchRate = 90
+    coverageCheckTotalLineRate = 80
+    coverageCheckTotalBranchRate = 80
     coverageReportDir = file("$buildDir/cobertura/")
 }
 
