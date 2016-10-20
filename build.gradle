@@ -29,7 +29,7 @@ ext.packaging = 'jar'
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 
-[jettyRun,jettyRunWar]*.daemon = true
+[jettyRun,jettyRunWar]*.daemon = false
 [jettyRun,jettyRunWar]*.httpPort = 8000
 [jettyRun,jettyRunWar,jettyStop]*.stopPort = 38091   // Port for stop signal
 [jettyRun,jettyRunWar,jettyStop]*.stopKey = 'foobar'

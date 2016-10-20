@@ -12,7 +12,9 @@ before_script:
 script: 
     - gradle clean coberturaCheck check
     - gradle Javadoc
-    - gradle jettyRun ; npm test ; gradle jettyStop
+    - gradle jettyRun &
+    - npm test
+    - gradle jettyStop
 
 after_success: .utility/push-to-gh-pages.sh
 

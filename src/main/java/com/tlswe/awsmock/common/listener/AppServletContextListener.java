@@ -61,8 +61,6 @@ public class AppServletContextListener implements ServletContextListener {
      */
     @Override
     public final void contextInitialized(final ServletContextEvent sce) {
-        log.info("aws-mock starting...");
-
         if (persistenceEnabled) {
             AbstractMockEc2Instance[] instanceArray = (AbstractMockEc2Instance[]) PersistenceUtils.loadAll();
             if (null != instanceArray) {
@@ -73,6 +71,8 @@ public class AppServletContextListener implements ServletContextListener {
         // start a timer for cleaning up terminated instances
         MockEc2Controller.getInstance().
                 cleanupTerminatedInstances(cleanupTerminatedInstancesPeriod);
+
+        log.info("aws-mock started.");
     }
 
 
@@ -101,6 +101,6 @@ public class AppServletContextListener implements ServletContextListener {
 
         MockEc2Controller.getInstance().destroyCleanupTerminatedInstanceTimer();
 
-        log.info("aws-mock stopped...");
+        log.info("aws-mock stopped.");
     }
 }
