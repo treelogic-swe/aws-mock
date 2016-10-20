@@ -29,8 +29,6 @@ ext.packaging = 'jar'
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 
-//jettyRun.daemon = true
-//jettyRun.httpPort = 8000                // Port for test
 [jettyRun,jettyRunWar]*.daemon = true
 [jettyRun,jettyRunWar]*.httpPort = 8000
 [jettyRun,jettyRunWar,jettyStop]*.stopPort = 38091   // Port for stop signal
@@ -78,7 +76,6 @@ sourceSets {
             srcDir 'example/java/test'
         }
         compileClasspath += sourceSets.main.runtimeClasspath
-        //compileClasspath += sourceSets.test.runtimeClasspath
     }
 
     test {
@@ -107,8 +104,6 @@ configurations {
 task integrationTest(type: Test) {
     testClassesDir = sourceSets.integrationTest.output.classesDir
     classpath = sourceSets.integrationTest.runtimeClasspath
-    //dependsOn jettyRun
-    //finalizedBy jettyStop
     doFirst {
         jettyRun.daemon = true
         jettyRun.execute()
@@ -119,6 +114,10 @@ task integrationTest(type: Test) {
 }
 
 check.dependsOn integrationTest
+
+checkstyle {
+    sourceSets = [ sourceSets.main, sourceSets.examples ]
+}
 
 task checkstylejs (type: Checkstyle) {
     source 'example/nodejs'
