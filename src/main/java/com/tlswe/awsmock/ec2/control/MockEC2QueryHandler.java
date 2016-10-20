@@ -192,24 +192,49 @@ public final class MockEC2QueryHandler {
     /**
      * The remaining paged records of instance IDs per token by 'describeInstances'.
      */
-    private static final Map<String, Set<String>> token2RemainingDescribedInstanceIDs = new ConcurrentHashMap<String, Set<String>>();
+    private static Map<String, Set<String>> token2RemainingDescribedInstanceIDs =
+            new ConcurrentHashMap<String, Set<String>>();
 
-    protected static final Random random = new Random();
+    /**
+     * A common random generator.
+     */
+    private static Random random = new Random();
 
+    /**
+     * The chars used to generate tokens (those tokens in describeInstances req/resp pagination).
+     */
     private static final String TOKEN_DICT = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     /**
+     * Token prefix length.
+     *
      * AWS's token is 276 bytes in length (19 fixed + 240 generated per response + 17 fixed), we just mock that way.
      */
     protected static final int TOKEN_PREFIX_LEN = 19;
 
+    /**
+     * Token suffix length.
+     */
     protected static final int TOKEN_SUFFIX_LEN = 17;
 
+    /**
+     * Token mid-string length.
+     */
     protected static final int TOKEN_MIDDLE_LEN = 240;
 
+    /**
+     * The prefix string, which would be determined on app startup.
+     */
     protected static final String TOKEN_PREFIX;
+
+    /**
+     * The suffix string, which would be determined on app startup.
+     */
     protected static final String TOKEN_SUFFIX;
 
+    /**
+     * Default page size for pagination in describeInstance response.
+     */
     protected static final int MAX_RESULTS_DEFAULT = 1000;
 
     static {
@@ -470,20 +495,21 @@ public final class MockEC2QueryHandler {
      *            a filter of specified instance states for the target instance to describe
      * @param token
      *            token for next page
-     * @param maxResults
+     * @param pMaxResults
      *            max result in page, if over 1000, only 1000 instances would be returned
      *
      * @return a DescribeInstancesResponse with information for all mock ec2 instances to describe
      */
     private DescribeInstancesResponseType describeInstances(final Set<String> instanceIDs,
-            final Set<String> instanceStates, String token, int maxResults) {
+            final Set<String> instanceStates, final String token, final int pMaxResults) {
 
         Set<String> idsInThisPageIfToken = null;
         if (null != token && token.length() > 0) {
             if (null != instanceIDs && instanceIDs.size() > 0) {
                 throw new BadEc2RequestException(
                         "DescribeInstances",
-                        "AWS Error Code: InvalidParameterCombination, AWS Error Message: The parameter instancesSet cannot be used with the parameter nextToken");
+                        "AWS Error Code: InvalidParameterCombination, AWS Error Message: The parameter instancesSet "
+                                + "cannot be used with the parameter nextToken");
             }
             // should retrieve next page using token
             idsInThisPageIfToken = token2RemainingDescribedInstanceIDs.get(token);
@@ -494,11 +520,17 @@ public final class MockEC2QueryHandler {
             }
         }
 
+        /**
+         * The calculated maxResults used in pagination.
+         */
+        int maxResults = pMaxResults;
+
         if (maxResults > 0) {
             if (null != instanceIDs && instanceIDs.size() > 0) {
                 throw new BadEc2RequestException(
                         "DescribeInstances",
-                        "AWS Error Code: InvalidParameterCombination, AWS Error Message: The parameter instancesSet cannot be used with the parameter maxResults");
+                        "AWS Error Code: InvalidParameterCombination, AWS Error Message: The parameter instancesSet "
+                                + "cannot be used with the parameter maxResults");
             }
         } else {
             maxResults = MAX_RESULTS_DEFAULT;
@@ -600,6 +632,11 @@ public final class MockEC2QueryHandler {
     }
 
 
+    /**
+     * Generate a new token used in describeInstanceResponse while paging enabled.
+     *
+     * @return a random string as a token
+     */
     protected String generateToken() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < TOKEN_MIDDLE_LEN; i++) {
