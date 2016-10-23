@@ -107,8 +107,8 @@ task integrationTest(type: Test) {
     doFirst {
         jettyRun.daemon = true
         jettyRun.httpPort = 8001
-        jettyRun.stopPort = 38092
-        jettyRun.stopKey = 'bar'
+        [jettyRun,jettyStop]*.stopPort = 38092
+        [jettyRun,jettyStop]*.stopKey = 'bar'
         jettyRun.execute()
     }
       doLast {
