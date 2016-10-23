@@ -13,7 +13,7 @@ aws-mock  [![Build Status](https://travis-ci.org/treelogic-swe/aws-mock.png?bran
 Easily test [essential AWS services](https://aws.amazon.com/products/) with the lightweight, very modular aws-mock. Works with official aws-sdk, api-tools and third-party tools.
 Completely and safely automates the testing process of AWS services in a mock EC2 environment, using http to expose the API.
 
-Readily accessible: Ready-to-run examples included for NodeJS and Java. aws-mock is available as a package [from npmjs.org](https://npmjs.org/package/aws-mock) and [from maven.org](http://search.maven.org/#browse%7C-1342745620).
+Readily accessible: Ready-to-run examples included for NodeJS and Java. aws-mock is available as a package [from npmjs.org](https://npmjs.org/package/aws-mock) and [from maven.org](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22com.treelogic-swe%22).
 
 Aws-mock currently features the following implemented interfaces of Amazon EC2:
 - describeImages
