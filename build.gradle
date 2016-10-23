@@ -32,7 +32,7 @@ targetCompatibility = JavaVersion.VERSION_1_6
 [jettyRun,jettyRunWar]*.daemon = false
 [jettyRun,jettyRunWar]*.httpPort = 8000
 [jettyRun,jettyRunWar,jettyStop]*.stopPort = 38091   // Port for stop signal
-[jettyRun,jettyRunWar,jettyStop]*.stopKey = 'foobar'
+[jettyRun,jettyRunWar,jettyStop]*.stopKey = 'foo'
 
 // fix the issue that jetty not stops in daemon mode
 import org.gradle.api.plugins.jetty.internal.Monitor
@@ -106,6 +106,9 @@ task integrationTest(type: Test) {
     classpath = sourceSets.integrationTest.runtimeClasspath
     doFirst {
         jettyRun.daemon = true
+        jettyRun.httpPort = 8001
+        jettyRun.stopPort = 38092
+        jettyRun.stopKey = 'bar'
         jettyRun.execute()
     }
       doLast {
@@ -141,35 +144,9 @@ task run(dependsOn: jettyRun) {
 
 }
 
-//test.doFirst {
-//    println '---- starting aws-mock on jetty before tests start ----'
-//    jettyRun.daemon = true
-//    tasks.jettyRun.execute()
-//}
-
 test {
     testLogging.showStandardStreams = false
 }
-
-//task testExamples(type: Test) {
-//    testClassesDir = sourceSets.examples.output.classesDir
-//    classpath = sourceSets.examples.runtimeClasspath + sourceSets.main.runtimeClasspath + sourceSets.test.runtimeClasspath
-//    testLogging.showStandardStreams = true
-//}
-
-//testExamples.doFirst {
-//    println '---- starting aws-mock on jetty before testExamples start ----'
-//    jettyRun.daemon = true
-//    tasks.jettyRun.execute()
-//}
-
-// this is one working way to finally run jettyStop after test despite of success or failure
-//gradle.taskGraph.afterTask { Task task, TaskState state ->
-//    if(task == test || task == testExamples) {
-//        tasks.jettyStop.execute()
-//        println '---- stopped jetty after tests ended ----'
-//    }
-//}
 
 jar {
     exclude('log4j.properties')
@@ -180,12 +157,6 @@ artifacts {
     archives javadocJar
     archives sourcesJar
 }
-
-// We comment the signing task for avoiding travis-ci build failure 
-// because we don't commit secret key for signing jars to github.com.
-//signing {
-//    sign configurations.archives
-//}
 
 uploadArchives {
     repositories {

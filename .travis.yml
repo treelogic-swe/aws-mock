@@ -7,17 +7,25 @@ install:
     - npm install
 
 before_script: 
+    - mkdir build/aws-mock-copy -p
+    - shopt -s extglob
+    - cp ./!(build) build/aws-mock-copy/ -r
+    - cd build/aws-mock-copy
+    - nohup gradle jettyRun &
+    - cd ../..
     - node example/nodejs/LocalProxy.js &
+    - sleep 5
 
 script: 
-    - gradle clean coberturaCheck check
-    - gradle Javadoc
-    - gradle jettyRun
+    - gradle clean coberturaCheck Javadoc check
     - npm test
-    - gradle jettyStop
 
 after_success: .utility/push-to-gh-pages.sh
 
 after_script:
     - ps axu|grep example/nodejs/LocalProxy.js|grep -v grep|awk '{print $2}'|xargs kill -9
+    - cd build/aws-mock-copy
+    - gradle jettyStop
+    - cd ../..
+    - rm -rf build/aws-mock-copy
 
