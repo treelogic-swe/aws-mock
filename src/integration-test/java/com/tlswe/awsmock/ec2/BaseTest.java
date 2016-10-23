@@ -21,32 +21,32 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
+import com.amazonaws.services.ec2.model.DescribeInternetGatewaysRequest;
+import com.amazonaws.services.ec2.model.DescribeInternetGatewaysResult;
+import com.amazonaws.services.ec2.model.DescribeRouteTablesRequest;
+import com.amazonaws.services.ec2.model.DescribeRouteTablesResult;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
+import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
+import com.amazonaws.services.ec2.model.DescribeVpcsResult;
+import com.amazonaws.services.ec2.model.Filter;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.InstanceStateChange;
+import com.amazonaws.services.ec2.model.InternetGateway;
+import com.amazonaws.services.ec2.model.Reservation;
+import com.amazonaws.services.ec2.model.RouteTable;
 import com.amazonaws.services.ec2.model.RunInstancesRequest;
 import com.amazonaws.services.ec2.model.RunInstancesResult;
+import com.amazonaws.services.ec2.model.SecurityGroup;
 import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+import com.amazonaws.services.ec2.model.Vpc;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
-import com.amazonaws.services.ec2.model.Reservation;
-import com.amazonaws.services.ec2.model.Filter;
-import com.amazonaws.services.ec2.model.Vpc;
-import com.amazonaws.services.ec2.model.DescribeVpcsResult;
-import com.amazonaws.services.ec2.model.SecurityGroup;
-import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-import com.amazonaws.services.ec2.model.InternetGateway;
-import com.amazonaws.services.ec2.model.DescribeInternetGatewaysRequest;
-import com.amazonaws.services.ec2.model.DescribeInternetGatewaysResult;
-import com.amazonaws.services.ec2.model.RouteTable;
-import com.amazonaws.services.ec2.model.DescribeRouteTablesRequest;
-import com.amazonaws.services.ec2.model.DescribeRouteTablesResult;
 
 /**
  * Base underlying class for doing the fundamental calls to aws ec2 interfaces, with neat utility methods which can be
@@ -93,8 +93,9 @@ public class BaseTest {
      */
     private static AmazonEC2Client amazonEC2Client;
 
+    private static String INTEGRATION_TEST_PROPERTIES_FILE = "aws-mock.integration-test.properties";
     /**
-     * Properties load from file 'aws-mock.test.properties'.
+     * Properties load from file {@link INTEGRATION_TEST_PROPERTIES_FILE}.
      */
     private static Properties testProperties;
 
@@ -105,7 +106,7 @@ public class BaseTest {
 
 
     /**
-     * Load test properties from file 'aws-mock.test.properties'.
+     * Load test properties from file {@link INTEGRATION_TEST_PROPERTIES_FILE}.
      */
     private static synchronized void initTestProperties() {
         if (testProperties == null) {
@@ -113,9 +114,9 @@ public class BaseTest {
             try {
                 testProperties.load(Thread.currentThread()
                         .getContextClassLoader()
-                        .getResourceAsStream("aws-mock.test.properties"));
+                        .getResourceAsStream(INTEGRATION_TEST_PROPERTIES_FILE));
             } catch (IOException e) {
-                Assert.fail("fail to load 'aws-mock.test.properties' - "
+                Assert.fail("fail to load '" + INTEGRATION_TEST_PROPERTIES_FILE + "' - "
                         + e.getMessage());
             }
         }
