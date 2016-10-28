@@ -156,4 +156,24 @@ public interface Constants {
      */
     String PROP_NAME_DEST_PORT = "network.destPort";
 
+    /**
+     * Property name for volume Id.
+     */
+    String PROP_NAME_VOLUME_ID = "storage.volumeId";
+
+    /**
+     * Property name for instance Id.
+     */
+    String PROP_NAME_INSTANCE_ID = "storage.instanceId";
+
+    /**
+     * Property name for volume Type.
+     */
+    String PROP_NAME_VOLUME_TYPE = "storage.volumeType";
+
+    /**
+     * Property name for volume Status.
+     */
+    String PROP_NAME_VOLUME_STATUS = "storage.volumeStatus";
+
 }

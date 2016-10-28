@@ -27,6 +27,10 @@ import com.amazonaws.services.ec2.model.DescribeRouteTablesRequest;
 import com.amazonaws.services.ec2.model.DescribeRouteTablesResult;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
+import com.amazonaws.services.ec2.model.DescribeSubnetsRequest;
+import com.amazonaws.services.ec2.model.DescribeSubnetsResult;
+import com.amazonaws.services.ec2.model.DescribeVolumesRequest;
+import com.amazonaws.services.ec2.model.DescribeVolumesResult;
 import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
 import com.amazonaws.services.ec2.model.DescribeVpcsResult;
 import com.amazonaws.services.ec2.model.Filter;
@@ -42,8 +46,10 @@ import com.amazonaws.services.ec2.model.StartInstancesRequest;
 import com.amazonaws.services.ec2.model.StartInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
+import com.amazonaws.services.ec2.model.Subnet;
 import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
+import com.amazonaws.services.ec2.model.Volume;
 import com.amazonaws.services.ec2.model.Vpc;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
@@ -492,7 +498,40 @@ public class BaseTest {
         return routeTable;
     }
 
+    /**
+     * Describe Volume.
+     *
+     * @return Volume
+     */
+    protected final Volume getVolume() {
+        Volume volume = null;
 
+        DescribeVolumesRequest req = new DescribeVolumesRequest();
+        DescribeVolumesResult result = amazonEC2Client.describeVolumes(req);
+        if (result != null && !result.getVolumes().isEmpty()) {
+        	volume = result.getVolumes().get(0);
+        }
+
+        return volume;
+    }
+
+    /**
+     * Describe Subnet.
+     *
+     * @return Subnet
+     */
+    protected final Subnet getSubnet() {
+    	Subnet subnet = null;
+
+        DescribeSubnetsRequest req = new DescribeSubnetsRequest();
+        DescribeSubnetsResult result = amazonEC2Client.describeSubnets(req);
+        if (result != null && !result.getSubnets().isEmpty()) {
+        	subnet = result.getSubnets().get(0);
+        }
+
+        return subnet;
+    }
+    
     /**
      * Wait an instance reaching target {@link InstanceState} by describing the instance every second until it reach
      * target state.

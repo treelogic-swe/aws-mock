@@ -1,7 +1,4 @@
-FROM java:8
-
-RUN apt-get clean && apt-get update
-RUN apt-get install -y gradle
+FROM frekele/gradle
 
 WORKDIR /project
 
