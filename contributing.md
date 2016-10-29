@@ -14,7 +14,7 @@ For example, let's say you want to add a mock of Amazon web service such as S3:
 - Pick and organize the response object by making use of the newly generated S3 cxf-stub or the equivalent.
 - Debug the mock S3 endpoint with your favorite AWS SDK
 - Add tests for your code
-- Run `gradle check` in your fork before you send the pull request to make sure your code passes the basic checks and tests
+- Run `gradle clean coberturaCheck check` in your fork before you send the pull request to make sure your code passes the basic code quality checks and tests
 
 And that's all there is to it.
 
