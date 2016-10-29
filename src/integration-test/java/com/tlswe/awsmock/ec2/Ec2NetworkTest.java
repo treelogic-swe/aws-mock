@@ -10,7 +10,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import com.amazonaws.services.ec2.model.Subnet;
+import com.amazonaws.services.ec2.model.Volume;
 import com.amazonaws.services.ec2.model.Vpc;
 import com.amazonaws.services.ec2.model.RouteTable;
 import com.amazonaws.services.ec2.model.SecurityGroup;
@@ -87,5 +88,31 @@ public class Ec2NetworkTest extends BaseTest {
 
         Assert.assertNotNull("route table should not be null", routeTable);
         Assert.assertNotNull("route table id should not be null", routeTable.getRouteTableId());
+    }
+    
+    /**
+     * Test describing Subnets.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void describeSubnetTest() {
+        log.info("Start describing Subnet test");
+
+        Subnet subnet = getSubnet();
+
+        Assert.assertNotNull("subnet should not be null", subnet);
+        Assert.assertNotNull("subnet id should not be null", subnet.getSubnetId());
+    }
+    
+    /**
+     * Test describing Volumes.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void describeVolumesTest() {
+        log.info("Start describing volume test");
+
+        Volume volume = getVolume();
+
+        Assert.assertNotNull("volume should not be null", volume);
+        Assert.assertNotNull("volume id should not be null", volume.getVolumeId());
     }
 }

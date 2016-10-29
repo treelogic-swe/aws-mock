@@ -2,6 +2,7 @@ package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,8 @@ import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.common.util.TemplateUtils;
+import com.tlswe.awsmock.ec2.cxf_generated.AttachmentSetItemResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.AttachmentSetResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseType;
@@ -30,6 +33,11 @@ import com.tlswe.awsmock.ec2.cxf_generated.DescribeInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeInternetGatewaysResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeRouteTablesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeSecurityGroupsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeSubnetsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesSetItemResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesSetItemType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesSetResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeVpcsResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupSetType;
@@ -53,6 +61,8 @@ import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.SubnetSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.SubnetType;
 import com.tlswe.awsmock.ec2.cxf_generated.TerminateInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.VpcSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.VpcType;
@@ -190,6 +200,26 @@ public final class MockEC2QueryHandler {
     private static final int MOCK_DEST_PORT = PropertiesUtils.getIntFromProperty(Constants.PROP_NAME_DEST_PORT);
 
     /**
+     * Predefined mock volume Id.
+     */
+    private static final String MOCK_VOLUME_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_VOLUME_ID);
+
+    /**
+     * Predefined mock instance Id.
+     */
+    private static final String MOCK_INSTANCE_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_INSTANCE_ID);
+
+    /**
+     * Predefined mock volume Type.
+     */
+    private static final String MOCK_VOLUME_TYPE = PropertiesUtils.getProperty(Constants.PROP_NAME_VOLUME_TYPE);
+
+    /**
+     * Predefined mock volume Status.
+     */
+    private static final String MOCK_VOLUME_STATUS = PropertiesUtils.getProperty(Constants.PROP_NAME_VOLUME_STATUS);
+
+    /**
      * The remaining paged records of instance IDs per token by 'describeInstances'.
      */
     private static Map<String, Set<String>> token2RemainingDescribedInstanceIDs =
@@ -204,6 +234,11 @@ public final class MockEC2QueryHandler {
      * The chars used to generate tokens (those tokens in describeInstances req/resp pagination).
      */
     private static final String TOKEN_DICT = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    /**
+     * Token mid-string length.
+     */
+    private static final int AVAILABLE_IP_ADDRESS_COUNT = 251;
 
     /**
      * Token prefix length.
@@ -293,9 +328,8 @@ public final class MockEC2QueryHandler {
      *             in case of failure of getting response's writer
      *
      */
-    public void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
-            throws IOException {
-
+     public void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
+        throws IOException {
         if (null == response) {
             // do nothing in case null is passed in
             return;
@@ -405,9 +439,14 @@ public final class MockEC2QueryHandler {
 
                                 responseXml = JAXBUtil.marshall(describeRouteTables(),
                                         "DescribeRouteTablesResponse", version);
+                            } else if ("DescribeVolumes".equals(action)) {
 
+                                responseXml = JAXBUtil.marshall(describeVolumes(),
+                                        "DescribeVolumesResponseType", version);
+                            } else if ("DescribeSubnets".equals(action)) {
+                                responseXml = JAXBUtil.marshall(describeSubnets(),
+                                    "DescribeSubnetsResponseType", version);
                             } else {
-
                                 // unsupported/unimplemented action - write an
                                 // error
                                 // response
@@ -812,6 +851,65 @@ public final class MockEC2QueryHandler {
         return ret;
     }
 
+    /**
+     * Handles "describeVolumes" request and returns response with a volumes Set.
+     *
+     * @return a DescribeVolumesResponseType with our predefined route table in aws-mock.properties (or if not
+     *         overridden, as defined in aws-mock-default.properties)
+     */
+    private DescribeVolumesResponseType describeVolumes() {
+        DescribeVolumesResponseType ret = new DescribeVolumesResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+
+        DescribeVolumesSetResponseType volumesSet = new DescribeVolumesSetResponseType();
+
+        DescribeVolumesSetItemResponseType volumesSetItem = new DescribeVolumesSetItemResponseType();
+        volumesSetItem.setVolumeId(MOCK_VOLUME_ID);
+        volumesSetItem.setVolumeType(MOCK_VOLUME_TYPE);
+        volumesSetItem.setSize("80");
+        volumesSetItem.setAvailabilityZone(DEFAULT_MOCK_PLACEMENT.getAvailabilityZone());
+        volumesSetItem.setStatus(MOCK_VOLUME_STATUS);
+        AttachmentSetResponseType attachmentSet = new AttachmentSetResponseType();
+
+        AttachmentSetItemResponseType attachmentSetItem = new AttachmentSetItemResponseType();
+        attachmentSetItem.setVolumeId(MOCK_VOLUME_ID);
+        attachmentSetItem.setInstanceId(MOCK_INSTANCE_ID);
+        attachmentSetItem.setDevice("/dev/sdh");
+        attachmentSetItem.setStatus("attached");
+        attachmentSet.getItem().add(attachmentSetItem);
+        volumesSetItem.setAttachmentSet(attachmentSet);
+
+        volumesSet.getItem().add(volumesSetItem);
+        ret.setVolumeSet(volumesSet);
+
+        return ret;
+    }
+
+    /**
+     * Handles "describeSubnets" request and returns response with a subnet Set.
+     *
+     * @return a DescribeSubnetsResponseType with our predefined route table in aws-mock.properties (or if not
+     *         overridden, as defined in aws-mock-default.properties)
+     */
+    private DescribeSubnetsResponseType describeSubnets() {
+        DescribeSubnetsResponseType ret = new DescribeSubnetsResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+
+        SubnetSetType subnetSetType = new SubnetSetType();
+
+        SubnetType subnetType = new SubnetType();
+        subnetType.setSubnetId(MOCK_SUBNET_ID);
+        subnetType.setState("available");
+        subnetType.setVpcId(MOCK_VPC_ID);
+        subnetType.setAvailableIpAddressCount(AVAILABLE_IP_ADDRESS_COUNT);
+        subnetType.setAvailabilityZone(DEFAULT_MOCK_PLACEMENT.getAvailabilityZone());
+        subnetType.setDefaultForAz(false);
+        subnetType.setMapPublicIpOnLaunch(false);
+        subnetSetType.getItem().add(subnetType);
+        ret.setSubnetSet(subnetSetType);
+
+        return ret;
+    }
 
     /**
      * Handles "describeInternetGateways" request and returns response with a internet gateway.

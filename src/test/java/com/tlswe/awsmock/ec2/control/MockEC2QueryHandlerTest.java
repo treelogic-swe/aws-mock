@@ -843,5 +843,52 @@ public class MockEC2QueryHandlerTest {
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
+    
+    @Test
+    public void Test_handleDescribeSubnets() throws IOException {
 
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeSubnetsResponseType"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeSubnets" });
+
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleDescribeVolumes() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeVolumesResponseType"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeVolumes" });
+
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
 }
