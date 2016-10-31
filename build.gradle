@@ -224,6 +224,11 @@ uploadArchives {
                         name 'Jay Scrivner'
                         email 'Jayscrivner@gmail.com'
                     }
+                    developer {
+                        id 'zkareem'
+                        name 'Zaki Kareem'
+                        email 'zakimak9@gmail.com'
+                    }
                }
             }
             
