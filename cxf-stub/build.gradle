@@ -9,10 +9,18 @@ ext.packaging = 'jar'
 def ec2ApiVersion = "ec2-2014-02-01"
 def stubJarFilename = "cxf-stub-" + ec2ApiVersion + ".jar"
 
+def cloudwatchApiVersion = "cloudwatch-2010-08-01"
+//def stubCWJarFilename = "cxf-stub-" + cloudwatchApiVersion + ".jar"
+
+configurations.all {
+    // check for updates every build
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 configurations { cxf }
 
 ext {
-    cxfVersion = '2.7.5'
+    cxfVersion = '3.0.4'
     cxfArtifacts = [
         'cxf-tools-wsdlto-frontend-jaxws',
         'cxf-tools-wsdlto-databinding-jaxb',
@@ -35,12 +43,22 @@ task wsdl2java (type: JavaExec) {
     args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.ec2.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", ec2ApiVersion+".wsdl" ]
 }
 
+task cloudwatchwsdl2java (type: JavaExec) {
+    inputs.file file('cloudwatch-2010-08-01.wsdl')
+    outputs.dir new File('build', 'stub_src')
+
+	main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
+    //classpath = sourceSets.main.runtimeClasspath
+    classpath = configurations.cxf
+    args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.cloudwatch.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", cloudwatchApiVersion+".wsdl" ]
+}
+
 // remove default dependency of 'classes' to avoid circular dependency
 wsdl2java.dependsOn=[]
-
+cloudwatchwsdl2java.dependsOn=[]
 
 compileJava {
-    dependsOn "wsdl2java"
+    dependsOn wsdl2java, cloudwatchwsdl2java
     inputs.dir new File('build', 'stub_src')
     outputs.dir new File('build', 'stub_classes')
     sourceCompatibility = '1.6'

@@ -50,8 +50,10 @@ dependencies {
     compile 'log4j:log4j:1.2.17'
     compile 'org.freemarker:freemarker:2.3.20'
     compile 'com.treelogic-swe:cxf-stub:1.0.2'
+    compile group: 'joda-time', name: 'joda-time', version: '2.8.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
     
-    testCompile "com.amazonaws:aws-java-sdk:1.7.4.2"
+    testCompile "com.amazonaws:aws-java-sdk:1.11.52"
     testCompile "org.powermock:powermock:1.6.5"
     testCompile "org.powermock:powermock-module-junit4:1.6.5"
     testCompile "org.powermock:powermock-api-mockito:1.6.5"
@@ -102,18 +104,18 @@ configurations {
 }
 
 task integrationTest(type: Test) {
-    testClassesDir = sourceSets.integrationTest.output.classesDir
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    doFirst {
-        jettyRun.daemon = true
-        jettyRun.httpPort = 8001
-        [jettyRun,jettyStop]*.stopPort = 38092
-        [jettyRun,jettyStop]*.stopKey = 'bar'
-        jettyRun.execute()
-    }
-      doLast {
-        jettyStop.execute()
-    }
+   testClassesDir = sourceSets.integrationTest.output.classesDir
+   classpath = sourceSets.integrationTest.runtimeClasspath
+   doFirst {
+       jettyRun.daemon = true
+       jettyRun.httpPort = 8001
+       [jettyRun,jettyStop]*.stopPort = 38092
+       [jettyRun,jettyStop]*.stopKey = 'bar'
+       jettyRun.execute()
+   }
+   doLast {
+       jettyStop.execute()
+   }
 }
 
 check.dependsOn integrationTest
