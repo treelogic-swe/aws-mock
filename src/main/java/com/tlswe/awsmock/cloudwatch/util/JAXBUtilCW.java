@@ -76,7 +76,7 @@ public final class JAXBUtilCW {
     /**
      *
      * @param obj
-     *            object to be serialized and built into xml
+     *            GetMetricStatisticsResponse to be serialized and built into xml
      * @param localPartQName
      *            local part of the QName
      * @param requestVersion

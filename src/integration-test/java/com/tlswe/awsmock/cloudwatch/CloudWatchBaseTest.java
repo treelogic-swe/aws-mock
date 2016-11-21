@@ -144,7 +144,7 @@ public class CloudWatchBaseTest {
      *
      * @return Datapoint
      */
-     protected final Datapoint getMetricStaticticsTest() {
+     protected final Datapoint getMetricStaticticsTest(String metricName) {
         
         Datapoint dataPoint = null;
        
@@ -152,7 +152,7 @@ public class CloudWatchBaseTest {
         request.setStartTime(new DateTime().plusHours(HOURS).toDate());
         request.withNamespace(NAMESPACE);
         request.withPeriod(60 * 60);
-        request.withMetricName("CPUUtilization");
+        request.withMetricName(metricName);
         request.withStatistics("Average", "SampleCount");
         request.withEndTime(new Date());
         GetMetricStatisticsResult result = amazonCloudWatchClient.getMetricStatistics(request);

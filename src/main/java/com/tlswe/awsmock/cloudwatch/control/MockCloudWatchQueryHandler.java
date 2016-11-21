@@ -1,55 +1,39 @@
 package com.tlswe.awsmock.cloudwatch.control;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Seconds;
-import org.joda.time.chrono.ISOChronology;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.Datapoint;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.Datapoints;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResult;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.ResponseMetadata;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.StandardUnit;
+import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.common.util.TemplateUtils;
-
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
-import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
 
 /**
  * Class that handlers requests of AWS Query API for managing mock ec2
@@ -92,85 +76,6 @@ public final class MockCloudWatchQueryHandler {
      * defined in the .properties file.
      */
     private static final Set<String> MOCK_AMIS = new TreeSet<String>();
-
-    /**
-     * Predefined mock vpc id.
-     */
-    private static final String MOCK_VPC_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_VPC_ID);
-
-    /**
-     * Predefined mock vpc state.
-     */
-    private static final String MOCK_VPC_STATE = PropertiesUtils.getProperty(Constants.PROP_NAME_VPC_STATE);
-
-    /**
-     * Predefined mock private ip address.
-     */
-    private static final String MOCK_PRIVATE_IP_ADDRESS = PropertiesUtils
-            .getProperty(Constants.PROP_NAME_PRIVATE_IP_ADDRESS);
-
-    /**
-     * Predefined mock subnet id.
-     */
-    private static final String MOCK_SUBNET_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_SUBNET_ID);
-
-    /**
-     * Predefined mock route table id.
-     */
-    private static final String MOCK_ROUTE_TABLE_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_ROUTE_TABLE_ID);
-
-    /**
-     * Predefined mock internet gateway id.
-     */
-    private static final String MOCK_GATEWAY_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_GATEWAY_ID);
-
-    /**
-     * Predefined mock security group id.
-     */
-    private static final String MOCK_SECURITY_GROUP_ID = PropertiesUtils
-            .getProperty(Constants.PROP_NAME_SECURITY_GROUP_ID);
-
-    /**
-     * Predefined mock security owner id.
-     */
-    private static final String MOCK_SECURITY_OWNER_ID = PropertiesUtils
-            .getProperty(Constants.PROP_NAME_SECURITY_OWNER_ID);
-
-    /**
-     * Predefined mock security group name.
-     */
-    private static final String MOCK_SECURITY_GROUP_NAME = PropertiesUtils
-            .getProperty(Constants.PROP_NAME_SECURITY_GROUP_NAME);
-
-    /**
-     * Predefined mock ip protocol.
-     */
-    private static final String MOCK_IP_PROTOCOL = PropertiesUtils.getProperty(Constants.PROP_NAME_IP_PROTOCOL);
-
-    /**
-     * Predefined mock cidr block.
-     */
-    private static final String MOCK_CIDR_BLOCK = PropertiesUtils.getProperty(Constants.PROP_NAME_CIDR_BLOCK);
-
-    /**
-     * Predefined mock source ip port.
-     */
-    private static final int MOCK_SOURCE_PORT = PropertiesUtils.getIntFromProperty(Constants.PROP_NAME_SOURCE_PORT);
-
-    /**
-     * Predefined mock destination ip port.
-     */
-    private static final int MOCK_DEST_PORT = PropertiesUtils.getIntFromProperty(Constants.PROP_NAME_DEST_PORT);
-
-    /**
-     * Predefined mock volume Id.
-     */
-    private static final String MOCK_VOLUME_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_VOLUME_ID);
-
-    /**
-     * Predefined mock instance Id.
-     */
-    private static final String MOCK_INSTANCE_ID = PropertiesUtils.getProperty(Constants.PROP_NAME_INSTANCE_ID);
 
     /**
      * Predefined mock volume Type.
@@ -467,8 +372,8 @@ public final class MockCloudWatchQueryHandler {
      * @return Metric average Value.
      */
     private double getMetricAverageValue(final String metricName) {
-        int min = Integer.MIN_VALUE;
-        int max = Integer.MAX_VALUE;
+        int min = 0;
+        int max = 1;
 
         if (metricName.equals(Constants.CPU_UTILIZATION)) {
            min = Integer.parseInt(PropertiesUtils.getProperty(Constants.CPU_UTILIZATION_RANGE_AVERAGE).split(",")[0]);
@@ -540,8 +445,8 @@ public final class MockCloudWatchQueryHandler {
      * @return Metric Sample Count Value.
      */
     private double getMetricSampleCountValue(final String metricName) {
-        int min = Integer.MIN_VALUE;
-        int max = Integer.MAX_VALUE;
+        int min = 0;
+        int max = 1;
 
         if (metricName.equals(Constants.CPU_UTILIZATION)) {
             min = Integer
