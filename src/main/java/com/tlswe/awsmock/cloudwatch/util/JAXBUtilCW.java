@@ -19,7 +19,7 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
 
 /**
  * Utility class to build XML string as AWS response from java object, using the JAXB API, working with the stub classes
- * under com.tlswe.awsmock.ec2.cxf_generated those describe the EC2 web service.
+ * under com.tlswe.awsmock.cloudwatch.cxf_generated.
  *
  * @author xma
  *
@@ -80,7 +80,7 @@ public final class JAXBUtilCW {
      * @param localPartQName
      *            local part of the QName
      * @param requestVersion
-     *            the version of EC2 API used by client (aws-sdk, cmd-line tools or other third-party client tools)
+     *            the version of CloudWatch API used by client (aws-sdk, cmd-line tools or other third-party client tools)
      * @return xml representation bound to the given object
      */
     public static String marshall(final GetMetricStatisticsResponse obj,

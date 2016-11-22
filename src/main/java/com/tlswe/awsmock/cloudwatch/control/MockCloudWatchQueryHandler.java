@@ -36,11 +36,8 @@ import com.tlswe.awsmock.common.util.TemplateUtils;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
 
 /**
- * Class that handlers requests of AWS Query API for managing mock ec2
- * instances. This class works between All object of mock cloudwatch instances
- * are of the same type which is defined as property of
- * "cloudwatch.instance.class" in aws-mock.properties (or if not overridden, as
- * the default value defined in aws-mock-default.properties).
+ * Class that handlers requests of AWS CloudWatch Query API for monitoring the mock ec2
+ * instances. This class works between All object of mock CloudWatch  
  *
  * @author Davinder
  *
