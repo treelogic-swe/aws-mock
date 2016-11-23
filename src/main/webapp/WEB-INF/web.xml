@@ -17,4 +17,14 @@
         <servlet-name>MockEc2EndpointServlet</servlet-name>
         <url-pattern>/ec2-endpoint/*</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <description></description>
+        <display-name>MockCloudWatchEndpointServlet</display-name>
+        <servlet-name>MockCloudWatchEndpointServlet</servlet-name>
+        <servlet-class>com.tlswe.awsmock.cloudwatch.servlet.MockCloudWatchEndpointServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MockCloudWatchEndpointServlet</servlet-name>
+        <url-pattern>/cloudwatch/*</url-pattern>
+    </servlet-mapping>
 </web-app>

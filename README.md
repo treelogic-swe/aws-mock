@@ -29,6 +29,10 @@ Aws-mock currently features the following implemented interfaces of Amazon EC2:
 - describeVolumes
 - describeSubnets
 
+
+CloudWatch:
+- getMetricStatistics
+
 This mock can manage a huge amount of EC2 instances, making it super easy for you to test your applications.
 
 aws-mock is a pure servlet web application, conforming to the protocols described in the WSDL defined by AWS.  Contributions in any JVM-targeting language are welcome.
@@ -37,7 +41,7 @@ aws-mock is a pure servlet web application, conforming to the protocols describe
 ### How It Works
 Taking for example the ec2 interface that aws-mock supports (the ec2-endpoint mock), this mock processes [Query Requests](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-query-api.html) built by your client.
 
-It then manages the internal mock EC2 instances as an emulation of the lifecycle of those in genuine EC2 (pending->running, stopping->stopped, terminated, etc).
+It then manages the internal mock EC2 instances as an emulation of the lifecycle of those in genuine EC2 (pending->running, stopping->stopped, terminated, etc). Cloudwatch mock to getMetricStatistics for EC2 instances.
 
 In response it then returns an xml result body which is recognized by your client.
 

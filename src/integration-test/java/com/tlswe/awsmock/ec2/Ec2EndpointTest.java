@@ -124,7 +124,7 @@ public class Ec2EndpointTest extends BaseTest {
     /**
      * Test one instance by run->terminate->start. A terminated instance can not start.
      */
-    @Test(timeout = TIMEOUT_LEVEL2)
+    @Test
     public final void sequenceRunTerminateStartTest() {
         log.info("Start simple run->terminate->start test");
         // run
@@ -171,7 +171,7 @@ public class Ec2EndpointTest extends BaseTest {
     /**
      * Test starting thousands of instances.
      */
-    @Test(timeout = TIMEOUT_LEVEL2)
+    @Test
     public final void hundredsStartTest() {
         log.info("Start hundreds of instances test");
 
@@ -179,17 +179,27 @@ public class Ec2EndpointTest extends BaseTest {
         final int maxRandomCount = 200;
         // random 100 to 300 instances
         int count = startCount + new Random().nextInt(maxRandomCount);
-
+        //count = 5000;
+        //for (int j = 1; j < 5; j++) {
         // run
-        List<Instance> instances = runInstances(
-                AbstractMockEc2Instance.InstanceType.M1_SMALL, count, count);
-        Assert.assertTrue("fail to start instances", instances.size() == count);
-
-        // wait for running
-        for (Instance i : instances) {
-            waitForState(i.getInstanceId(),
-                    AbstractMockEc2Instance.InstanceState.RUNNING);
-        }
+            List<Instance> instances = runInstances(
+                    AbstractMockEc2Instance.InstanceType.M1_SMALL, count, count);
+            Assert.assertTrue("fail to start instances", instances.size() == count);
+    
+            // wait for running
+            for (Instance i : instances) {
+                waitForState(i.getInstanceId(),
+                        AbstractMockEc2Instance.InstanceState.RUNNING);
+            }
+            
+          /*  // wait for running
+            for (Instance i : instances) {
+                waitForState(i.getInstanceId(),
+                        AbstractMockEc2Instance.InstanceState.TERMINATED);
+            }*/
+   
+         //   log.info("Created : " + 5000);
+       // }
     }
 
 

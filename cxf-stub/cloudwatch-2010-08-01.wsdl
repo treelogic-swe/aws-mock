@@ -1,0 +1,886 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+  targetNamespace="http://monitoring.amazonaws.com/doc/2010-08-01/"
+  xmlns:tns="http://monitoring.amazonaws.com/doc/2010-08-01/"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:wsa="http://www.w3.org/2005/08/addressing/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <wsdl:types>
+
+    <xs:schema
+      targetNamespace="http://monitoring.amazonaws.com/doc/2010-08-01/"
+      elementFormDefault="qualified">
+
+      <xs:element name="ResponseMetadata">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="RequestId" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="Error">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Type">
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:enumeration value="Receiver"/>
+                  <xs:enumeration value="Sender"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="Code" type="xs:string"/>
+            <xs:element name="Message" type="xs:string"/>
+            <xs:element name="Detail">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:any maxOccurs="unbounded" minOccurs="0" namespace="##any" processContents="lax"/>
+                </xs:sequence>
+                <xs:anyAttribute namespace="##other" processContents="lax"/>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="ErrorResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:Error" maxOccurs="unbounded"/>
+            <xs:element name="RequestId" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="PutMetricAlarm">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AlarmName" type="tns:AlarmName"/>
+            <xs:element name="AlarmDescription" type="tns:AlarmDescription" minOccurs="0"/>
+            <xs:element name="ActionsEnabled" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="OKActions" type="tns:ResourceList" minOccurs="0"/>
+            <xs:element name="AlarmActions" type="tns:ResourceList" minOccurs="0"/>
+            <xs:element name="InsufficientDataActions" type="tns:ResourceList" minOccurs="0"/>
+            <xs:element name="MetricName" type="tns:MetricName"/>
+            <xs:element name="Namespace" type="tns:Namespace"/>
+            <xs:element name="Statistic" type="tns:Statistic"/>
+            <xs:element name="Dimensions" type="tns:Dimensions" minOccurs="0"/>
+            <xs:element name="Period" type="tns:Period"/>
+            <xs:element name="Unit" type="tns:StandardUnit" minOccurs="0"/>
+            <xs:element name="EvaluationPeriods" type="tns:EvaluationPeriods"/>
+            <xs:element name="Threshold" type="xs:double"/>
+            <xs:element name="ComparisonOperator" type="tns:ComparisonOperator"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="PutMetricAlarmResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="PutMetricData">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Namespace" type="tns:Namespace"/>
+            <xs:element name="MetricData" type="tns:MetricData"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="PutMetricDataResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="ListMetrics">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Namespace" type="tns:Namespace" minOccurs="0"/>
+            <xs:element name="MetricName" type="tns:MetricName" minOccurs="0"/>
+            <xs:element name="Dimensions" type="tns:DimensionFilters" minOccurs="0"/>
+            <xs:element name="NextToken" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="ListMetricsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:ListMetricsResult"/>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="ListMetricsResult">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Metrics" type="tns:Metrics" minOccurs="0"/>
+            <xs:element name="NextToken" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="GetMetricStatistics">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Namespace" type="tns:Namespace"/>
+            <xs:element name="MetricName" type="tns:MetricName"/>
+            <xs:element name="Dimensions" type="tns:Dimensions" minOccurs="0"/>
+            <xs:element name="StartTime" type="xs:dateTime"/>
+            <xs:element name="EndTime" type="xs:dateTime"/>
+            <xs:element name="Period" type="tns:Period"/>
+            <xs:element name="Statistics" type="tns:Statistics"/>
+            <xs:element name="Unit" type="tns:StandardUnit" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="GetMetricStatisticsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:GetMetricStatisticsResult"/>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="GetMetricStatisticsResult">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Label" type="xs:string" minOccurs="0"/>
+            <xs:element name="Datapoints" type="tns:Datapoints" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DisableAlarmActions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AlarmNames" type="tns:AlarmNames"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DisableAlarmActionsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarms">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AlarmNames" type="tns:AlarmNames" minOccurs="0"/>
+            <xs:element name="AlarmNamePrefix" type="tns:AlarmNamePrefix" minOccurs="0"/>
+            <xs:element name="StateValue" type="tns:StateValue" minOccurs="0"/>
+            <xs:element name="ActionPrefix" type="tns:ActionPrefix" minOccurs="0"/>
+            <xs:element name="MaxRecords" type="tns:MaxRecords" minOccurs="0"/>
+            <xs:element name="NextToken" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarmsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:DescribeAlarmsResult"/>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarmsResult">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="MetricAlarms" type="tns:MetricAlarms" minOccurs="0"/>
+            <xs:element name="NextToken" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarmsForMetric">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="MetricName" type="tns:MetricName"/>
+            <xs:element name="Namespace" type="tns:Namespace"/>
+            <xs:element name="Statistic" type="tns:Statistic" minOccurs="0"/>
+            <xs:element name="Dimensions" type="tns:Dimensions" minOccurs="0"/>
+            <xs:element name="Period" type="tns:Period" minOccurs="0"/>
+            <xs:element name="Unit" type="tns:StandardUnit" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarmsForMetricResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:DescribeAlarmsForMetricResult"/>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarmsForMetricResult">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="MetricAlarms" type="tns:MetricAlarms" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarmHistory">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AlarmName" type="tns:AlarmName" minOccurs="0"/>
+            <xs:element name="HistoryItemType" type="tns:HistoryItemType" minOccurs="0"/>
+            <xs:element name="StartDate" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="EndDate" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="MaxRecords" type="tns:MaxRecords" minOccurs="0"/>
+            <xs:element name="NextToken" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarmHistoryResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:DescribeAlarmHistoryResult"/>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DescribeAlarmHistoryResult">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AlarmHistoryItems" type="tns:AlarmHistoryItems" minOccurs="0"/>
+            <xs:element name="NextToken" type="xs:string" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="EnableAlarmActions">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AlarmNames" type="tns:AlarmNames"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="EnableAlarmActionsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DeleteAlarms">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AlarmNames" type="tns:AlarmNames"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="DeleteAlarmsResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="SetAlarmState">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="AlarmName" type="tns:AlarmName"/>
+            <xs:element name="StateValue" type="tns:StateValue"/>
+            <xs:element name="StateReason" type="tns:StateReason"/>
+            <xs:element name="StateReasonData" type="tns:StateReasonData" minOccurs="0"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="SetAlarmStateResponse">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element ref="tns:ResponseMetadata" minOccurs="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:complexType name="Datapoint">
+        <xs:sequence>
+            <xs:element name="Timestamp" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="SampleCount" type="xs:double" minOccurs="0"/>
+            <xs:element name="Average" type="xs:double" minOccurs="0"/>
+            <xs:element name="Sum" type="xs:double" minOccurs="0"/>
+            <xs:element name="Minimum" type="xs:double" minOccurs="0"/>
+            <xs:element name="Maximum" type="xs:double" minOccurs="0"/>
+            <xs:element name="Unit" type="tns:StandardUnit" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="MaxRecords">
+        <xs:restriction base="xs:integer">
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="AlarmNames">
+        <xs:sequence>
+          <xs:element name="member" type="tns:AlarmName" minOccurs="0" maxOccurs="100"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="StatisticSet">
+        <xs:sequence>
+            <xs:element name="SampleCount" type="xs:double"/>
+            <xs:element name="Sum" type="xs:double"/>
+            <xs:element name="Minimum" type="xs:double"/>
+            <xs:element name="Maximum" type="xs:double"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="Statistic">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="SampleCount"/>
+          <xs:enumeration value="Average"/>
+          <xs:enumeration value="Sum"/>
+          <xs:enumeration value="Minimum"/>
+          <xs:enumeration value="Maximum"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="DimensionFilters">
+        <xs:sequence>
+          <xs:element name="member" type="tns:DimensionFilter" minOccurs="0" maxOccurs="10"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="HistoryData">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="4095"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="HistorySummary">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="DimensionValue">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="Period">
+        <xs:restriction base="xs:integer">
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="Statistics">
+        <xs:sequence>
+          <xs:element name="member" type="tns:Statistic" minOccurs="1" maxOccurs="5"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="Dimension">
+        <xs:sequence>
+            <xs:element name="Name" type="tns:DimensionName"/>
+            <xs:element name="Value" type="tns:DimensionValue"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="DimensionName">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="AlarmName">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="Datapoints">
+        <xs:sequence>
+          <xs:element name="member" type="tns:Datapoint" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="Namespace">
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[^:].*"/>
+          <xs:minLength value="1"/>
+          <xs:maxLength value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="DimensionFilter">
+        <xs:sequence>
+            <xs:element name="Name" type="tns:DimensionName"/>
+            <xs:element name="Value" type="tns:DimensionValue" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="StateReasonData">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="0"/>
+          <xs:maxLength value="4000"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="MetricAlarms">
+        <xs:sequence>
+          <xs:element name="member" type="tns:MetricAlarm" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="Metrics">
+        <xs:sequence>
+          <xs:element name="member" type="tns:Metric" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="ComparisonOperator">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="GreaterThanOrEqualToThreshold"/>
+          <xs:enumeration value="GreaterThanThreshold"/>
+          <xs:enumeration value="LessThanThreshold"/>
+          <xs:enumeration value="LessThanOrEqualToThreshold"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="AlarmHistoryItems">
+        <xs:sequence>
+          <xs:element name="member" type="tns:AlarmHistoryItem" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="ResourceName">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="1024"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="AlarmDescription">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="0"/>
+          <xs:maxLength value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="AlarmHistoryItem">
+        <xs:sequence>
+            <xs:element name="AlarmName" type="tns:AlarmName" minOccurs="0"/>
+            <xs:element name="Timestamp" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="HistoryItemType" type="tns:HistoryItemType" minOccurs="0"/>
+            <xs:element name="HistorySummary" type="tns:HistorySummary" minOccurs="0"/>
+            <xs:element name="HistoryData" type="tns:HistoryData" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="HistoryItemType">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ConfigurationUpdate"/>
+          <xs:enumeration value="StateUpdate"/>
+          <xs:enumeration value="Action"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="ActionPrefix">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="1024"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="StandardUnit">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="Seconds"/>
+          <xs:enumeration value="Microseconds"/>
+          <xs:enumeration value="Milliseconds"/>
+          <xs:enumeration value="Bytes"/>
+          <xs:enumeration value="Kilobytes"/>
+          <xs:enumeration value="Megabytes"/>
+          <xs:enumeration value="Gigabytes"/>
+          <xs:enumeration value="Terabytes"/>
+          <xs:enumeration value="Bits"/>
+          <xs:enumeration value="Kilobits"/>
+          <xs:enumeration value="Megabits"/>
+          <xs:enumeration value="Gigabits"/>
+          <xs:enumeration value="Terabits"/>
+          <xs:enumeration value="Percent"/>
+          <xs:enumeration value="Count"/>
+          <xs:enumeration value="Bytes/Second"/>
+          <xs:enumeration value="Kilobytes/Second"/>
+          <xs:enumeration value="Megabytes/Second"/>
+          <xs:enumeration value="Gigabytes/Second"/>
+          <xs:enumeration value="Terabytes/Second"/>
+          <xs:enumeration value="Bits/Second"/>
+          <xs:enumeration value="Kilobits/Second"/>
+          <xs:enumeration value="Megabits/Second"/>
+          <xs:enumeration value="Gigabits/Second"/>
+          <xs:enumeration value="Terabits/Second"/>
+          <xs:enumeration value="Count/Second"/>
+          <xs:enumeration value="None"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="EvaluationPeriods">
+        <xs:restriction base="xs:integer">
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="Dimensions">
+        <xs:sequence>
+          <xs:element name="member" type="tns:Dimension" minOccurs="0" maxOccurs="10"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="StateReason">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="0"/>
+          <xs:maxLength value="1023"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="MetricAlarm">
+        <xs:sequence>
+            <xs:element name="AlarmName" type="tns:AlarmName" minOccurs="0"/>
+            <xs:element name="AlarmArn" type="tns:AlarmArn" minOccurs="0"/>
+            <xs:element name="AlarmDescription" type="tns:AlarmDescription" minOccurs="0"/>
+            <xs:element name="AlarmConfigurationUpdatedTimestamp" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="ActionsEnabled" type="xs:boolean" minOccurs="0"/>
+            <xs:element name="OKActions" type="tns:ResourceList" minOccurs="0"/>
+            <xs:element name="AlarmActions" type="tns:ResourceList" minOccurs="0"/>
+            <xs:element name="UnknownActions" type="tns:ResourceList" minOccurs="0"/>
+            <xs:element name="StateValue" type="tns:StateValue" minOccurs="0"/>
+            <xs:element name="StateReason" type="tns:StateReason" minOccurs="0"/>
+            <xs:element name="StateReasonData" type="tns:StateReasonData" minOccurs="0"/>
+            <xs:element name="StateUpdatedTimestamp" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="MetricName" type="tns:MetricName" minOccurs="0"/>
+            <xs:element name="Namespace" type="tns:Namespace" minOccurs="0"/>
+            <xs:element name="Statistic" type="tns:Statistic" minOccurs="0"/>
+            <xs:element name="Dimensions" type="tns:Dimensions" minOccurs="0"/>
+            <xs:element name="Period" type="tns:Period" minOccurs="0"/>
+            <xs:element name="Unit" type="tns:StandardUnit" minOccurs="0"/>
+            <xs:element name="EvaluationPeriods" type="tns:EvaluationPeriods" minOccurs="0"/>
+            <xs:element name="Threshold" type="xs:double" minOccurs="0"/>
+            <xs:element name="ComparisonOperator" type="tns:ComparisonOperator" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="MetricData">
+        <xs:sequence>
+          <xs:element name="member" type="tns:MetricDatum" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="MetricName">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:simpleType name="AlarmArn">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="1600"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="MetricDatum">
+        <xs:sequence>
+            <xs:element name="MetricName" type="tns:MetricName"/>
+            <xs:element name="Dimensions" type="tns:Dimensions" minOccurs="0"/>
+            <xs:element name="Timestamp" type="xs:dateTime" minOccurs="0"/>
+            <xs:element name="Value" type="xs:double" minOccurs="0"/>
+            <xs:element name="StatisticValues" type="tns:StatisticSet" minOccurs="0"/>
+            <xs:element name="Unit" type="tns:StandardUnit" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="AlarmNamePrefix">
+        <xs:restriction base="xs:string">
+          <xs:minLength value="1"/>
+          <xs:maxLength value="255"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+      <xs:complexType name="ResourceList">
+        <xs:sequence>
+          <xs:element name="member" type="tns:ResourceName" minOccurs="0" maxOccurs="5"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="Metric">
+        <xs:sequence>
+            <xs:element name="Namespace" type="tns:Namespace" minOccurs="0"/>
+            <xs:element name="MetricName" type="tns:MetricName" minOccurs="0"/>
+            <xs:element name="Dimensions" type="tns:Dimensions" minOccurs="0"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:simpleType name="StateValue">
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="OK"/>
+          <xs:enumeration value="ALARM"/>
+          <xs:enumeration value="INSUFFICIENT_DATA"/>
+        </xs:restriction>
+      </xs:simpleType>
+
+    </xs:schema>
+
+  </wsdl:types>
+
+  <wsdl:message name="PutMetricAlarmRequestMsg">
+    <wsdl:part element="tns:PutMetricAlarm" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="PutMetricAlarmResponseMsg">
+    <wsdl:part element="tns:PutMetricAlarmResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="PutMetricDataRequestMsg">
+    <wsdl:part element="tns:PutMetricData" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="PutMetricDataResponseMsg">
+    <wsdl:part element="tns:PutMetricDataResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="ListMetricsRequestMsg">
+    <wsdl:part element="tns:ListMetrics" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="ListMetricsResponseMsg">
+    <wsdl:part element="tns:ListMetricsResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="GetMetricStatisticsRequestMsg">
+    <wsdl:part element="tns:GetMetricStatistics" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="GetMetricStatisticsResponseMsg">
+    <wsdl:part element="tns:GetMetricStatisticsResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DisableAlarmActionsRequestMsg">
+    <wsdl:part element="tns:DisableAlarmActions" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DisableAlarmActionsResponseMsg">
+    <wsdl:part element="tns:DisableAlarmActionsResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DescribeAlarmsRequestMsg">
+    <wsdl:part element="tns:DescribeAlarms" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DescribeAlarmsResponseMsg">
+    <wsdl:part element="tns:DescribeAlarmsResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DescribeAlarmsForMetricRequestMsg">
+    <wsdl:part element="tns:DescribeAlarmsForMetric" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DescribeAlarmsForMetricResponseMsg">
+    <wsdl:part element="tns:DescribeAlarmsForMetricResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DescribeAlarmHistoryRequestMsg">
+    <wsdl:part element="tns:DescribeAlarmHistory" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DescribeAlarmHistoryResponseMsg">
+    <wsdl:part element="tns:DescribeAlarmHistoryResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="EnableAlarmActionsRequestMsg">
+    <wsdl:part element="tns:EnableAlarmActions" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="EnableAlarmActionsResponseMsg">
+    <wsdl:part element="tns:EnableAlarmActionsResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DeleteAlarmsRequestMsg">
+    <wsdl:part element="tns:DeleteAlarms" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="DeleteAlarmsResponseMsg">
+    <wsdl:part element="tns:DeleteAlarmsResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="SetAlarmStateRequestMsg">
+    <wsdl:part element="tns:SetAlarmState" name="body"/>
+  </wsdl:message>
+
+  <wsdl:message name="SetAlarmStateResponseMsg">
+    <wsdl:part element="tns:SetAlarmStateResponse" name="body"/>
+  </wsdl:message>
+
+  <wsdl:portType name="CloudWatchPortType">
+
+    <wsdl:operation name="PutMetricAlarm">
+      <wsdl:input message="tns:PutMetricAlarmRequestMsg" wsa:Action="urn:PutMetricAlarm"/>
+      <wsdl:output message="tns:PutMetricAlarmResponseMsg" wsa:Action="urn:PutMetricAlarm:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="PutMetricData">
+      <wsdl:input message="tns:PutMetricDataRequestMsg" wsa:Action="urn:PutMetricData"/>
+      <wsdl:output message="tns:PutMetricDataResponseMsg" wsa:Action="urn:PutMetricData:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="ListMetrics">
+      <wsdl:input message="tns:ListMetricsRequestMsg" wsa:Action="urn:ListMetrics"/>
+      <wsdl:output message="tns:ListMetricsResponseMsg" wsa:Action="urn:ListMetrics:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="GetMetricStatistics">
+      <wsdl:input message="tns:GetMetricStatisticsRequestMsg" wsa:Action="urn:GetMetricStatistics"/>
+      <wsdl:output message="tns:GetMetricStatisticsResponseMsg" wsa:Action="urn:GetMetricStatistics:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="DisableAlarmActions">
+      <wsdl:input message="tns:DisableAlarmActionsRequestMsg" wsa:Action="urn:DisableAlarmActions"/>
+      <wsdl:output message="tns:DisableAlarmActionsResponseMsg" wsa:Action="urn:DisableAlarmActions:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="DescribeAlarms">
+      <wsdl:input message="tns:DescribeAlarmsRequestMsg" wsa:Action="urn:DescribeAlarms"/>
+      <wsdl:output message="tns:DescribeAlarmsResponseMsg" wsa:Action="urn:DescribeAlarms:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="DescribeAlarmsForMetric">
+      <wsdl:input message="tns:DescribeAlarmsForMetricRequestMsg" wsa:Action="urn:DescribeAlarmsForMetric"/>
+      <wsdl:output message="tns:DescribeAlarmsForMetricResponseMsg" wsa:Action="urn:DescribeAlarmsForMetric:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="DescribeAlarmHistory">
+      <wsdl:input message="tns:DescribeAlarmHistoryRequestMsg" wsa:Action="urn:DescribeAlarmHistory"/>
+      <wsdl:output message="tns:DescribeAlarmHistoryResponseMsg" wsa:Action="urn:DescribeAlarmHistory:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="EnableAlarmActions">
+      <wsdl:input message="tns:EnableAlarmActionsRequestMsg" wsa:Action="urn:EnableAlarmActions"/>
+      <wsdl:output message="tns:EnableAlarmActionsResponseMsg" wsa:Action="urn:EnableAlarmActions:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="DeleteAlarms">
+      <wsdl:input message="tns:DeleteAlarmsRequestMsg" wsa:Action="urn:DeleteAlarms"/>
+      <wsdl:output message="tns:DeleteAlarmsResponseMsg" wsa:Action="urn:DeleteAlarms:Response"/>
+    </wsdl:operation>
+
+    <wsdl:operation name="SetAlarmState">
+      <wsdl:input message="tns:SetAlarmStateRequestMsg" wsa:Action="urn:SetAlarmState"/>
+      <wsdl:output message="tns:SetAlarmStateResponseMsg" wsa:Action="urn:SetAlarmState:Response"/>
+    </wsdl:operation>
+
+  </wsdl:portType>
+
+  <wsdl:binding name="CloudWatchBinding" type="tns:CloudWatchPortType">
+
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+    <wsdl:operation name="PutMetricAlarm">
+      <soap:operation soapAction="PutMetricAlarm"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="PutMetricData">
+      <soap:operation soapAction="PutMetricData"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="ListMetrics">
+      <soap:operation soapAction="ListMetrics"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="GetMetricStatistics">
+      <soap:operation soapAction="GetMetricStatistics"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="DisableAlarmActions">
+      <soap:operation soapAction="DisableAlarmActions"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="DescribeAlarms">
+      <soap:operation soapAction="DescribeAlarms"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="DescribeAlarmsForMetric">
+      <soap:operation soapAction="DescribeAlarmsForMetric"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="DescribeAlarmHistory">
+      <soap:operation soapAction="DescribeAlarmHistory"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="EnableAlarmActions">
+      <soap:operation soapAction="EnableAlarmActions"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="DeleteAlarms">
+      <soap:operation soapAction="DeleteAlarms"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+    <wsdl:operation name="SetAlarmState">
+      <soap:operation soapAction="SetAlarmState"/>
+      <wsdl:input><soap:body use="literal"/></wsdl:input>
+      <wsdl:output><soap:body use="literal"/></wsdl:output>
+    </wsdl:operation>
+
+  </wsdl:binding>
+
+  <wsdl:service name="CloudWatch">
+    <wsdl:port name="CloudWatchPort" binding="tns:CloudWatchBinding">
+      <soap:address location="https://monitoring.amazonaws.com"/>
+    </wsdl:port>
+  </wsdl:service>
+
+</wsdl:definitions>
