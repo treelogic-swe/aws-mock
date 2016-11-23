@@ -1,3 +1,6 @@
+com.tlswe.awsmock.cloudwatch.control
+com.tlswe.awsmock.cloudwatch.servlet
+com.tlswe.awsmock.cloudwatch.util
 com.tlswe.awsmock.common.exception
 com.tlswe.awsmock.common.listener
 com.tlswe.awsmock.common.util
