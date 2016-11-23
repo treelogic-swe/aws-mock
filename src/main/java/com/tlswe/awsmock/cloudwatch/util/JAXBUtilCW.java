@@ -80,7 +80,8 @@ public final class JAXBUtilCW {
      * @param localPartQName
      *            local part of the QName
      * @param requestVersion
-     *            the version of CloudWatch API used by client (aws-sdk, cmd-line tools or other third-party client tools)
+     *            the version of CloudWatch API used by client (aws-sdk, cmd-line tools or other
+     *            third-party client tools)
      * @return xml representation bound to the given object
      */
     public static String marshall(final GetMetricStatisticsResponse obj,

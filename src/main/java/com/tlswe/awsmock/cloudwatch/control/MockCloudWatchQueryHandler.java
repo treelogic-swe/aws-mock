@@ -37,7 +37,7 @@ import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
 
 /**
  * Class that handlers requests of AWS CloudWatch Query API for monitoring the mock ec2
- * instances. This class works between All object of mock CloudWatch  
+ * instances. This class works between All object of mock CloudWatch.
  *
  * @author Davinder
  *
