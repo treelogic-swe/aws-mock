@@ -19,6 +19,9 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.AvailabilityZone;
+import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesRequest;
+import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeInternetGatewaysRequest;
@@ -51,6 +54,7 @@ import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.amazonaws.services.ec2.model.Volume;
 import com.amazonaws.services.ec2.model.Vpc;
+import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneSetType;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 
@@ -498,6 +502,22 @@ public class BaseTest {
         return routeTable;
     }
 
+    /**
+     * Describe AvailabilityZone.
+     *
+     * @return AvailabilityZone
+     */
+    protected final AvailabilityZone getAvailiablityZones() {
+        AvailabilityZone availabilityZone = null;
+
+        DescribeAvailabilityZonesResult result = amazonEC2Client.describeAvailabilityZones();
+        if (result != null && !result.getAvailabilityZones().isEmpty()) {
+            availabilityZone = result.getAvailabilityZones().get(0);
+        }
+
+        return availabilityZone;
+    }
+    
     /**
      * Describe Volume.
      *

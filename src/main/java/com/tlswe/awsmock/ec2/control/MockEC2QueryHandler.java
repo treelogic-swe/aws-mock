@@ -26,6 +26,9 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.common.util.TemplateUtils;
 import com.tlswe.awsmock.ec2.cxf_generated.AttachmentSetItemResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.AttachmentSetResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneItemType;
+import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeAvailabilityZonesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseType;
@@ -334,9 +337,7 @@ public final class MockEC2QueryHandler {
             // do nothing in case null is passed in
             return;
         }
-
         String responseXml = null;
-
         if (null == queryParams || queryParams.size() == 0) {
             // no params found at all - write an error xml response
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -446,6 +447,9 @@ public final class MockEC2QueryHandler {
                             } else if ("DescribeSubnets".equals(action)) {
                                 responseXml = JAXBUtil.marshall(describeSubnets(),
                                     "DescribeSubnetsResponseType", version);
+                            } else if ("DescribeAvailabilityZones".equals(action)) {
+                                responseXml = JAXBUtil.marshall(describeAvailabilityZones(),
+                                        "DescribeAvailabilityZonesResponseType", version);
                             } else {
                                 // unsupported/unimplemented action - write an
                                 // error
@@ -471,12 +475,9 @@ public final class MockEC2QueryHandler {
 
                 }
             }
-
         }
-
         response.getWriter().write(responseXml);
         response.getWriter().flush();
-
     }
 
 
@@ -499,6 +500,27 @@ public final class MockEC2QueryHandler {
             }
         }
         return instanceStates;
+    }
+
+    /**
+     * Handles "describeAvailabilityZones" request, as simple as without any filters to use.
+     *
+     * @return a DescribeAvailabilityZonesResponseType with our predefined AMIs
+     * in aws-mock.properties (or if not overridden, as defined in aws-mock-default.properties)
+     */
+    private DescribeAvailabilityZonesResponseType describeAvailabilityZones() {
+        DescribeAvailabilityZonesResponseType ret = new DescribeAvailabilityZonesResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+
+        AvailabilityZoneSetType info = new AvailabilityZoneSetType();
+
+        AvailabilityZoneItemType item = new AvailabilityZoneItemType();
+        item.setRegionName(DEFAULT_MOCK_PLACEMENT.getAvailabilityZone());
+        item.setZoneName(DEFAULT_MOCK_PLACEMENT.getAvailabilityZone());
+
+        info.getItem().add(item);
+        ret.setAvailabilityZoneInfo(info);
+        return ret;
     }
 
 
