@@ -15,6 +15,7 @@ import com.amazonaws.services.ec2.model.Volume;
 import com.amazonaws.services.ec2.model.Vpc;
 import com.amazonaws.services.ec2.model.RouteTable;
 import com.amazonaws.services.ec2.model.SecurityGroup;
+import com.amazonaws.services.ec2.model.AvailabilityZone;
 import com.amazonaws.services.ec2.model.InternetGateway;
 
 /**
@@ -88,6 +89,19 @@ public class Ec2NetworkTest extends BaseTest {
 
         Assert.assertNotNull("route table should not be null", routeTable);
         Assert.assertNotNull("route table id should not be null", routeTable.getRouteTableId());
+    }
+    
+    /**
+     * Test describing Availability Zones.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void describeAvailabilityZonesTest() {
+        log.info("Start describing Availability Zones test");
+
+        AvailabilityZone availabiltyZone = getAvailiablityZones();
+
+        Assert.assertNotNull("route table should not be null", availabiltyZone);
+        Assert.assertNotNull("route table id should not be null", availabiltyZone.getZoneName());
     }
     
     /**

@@ -29,6 +29,8 @@ import org.powermock.reflect.Whitebox;
 
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneItemType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeAvailabilityZonesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseType;
@@ -200,6 +202,18 @@ public class MockEC2QueryHandlerTest {
 
     }
 
+    @Test
+    public void Test_describeAvailabilityZones() throws Exception {
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+        DescribeAvailabilityZonesResponseType describeAvailabilityZonesResponseType = Whitebox.invokeMethod(handler,
+                "describeAvailabilityZones");
+
+        Assert.assertTrue(describeAvailabilityZonesResponseType != null);
+        Assert.assertTrue(describeAvailabilityZonesResponseType.getAvailabilityZoneInfo().getItem().size() == 1);
+
+        AvailabilityZoneItemType availabilityZoneItemType = describeAvailabilityZonesResponseType.getAvailabilityZoneInfo().getItem().get(0);
+        Assert.assertTrue(availabilityZoneItemType.getRegionName() != null);
+    }
 
     @Test
     public void Test_describeImages() throws Exception {
@@ -885,6 +899,30 @@ public class MockEC2QueryHandlerTest {
 
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "DescribeVolumes" });
+
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+    
+    @Test
+    public void Test_handleDescribeAvailabilityZones() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeAvailabilityZonesResponseType"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeAvailabilityZones" });
 
         handler.handle(queryParams, response);
 
