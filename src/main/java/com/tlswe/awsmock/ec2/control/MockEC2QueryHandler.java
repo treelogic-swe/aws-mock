@@ -923,6 +923,7 @@ public final class MockEC2QueryHandler {
         subnetType.setSubnetId(MOCK_SUBNET_ID);
         subnetType.setState("available");
         subnetType.setVpcId(MOCK_VPC_ID);
+        subnetType.setCidrBlock(MOCK_CIDR_BLOCK);
         subnetType.setAvailableIpAddressCount(AVAILABLE_IP_ADDRESS_COUNT);
         subnetType.setAvailabilityZone(DEFAULT_MOCK_PLACEMENT.getAvailabilityZone());
         subnetType.setDefaultForAz(false);
