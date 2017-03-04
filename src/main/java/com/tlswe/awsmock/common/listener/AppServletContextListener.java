@@ -37,8 +37,8 @@ public class AppServletContextListener implements ServletContextListener {
     /**
      * Period of cleaning up terminated mock ec2 instances.
      */
-    private static int cleanupTerminatedInstancesPeriod = PropertiesUtils.
-            getIntFromProperty(Constants.PROP_NAME_EC2_CLEANUP_TERMINATED_INSTANCES_TIME_SECONDS);
+    private static int cleanupTerminatedInstancesPeriod = PropertiesUtils
+            .getIntFromProperty(Constants.PROP_NAME_EC2_CLEANUP_TERMINATED_INSTANCES_TIME_SECONDS);
 
     /**
      * Millisecs in a second.
@@ -52,7 +52,6 @@ public class AppServletContextListener implements ServletContextListener {
 
     }
 
-
     /**
      * We load the saved instances if persistence of enabled, on web application starting.
      *
@@ -62,19 +61,20 @@ public class AppServletContextListener implements ServletContextListener {
     @Override
     public final void contextInitialized(final ServletContextEvent sce) {
         if (persistenceEnabled) {
-            AbstractMockEc2Instance[] instanceArray = (AbstractMockEc2Instance[]) PersistenceUtils.loadAll();
+            AbstractMockEc2Instance[] instanceArray = (AbstractMockEc2Instance[]) PersistenceUtils
+                    .loadAll();
             if (null != instanceArray) {
-                MockEc2Controller.getInstance().restoreAllMockEc2Instances(Arrays.asList(instanceArray));
+                MockEc2Controller.getInstance()
+                        .restoreAllMockEc2Instances(Arrays.asList(instanceArray));
             }
         }
 
         // start a timer for cleaning up terminated instances
-        MockEc2Controller.getInstance().
-                cleanupTerminatedInstances(cleanupTerminatedInstancesPeriod);
+        MockEc2Controller.getInstance()
+                .cleanupTerminatedInstances(cleanupTerminatedInstancesPeriod);
 
         log.info("aws-mock started.");
     }
-
 
     /**
      * We save the instances if persistence of enabled, on web application shutting-down.
@@ -86,7 +86,8 @@ public class AppServletContextListener implements ServletContextListener {
     public final void contextDestroyed(final ServletContextEvent sce) {
 
         if (persistenceEnabled) {
-            Collection<AbstractMockEc2Instance> instances = MockEc2Controller.getInstance().getAllMockEc2Instances();
+            Collection<AbstractMockEc2Instance> instances = MockEc2Controller.getInstance()
+                    .getAllMockEc2Instances();
 
             for (AbstractMockEc2Instance instance : instances) {
                 // cancel and destroy the internal timers for all instances on

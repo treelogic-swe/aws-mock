@@ -43,7 +43,6 @@ public final class PropertiesUtils {
      */
     public static final String FILE_NAME_AWS_MOCK_PROPERTIES = "aws-mock.properties";
 
-
     /**
      * Constructor is made private as this is a utility class which should always be used in static way.
      */
@@ -79,11 +78,11 @@ public final class PropertiesUtils {
             try {
                 properties.load(inputStream);
             } catch (IOException e) {
-                log.error("fail to read from '{}' - {}", FILE_NAME_AWS_MOCK_PROPERTIES, e.getMessage());
+                log.error("fail to read from '{}' - {}", FILE_NAME_AWS_MOCK_PROPERTIES,
+                        e.getMessage());
             }
         }
     }
-
 
     /**
      * Get property value by name.
@@ -95,7 +94,6 @@ public final class PropertiesUtils {
     public static String getProperty(final String propertyName) {
         return properties.getProperty(propertyName);
     }
-
 
     /**
      * Get a set of properties those share the same given name prefix.
@@ -117,7 +115,6 @@ public final class PropertiesUtils {
         return ret;
     }
 
-
     /**
      * Get int type of property value by name.
      *
@@ -129,7 +126,8 @@ public final class PropertiesUtils {
         try {
             return Integer.parseInt(properties.getProperty(propertyName));
         } catch (NumberFormatException e) {
-            log.error("NumberFormatException caught during reading property from properties file: " + e.getMessage());
+            log.error("NumberFormatException caught during reading property from properties file: "
+                    + e.getMessage());
             return 0;
         }
     }

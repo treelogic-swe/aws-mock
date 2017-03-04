@@ -29,7 +29,8 @@ public class JAXBUtilCWTest {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
         DateTime startTime = new DateTime().plusHours(-1);
         String[] statistics = { "Average", "SampleCount" };
-        GetMetricStatisticsResponse getMetric = Whitebox.invokeMethod(handler, "getMetricStatistics", statistics,
+        GetMetricStatisticsResponse getMetric = Whitebox.invokeMethod(handler,
+                "getMetricStatistics", statistics,
                 startTime, new DateTime(), 60 * 60, "CPUUtilization");
         String xml = JAXBUtilCW.marshall(getMetric, "GetMetricStatisticsResponse", "2010-08-01");
 
@@ -41,49 +42,55 @@ public class JAXBUtilCWTest {
     public void Test_mashallNotElasticFox() throws Exception {
 
         PowerMockito.spy(PropertiesUtils.class);
-        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE)).thenReturn("false");
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE))
+                .thenReturn("false");
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
         DateTime startTime = new DateTime().plusHours(-1);
         String[] statistics = { "Average", "SampleCount" };
-        GetMetricStatisticsResponse getMetric = Whitebox.invokeMethod(handler, "getMetricStatistics", statistics,
+        GetMetricStatisticsResponse getMetric = Whitebox.invokeMethod(handler,
+                "getMetricStatistics", statistics,
                 startTime, new DateTime(), 60 * 60, "DiskReadBytes");
         String xml = JAXBUtilCW.marshall(getMetric, "GetMetricStatisticsResponse", null);
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
         Assert.assertTrue(xml.contains("<Label>DiskReadBytes</Label>"));
     }
-    
+
     @Test
     public void Test_mashallNetworkIn() throws Exception {
 
         PowerMockito.spy(PropertiesUtils.class);
-        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE)).thenReturn("true");
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE))
+                .thenReturn("true");
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
         DateTime startTime = new DateTime().plusHours(-1);
         String[] statistics = { "Average", "SampleCount" };
-        GetMetricStatisticsResponse getMetric = Whitebox.invokeMethod(handler, "getMetricStatistics", statistics,
+        GetMetricStatisticsResponse getMetric = Whitebox.invokeMethod(handler,
+                "getMetricStatistics", statistics,
                 startTime, new DateTime(), 60 * 60, "NetworkIn");
         String xml = JAXBUtilCW.marshall(getMetric, "GetMetricStatisticsResponse", null);
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
         Assert.assertTrue(xml.contains("<Label>NetworkIn</Label>"));
     }
-    
+
     @Test
     public void Test_mashallReplaceVersionWithElasticFoxVersion() throws Exception {
         PowerMockito.spy(PropertiesUtils.class);
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
         DateTime startTime = new DateTime().plusHours(-1);
         String[] statistics = { "Average", "SampleCount" };
-        GetMetricStatisticsResponse getMetric = Whitebox.invokeMethod(handler, "getMetricStatistics", statistics,
+        GetMetricStatisticsResponse getMetric = Whitebox.invokeMethod(handler,
+                "getMetricStatistics", statistics,
                 startTime, new DateTime(), 60 * 60, "NetworkOut");
 
         String xml = JAXBUtilCW.marshall(getMetric, "getMetricStatistics", PropertiesUtils
                 .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL));
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
-        Assert.assertTrue(xml.contains("xmlns:ns2=\"http://monitoring.amazonaws.com/doc/" + PropertiesUtils
-                .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL)));
+        Assert.assertTrue(
+                xml.contains("xmlns:ns2=\"http://monitoring.amazonaws.com/doc/" + PropertiesUtils
+                        .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL)));
         Assert.assertTrue(xml.contains("<Label>NetworkOut</Label>"));
     }
 }

@@ -29,17 +29,18 @@ public class JAXBUtilTest {
         int maxCount = 1;
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
-        RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler, "runInstances", imageID,
+        RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler,
+                "runInstances", imageID,
                 instanceType, minCount, maxCount);
 
-        String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse", "2012-02-10");
+        String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse",
+                "2012-02-10");
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
         Assert.assertTrue(xml.contains("<imageId>ami-1</imageId>"));
         Assert.assertTrue(xml.contains("<instanceType>c1.medium</instanceType>"));
 
     }
-
 
     @Test(expected = AwsMockException.class)
     public void Test_marshallFailed() throws Exception {
@@ -53,7 +54,6 @@ public class JAXBUtilTest {
         JAXBUtil.marshall(new Person(), "Person", "2012-02-10");
     }
 
-
     @Test
     public void Test_mashallElasticFoxTrueVersionNull() throws Exception {
 
@@ -63,7 +63,8 @@ public class JAXBUtilTest {
         int maxCount = 1;
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
-        RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler, "runInstances", imageID,
+        RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler,
+                "runInstances", imageID,
                 instanceType, minCount, maxCount);
 
         String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse", null);
@@ -73,12 +74,12 @@ public class JAXBUtilTest {
         Assert.assertTrue(xml.contains("<instanceType>c1.medium</instanceType>"));
     }
 
-
     @Test
     public void Test_mashallNotElasticFox() throws Exception {
 
         PowerMockito.spy(PropertiesUtils.class);
-        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE)).thenReturn("false");
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE))
+                .thenReturn("false");
 
         String imageID = "ami-1";
         String instanceType = InstanceType.C1_MEDIUM.getName();
@@ -86,7 +87,8 @@ public class JAXBUtilTest {
         int maxCount = 1;
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
-        RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler, "runInstances", imageID,
+        RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler,
+                "runInstances", imageID,
                 instanceType, minCount, maxCount);
 
         String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse", null);
@@ -95,7 +97,6 @@ public class JAXBUtilTest {
         Assert.assertTrue(xml.contains("<imageId>ami-1</imageId>"));
         Assert.assertTrue(xml.contains("<instanceType>c1.medium</instanceType>"));
     }
-
 
     @Test
     public void Test_mashallReplaceVersionWithElasticFoxVersion() throws Exception {
@@ -106,11 +107,13 @@ public class JAXBUtilTest {
         int maxCount = 1;
 
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
-        RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler, "runInstances", imageID,
+        RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler,
+                "runInstances", imageID,
                 instanceType, minCount, maxCount);
 
-        String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse", PropertiesUtils
-                .getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX));
+        String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse",
+                PropertiesUtils
+                        .getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX));
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
         Assert.assertTrue(xml.contains("xmlns:ns3=\"http://ec2.amazonaws.com/doc/" + PropertiesUtils

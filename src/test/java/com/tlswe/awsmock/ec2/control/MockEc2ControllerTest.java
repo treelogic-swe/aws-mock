@@ -33,13 +33,11 @@ public class MockEc2ControllerTest {
         Assert.assertNotNull(instance);
     }
 
-
     @Test
     public void Test_getMockEc2InstanceUnknown() {
         Object obj = MockEc2Controller.getInstance().getMockEc2Instance("ec2_invalid");
         Assert.assertNull(obj);
     }
-
 
     /*
      * This may be pointing to a bug in the code. Although the instances are not there, the describeInstances returns
@@ -61,13 +59,15 @@ public class MockEc2ControllerTest {
         allMockEc2Instances.put(ec2Mocked1.getInstanceID(), ec2Mocked1);
         allMockEc2Instances.put(ec2Mocked2.getInstanceID(), ec2Mocked2);
 
-        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller, allMockEc2Instances);
+        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller,
+                allMockEc2Instances);
 
         Set<String> instanceIDs = new HashSet<String>();
         instanceIDs.add("ec2_1_invalid");
         instanceIDs.add("ec2_2_invalid");
 
-        Collection<AbstractMockEc2Instance> collectionOfAbstractInstances = MockEc2Controller.getInstance()
+        Collection<AbstractMockEc2Instance> collectionOfAbstractInstances = MockEc2Controller
+                .getInstance()
                 .describeInstances(instanceIDs);
 
         int collectionCount = collectionOfAbstractInstances.size();
@@ -80,7 +80,6 @@ public class MockEc2ControllerTest {
             Assert.assertNull(instance);
         }
     }
-
 
     @Test
     public void Test_describeInstancesNoIds() throws Exception {
@@ -97,21 +96,23 @@ public class MockEc2ControllerTest {
         allMockEc2Instances.put(ec2Mocked1.getInstanceID(), ec2Mocked1);
         allMockEc2Instances.put(ec2Mocked2.getInstanceID(), ec2Mocked2);
 
-        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller, allMockEc2Instances);
+        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller,
+                allMockEc2Instances);
 
         // Should return the whole collection of instances
         Assert.assertTrue(controller.describeInstances(null).size() == allMockEc2Instances.size());
-        Assert.assertTrue(controller.describeInstances(new HashSet<String>()).size() == allMockEc2Instances.size());
+        Assert.assertTrue(controller.describeInstances(new HashSet<String>())
+                .size() == allMockEc2Instances.size());
 
         for (AbstractMockEc2Instance ec2MockedInstance : controller.describeInstances(null)) {
             Assert.assertTrue(allMockEc2Instances.containsKey(ec2MockedInstance.getInstanceID()));
         }
 
-        for (AbstractMockEc2Instance ec2MockedInstance : controller.describeInstances(new HashSet<String>())) {
+        for (AbstractMockEc2Instance ec2MockedInstance : controller
+                .describeInstances(new HashSet<String>())) {
             Assert.assertTrue(allMockEc2Instances.containsKey(ec2MockedInstance.getInstanceID()));
         }
     }
-
 
     @Test
     public void Test_describeInstances() throws Exception {
@@ -131,9 +132,11 @@ public class MockEc2ControllerTest {
         allMockEc2Instances.put(ec2Mocked1.getInstanceID(), ec2Mocked1);
         allMockEc2Instances.put(ec2Mocked2.getInstanceID(), ec2Mocked2);
 
-        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller, allMockEc2Instances);
+        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller,
+                allMockEc2Instances);
 
-        Collection<AbstractMockEc2Instance> collectionOfMockedInstances = controller.describeInstances(instanceIDs);
+        Collection<AbstractMockEc2Instance> collectionOfMockedInstances = controller
+                .describeInstances(instanceIDs);
         Assert.assertTrue(collectionOfMockedInstances.size() == 1);
 
         for (AbstractMockEc2Instance instance : collectionOfMockedInstances) {
@@ -141,7 +144,6 @@ public class MockEc2ControllerTest {
         }
 
     }
-
 
     @Test
     public void Test_startInstances() throws Exception {
@@ -166,7 +168,6 @@ public class MockEc2ControllerTest {
         Assert.assertTrue(ec2Mocked2.isBooting());
 
     }
-
 
     @Test
     public void Test_stopInstances() throws Exception {
@@ -193,7 +194,6 @@ public class MockEc2ControllerTest {
 
     }
 
-
     @Test
     public void Test_terminateInstances() throws Exception {
 
@@ -219,7 +219,6 @@ public class MockEc2ControllerTest {
 
     }
 
-
     @Test
     public void Test_getAllMockEc2Instances() throws Exception {
 
@@ -235,15 +234,16 @@ public class MockEc2ControllerTest {
         allMockEc2Instances.put("ec2Mocked1", ec2Mocked1);
         allMockEc2Instances.put("ec2Mocked2", ec2Mocked2);
 
-        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller, allMockEc2Instances);
-        Collection<AbstractMockEc2Instance> collectionOfEc2Instances = controller.getAllMockEc2Instances();
+        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller,
+                allMockEc2Instances);
+        Collection<AbstractMockEc2Instance> collectionOfEc2Instances = controller
+                .getAllMockEc2Instances();
 
         Assert.assertTrue(collectionOfEc2Instances.size() == 2);
         Assert.assertTrue(collectionOfEc2Instances.contains(ec2Mocked1));
         Assert.assertTrue(collectionOfEc2Instances.contains(ec2Mocked2));
 
     }
-
 
     @Test
     public void Test_getMockEc2Instance() throws Exception {
@@ -260,12 +260,12 @@ public class MockEc2ControllerTest {
         allMockEc2Instances.put("ec2Mocked1", ec2Mocked1);
         allMockEc2Instances.put("ec2Mocked2", ec2Mocked2);
 
-        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller, allMockEc2Instances);
+        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller,
+                allMockEc2Instances);
         Assert.assertTrue(controller.getMockEc2Instance("ec2Mocked1") == ec2Mocked1);
         Assert.assertTrue(controller.getMockEc2Instance("ec2Mocked2") == ec2Mocked2);
 
     }
-
 
     @Test
     public void Test_restoreAllMockEc2Instances() {
@@ -304,7 +304,6 @@ public class MockEc2ControllerTest {
 
     }
 
-
     @Test
     public void Test_cleanupTerminatedInstances() throws Exception {
 
@@ -324,7 +323,8 @@ public class MockEc2ControllerTest {
         allMockEc2Instances.put(ec2Mocked2.getInstanceID(), ec2Mocked2);
         allMockEc2Instances.put(ec2Mocked3.getInstanceID(), ec2Mocked3); // this will not be termianted
 
-        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller, allMockEc2Instances);
+        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller,
+                allMockEc2Instances);
 
         Set<String> instanceIDs = new HashSet<String>();
         instanceIDs.add(ec2Mocked1.getInstanceID());
@@ -341,7 +341,6 @@ public class MockEc2ControllerTest {
 
     }
 
-
     @Test(expected = BadEc2RequestException.class)
     public void Test_runInstancesBadRequestInstanceType() throws Exception {
 
@@ -349,30 +348,29 @@ public class MockEc2ControllerTest {
         controller.runInstances(DefaultMockEc2Instance.class, "ImageName", "InvalidName", 10, 1);
     }
 
-
     @Test(expected = BadEc2RequestException.class)
     public void Test_runInstancesBadRequestMaxCountHigh() throws Exception {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-        controller.runInstances(DefaultMockEc2Instance.class, "ImageName", InstanceType.C1_MEDIUM.getName(), 1, 10001);
+        controller.runInstances(DefaultMockEc2Instance.class, "ImageName",
+                InstanceType.C1_MEDIUM.getName(), 1, 10001);
     }
-
 
     @Test(expected = BadEc2RequestException.class)
     public void Test_runInstancesBadRequestMinCountLow() throws Exception {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-        controller.runInstances(DefaultMockEc2Instance.class, "ImageName", InstanceType.C1_MEDIUM.getName(), 0, 10);
+        controller.runInstances(DefaultMockEc2Instance.class, "ImageName",
+                InstanceType.C1_MEDIUM.getName(), 0, 10);
     }
-
 
     @Test(expected = BadEc2RequestException.class)
     public void Test_runInstancesMinCountGreaterThanMaxCount() throws Exception {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-        controller.runInstances(DefaultMockEc2Instance.class, "ImageName", InstanceType.C1_MEDIUM.getName(), 11, 10);
+        controller.runInstances(DefaultMockEc2Instance.class, "ImageName",
+                InstanceType.C1_MEDIUM.getName(), 11, 10);
     }
-
 
     @Test(expected = AwsMockException.class)
     public void Test_runInstancesAwsMockException() throws Exception {
@@ -380,15 +378,16 @@ public class MockEc2ControllerTest {
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
 
         // shouldn't be able to start abstract class
-        controller.runInstances(AbstractMockEc2Instance.class, "ImageName", InstanceType.C1_MEDIUM.getName(), 1, 1);
+        controller.runInstances(AbstractMockEc2Instance.class, "ImageName",
+                InstanceType.C1_MEDIUM.getName(), 1, 1);
     }
-
 
     @Test
     public void Test_runInstances() throws Exception {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-        controller.runInstances(DefaultMockEc2Instance.class, "ImageName", InstanceType.C1_MEDIUM.getName(), 1, 1);
+        controller.runInstances(DefaultMockEc2Instance.class, "ImageName",
+                InstanceType.C1_MEDIUM.getName(), 1, 1);
     }
 
 }

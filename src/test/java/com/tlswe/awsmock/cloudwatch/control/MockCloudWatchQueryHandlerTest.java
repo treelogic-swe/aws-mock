@@ -122,7 +122,7 @@ public class MockCloudWatchQueryHandlerTest {
         Assert.assertTrue(
                 getMetric.getGetMetricStatisticsResult().getDatapoints().getMember().size() == 1);
     }
-    
+
     @Test
     public void Test_getMetricStatisticsForStatusCheckFailed() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -148,7 +148,7 @@ public class MockCloudWatchQueryHandlerTest {
         Assert.assertTrue(
                 getMetric.getGetMetricStatisticsResult().getDatapoints().getMember().size() == 1);
     }
-    
+
     @Test
     public void Test_getMetricStatisticsForStatusCheckFailed_System() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -161,7 +161,7 @@ public class MockCloudWatchQueryHandlerTest {
         Assert.assertTrue(
                 getMetric.getGetMetricStatisticsResult().getDatapoints().getMember().size() == 1);
     }
-    
+
     @Test
     public void Test_getMetricStatisticsForNetworkIn() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -213,7 +213,7 @@ public class MockCloudWatchQueryHandlerTest {
         Assert.assertTrue(
                 getMetric.getGetMetricStatisticsResult().getDatapoints().getMember().size() == 1);
     }
-    
+
     @Test
     public void Test_getMetricStatisticsForDiskReadOps() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -226,7 +226,7 @@ public class MockCloudWatchQueryHandlerTest {
         Assert.assertTrue(
                 getMetric.getGetMetricStatisticsResult().getDatapoints().getMember().size() == 1);
     }
-    
+
     @Test
     public void Test_getMetricStatisticsForDiskWriteBytes() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -279,7 +279,6 @@ public class MockCloudWatchQueryHandlerTest {
                 getMetric.getGetMetricStatisticsResult().getDatapoints().getMember().size() == 1);
     }
 
-    
     @Test
     public void Test_toXMLGregorianCalendar() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -322,7 +321,7 @@ public class MockCloudWatchQueryHandlerTest {
                 "DiskReadBytes");
         Assert.assertTrue(averageValue > 0);
     }
-    
+
     @Test
     public void Test_getMetricAverageValueForDiskWriteBytes() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -338,7 +337,7 @@ public class MockCloudWatchQueryHandlerTest {
                 "NetworkIn");
         Assert.assertTrue(averageValue > 0);
     }
-    
+
     @Test
     public void Test_getMetricAverageValueForNetworkPacketsOut() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -394,7 +393,7 @@ public class MockCloudWatchQueryHandlerTest {
                 "DiskWriteOps");
         Assert.assertTrue(sampleCount > -1);
     }
-    
+
     @Test
     public void Test_getMetricSampleCountValueDiskReadOps() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -402,7 +401,7 @@ public class MockCloudWatchQueryHandlerTest {
                 "DiskReadOps");
         Assert.assertTrue(sampleCount > -1);
     }
-    
+
     @Test
     public void Test_getMetricSampleCountValueDiskReadBytes() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -410,7 +409,7 @@ public class MockCloudWatchQueryHandlerTest {
                 "DiskReadBytes");
         Assert.assertTrue(sampleCount > -1);
     }
-    
+
     @Test
     public void Test_getMetricSampleCountValueNetworkPacketsIn() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -418,7 +417,7 @@ public class MockCloudWatchQueryHandlerTest {
                 "NetworkPacketsIn");
         Assert.assertTrue(sampleCount > -1);
     }
-    
+
     @Test
     public void Test_getMetricUnitForNetworkIn() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
@@ -446,25 +445,28 @@ public class MockCloudWatchQueryHandlerTest {
         StandardUnit unit = Whitebox.invokeMethod(handler, "getMetricUnit", "CPUUtilization");
         Assert.assertTrue(unit.compareTo(StandardUnit.PERCENT) == 0);
     }
-    
+
     @Test
     public void Test_getMetricUnitForNetworkPacketsIn() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
-        StandardUnit unit = Whitebox.invokeMethod(handler, "getMetricUnit", Constants.NETWORK_PACKETS_IN);
+        StandardUnit unit = Whitebox.invokeMethod(handler, "getMetricUnit",
+                Constants.NETWORK_PACKETS_IN);
         Assert.assertTrue(unit.compareTo(StandardUnit.COUNT) == 0);
     }
-    
+
     @Test
     public void Test_getMetricUnitForNetworkPacketsOut() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
-        StandardUnit unit = Whitebox.invokeMethod(handler, "getMetricUnit", Constants.NETWORK_PACKETS_OUT);
+        StandardUnit unit = Whitebox.invokeMethod(handler, "getMetricUnit",
+                Constants.NETWORK_PACKETS_OUT);
         Assert.assertTrue(unit.compareTo(StandardUnit.COUNT) == 0);
     }
 
     @Test
     public void Test_getMetricUnitForCpuCreditUsage() throws Exception {
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
-        StandardUnit unit = Whitebox.invokeMethod(handler, "getMetricUnit", Constants.CPU_CREDIT_USAGE);
+        StandardUnit unit = Whitebox.invokeMethod(handler, "getMetricUnit",
+                Constants.CPU_CREDIT_USAGE);
         Assert.assertTrue(unit.compareTo(StandardUnit.COUNT) == 0);
     }
 
@@ -629,7 +631,7 @@ public class MockCloudWatchQueryHandlerTest {
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
-    
+
     @Test
     public void Test_handleGetMetricStatisticsForNetworkIn() throws IOException {
 
@@ -661,7 +663,7 @@ public class MockCloudWatchQueryHandlerTest {
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
-    
+
     @Test
     public void Test_handleGetMetricStatisticsForNetworkOut() throws IOException {
 
@@ -693,7 +695,7 @@ public class MockCloudWatchQueryHandlerTest {
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
-    
+
     @Test
     public void Test_handleGetMetricStatisticsForDiskReadBytes() throws IOException {
 
@@ -725,7 +727,7 @@ public class MockCloudWatchQueryHandlerTest {
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
-    
+
     @Test
     public void Test_handleGetMetricStatisticsForDiskReadOps() throws IOException {
 

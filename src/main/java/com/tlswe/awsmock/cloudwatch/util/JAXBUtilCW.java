@@ -64,14 +64,12 @@ public final class JAXBUtilCW {
 
     }
 
-
     /**
     *
     */
     private JAXBUtilCW() {
 
     }
-
 
     /**
      *
@@ -99,8 +97,10 @@ public final class JAXBUtilCW {
             synchronized (jaxbMarshaller) {
 
                 JAXBElement<GetMetricStatisticsResponse> jAXBElement = new JAXBElement<GetMetricStatisticsResponse>(
-                        new QName(PropertiesUtils.getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT),
-                        "local"), GetMetricStatisticsResponse.class, obj);
+                        new QName(PropertiesUtils
+                                .getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT),
+                                "local"),
+                        GetMetricStatisticsResponse.class, obj);
 
                 jaxbMarshaller.marshal(jAXBElement, writer);
             }

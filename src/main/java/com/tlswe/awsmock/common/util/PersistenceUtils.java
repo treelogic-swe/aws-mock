@@ -37,7 +37,6 @@ public final class PersistenceUtils {
     private static String persistenceStoreFile = PropertiesUtils
             .getProperty(Constants.PROP_NAME_PERSISTENCE_STORE_FILE);
 
-
     /**
      * Save object to the binary file defined as filename in property "persistence.store.file".
      *
@@ -62,13 +61,13 @@ public final class PersistenceUtils {
             out.writeObject(obj);
             out.close();
         } catch (FileNotFoundException e) {
-            log.error("FileNotFoundException caught during saving object to file: {}", e.getMessage());
+            log.error("FileNotFoundException caught during saving object to file: {}",
+                    e.getMessage());
         } catch (IOException e) {
             log.error("IOException caught during saving object to file: {}", e.getMessage());
         }
 
     }
-
 
     /**
      * Load object from the binary file defined as filename in property.
@@ -97,7 +96,8 @@ public final class PersistenceUtils {
             log.warn("failed to load from the saved file: {}", e.getMessage());
             return null;
         } catch (ClassNotFoundException e) {
-            log.error("ClassNotFoundException caught during loading object from file: " + e.getMessage());
+            log.error("ClassNotFoundException caught during loading object from file: "
+                    + e.getMessage());
         }
         return ret;
 

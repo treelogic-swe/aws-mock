@@ -48,14 +48,12 @@ public final class TemplateUtils {
         conf.setClassForTemplateLoading(TemplateUtils.class, PATH_FOR_TEMPLATES);
     }
 
-
     /**
      * Constructor is made private as this is a utility class which should be always used in static way.
      */
     private TemplateUtils() {
 
     }
-
 
     /**
      * Process with given template + data and then put result to writer.
@@ -67,7 +65,8 @@ public final class TemplateUtils {
      * @param writer
      *            target writer to print the result
      */
-    public static void write(final String templateFilename, final Map<String, Object> data, final Writer writer) {
+    public static void write(final String templateFilename, final Map<String, Object> data,
+            final Writer writer) {
         Template tmpl = null;
         try {
             /*-
@@ -75,11 +74,13 @@ public final class TemplateUtils {
              */
             tmpl = conf.getTemplate(templateFilename);
         } catch (FileNotFoundException e1) {
-            String errMsg = "FileNotFoundException: template file '" + templateFilename + "' not found";
+            String errMsg = "FileNotFoundException: template file '" + templateFilename
+                    + "' not found";
             log.error("{}: {}", errMsg, e1.getMessage());
             throw new AwsMockException(errMsg, e1);
         } catch (IOException e) {
-            String errMsg = "IOException: failed to getTemplate (filename is " + templateFilename + ")";
+            String errMsg = "IOException: failed to getTemplate (filename is " + templateFilename
+                    + ")";
             log.error("{}: {}", errMsg, e.getMessage());
             throw new AwsMockException(errMsg, e);
         }
@@ -94,7 +95,8 @@ public final class TemplateUtils {
                     dataDescription.append(entry.getKey() + " - " + entry.getValue()).append('\n');
                 }
             }
-            String errMsg = "TemplateException: failed to process template '" + templateFilename + "', with data: "
+            String errMsg = "TemplateException: failed to process template '" + templateFilename
+                    + "', with data: "
                     + dataDescription.toString()
                     + " The probable cause could be un-matching of key-values for that template. ";
             log.error("{}: {}", errMsg, e.getMessage());
@@ -106,7 +108,6 @@ public final class TemplateUtils {
         }
 
     }
-
 
     /**
      * Process with given template + data and get result as a string.

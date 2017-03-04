@@ -9,17 +9,17 @@ import com.tlswe.awsmock.common.util.Constants;
 
 public class GetMetricStaticticsCloudwatchTest extends CloudWatchBaseTest {
 
-     /**
-      * 2 minutes timeout.
-      */
-     private static final int TIMEOUT_LEVEL1 = 120000;
-    
-     /**
-     * Log writer for this class.
+    /**
+     * 2 minutes timeout.
      */
-     private static Logger log = LoggerFactory.getLogger(GetMetricStaticticsCloudwatchTest.class);
+    private static final int TIMEOUT_LEVEL1 = 120000;
 
-	/**
+    /**
+    * Log writer for this class.
+    */
+    private static Logger log = LoggerFactory.getLogger(GetMetricStaticticsCloudwatchTest.class);
+
+    /**
      * Test GetMetricStatictics for CPUUtilization.
      */
     @Test(timeout = TIMEOUT_LEVEL1)
@@ -88,7 +88,7 @@ public class GetMetricStaticticsCloudwatchTest extends CloudWatchBaseTest {
         Assert.assertNotNull("average should not be null", dataPoint.getAverage());
         Assert.assertNotNull("sample count should not be null", dataPoint.getSampleCount());
     }
-   
+
     /**
      * Test GetMetricStatictics for Network In.
      */
@@ -102,7 +102,7 @@ public class GetMetricStaticticsCloudwatchTest extends CloudWatchBaseTest {
         Assert.assertNotNull("average should not be null", dataPoint.getAverage());
         Assert.assertNotNull("sample count should not be null", dataPoint.getSampleCount());
     }
- 
+
     /**
      * Test GetMetricStatictics for Network Out.
      */

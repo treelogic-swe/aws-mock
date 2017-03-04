@@ -118,7 +118,11 @@
 
         <!-- Checks for Size Violations. -->
         <!-- See http://checkstyle.sf.net/config_sizes.html -->
-        <module name="MethodLength" />
+
+        <module name="MethodLength">
+            <property name="max" value="400" />       
+        </module>
+        
         <module name="ParameterNumber" />
         <module name="LineLength">
             <!-- TLSWE's modification -->

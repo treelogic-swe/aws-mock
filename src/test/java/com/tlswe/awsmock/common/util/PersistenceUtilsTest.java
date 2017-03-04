@@ -19,7 +19,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({File.class, PersistenceUtils.class, ObjectInputStream.class, FileInputStream.class, ObjectOutputStream.class, FileOutputStream.class})
+@PrepareForTest({ File.class, PersistenceUtils.class, ObjectInputStream.class,
+        FileInputStream.class, ObjectOutputStream.class, FileOutputStream.class })
 public class PersistenceUtilsTest {
 
     @Mock
@@ -38,7 +39,7 @@ public class PersistenceUtilsTest {
     FileInputStream fis;
 
     @Before
-    public void doInitialize() throws Exception{
+    public void doInitialize() throws Exception {
 
         PowerMockito.spy(PersistenceUtils.class);
 
@@ -50,31 +51,33 @@ public class PersistenceUtilsTest {
         PowerMockito.whenNew(ObjectOutputStream.class).withAnyArguments().thenReturn(oos);
         PowerMockito.whenNew(FileOutputStream.class).withAnyArguments().thenReturn(fos);
 
-
         Mockito.when(mockedFile.getAbsolutePath()).thenReturn("No path was given.");
     }
 
     @Test
-    public void Test_loadAll(){
-        Assert.assertTrue(PersistenceUtils.loadAll()==null);
+    public void Test_loadAll() {
+        Assert.assertTrue(PersistenceUtils.loadAll() == null);
     }
 
     @Test
     public void Test_loadAllFileNotFoundException() throws Exception {
-            PowerMockito.whenNew(ObjectInputStream.class).withAnyArguments().thenThrow(new FileNotFoundException("Forced FileNotFoundException"));
-            Assert.assertTrue(PersistenceUtils.loadAll()==null);
+        PowerMockito.whenNew(ObjectInputStream.class).withAnyArguments()
+                .thenThrow(new FileNotFoundException("Forced FileNotFoundException"));
+        Assert.assertTrue(PersistenceUtils.loadAll() == null);
     }
 
     @Test
     public void Test_loadAllIOException() throws Exception {
-            PowerMockito.whenNew(ObjectInputStream.class).withAnyArguments().thenThrow(new IOException("Forced IOException"));
-            Assert.assertTrue(PersistenceUtils.loadAll()==null);
+        PowerMockito.whenNew(ObjectInputStream.class).withAnyArguments()
+                .thenThrow(new IOException("Forced IOException"));
+        Assert.assertTrue(PersistenceUtils.loadAll() == null);
     }
 
     @Test
     public void Test_loadAllClassNotFoundException() throws Exception {
-            PowerMockito.whenNew(ObjectInputStream.class).withAnyArguments().thenThrow(new ClassNotFoundException("Forced ClassNotFoundException"));
-            Assert.assertTrue(PersistenceUtils.loadAll()==null);
+        PowerMockito.whenNew(ObjectInputStream.class).withAnyArguments()
+                .thenThrow(new ClassNotFoundException("Forced ClassNotFoundException"));
+        Assert.assertTrue(PersistenceUtils.loadAll() == null);
     }
 
     @Test
@@ -86,7 +89,6 @@ public class PersistenceUtilsTest {
         PersistenceUtils.saveAll(null);
     }
 
-
     @Test
     public void Test_saveAllFileNotFoundException() throws Exception {
 
@@ -96,7 +98,6 @@ public class PersistenceUtilsTest {
                 .thenThrow(new FileNotFoundException("Forced FileNotFoundException"));
         PersistenceUtils.saveAll(null);
     }
-
 
     @Test
     public void Test_saveAllIOException() throws Exception {

@@ -45,7 +45,6 @@ public class Ec2EndpointTest extends BaseTest {
      */
     private static Logger log = LoggerFactory.getLogger(Ec2EndpointTest.class);
 
-
     /**
      * Test one instance by run->stop.
      */
@@ -76,7 +75,6 @@ public class Ec2EndpointTest extends BaseTest {
         waitForState(instances.get(0).getInstanceId(),
                 AbstractMockEc2Instance.InstanceState.STOPPED);
     }
-
 
     /**
      * Test one instance by run->stop->start->terminate.
@@ -119,7 +117,6 @@ public class Ec2EndpointTest extends BaseTest {
         waitForState(instances.get(0).getInstanceId(),
                 AbstractMockEc2Instance.InstanceState.TERMINATED);
     }
-
 
     /**
      * Test one instance by run->terminate->start. A terminated instance can not start.
@@ -167,7 +164,6 @@ public class Ec2EndpointTest extends BaseTest {
                                 .getName()));
     }
 
-
     /**
      * Test starting thousands of instances.
      */
@@ -179,8 +175,8 @@ public class Ec2EndpointTest extends BaseTest {
         final int maxRandomCount = 200;
         // random 100 to 300 instances
         int count = startCount + new Random().nextInt(maxRandomCount);
-        //count = 5000;
-        //for (int j = 1; j < 5; j++) {
+        count = 500;
+        for (int j = 1; j < 2; j++) {
         // run
             List<Instance> instances = runInstances(
                     AbstractMockEc2Instance.InstanceType.M1_SMALL, count, count);
@@ -199,10 +195,23 @@ public class Ec2EndpointTest extends BaseTest {
             }*/
    
          //   log.info("Created : " + 5000);
-       // }
+        }
     }
 
+    /**
+     * Test describing instances with states filter.
+     */
+    @Test(timeout = TIMEOUT_LEVEL2)
+    public final void describeInstancesAllTest() {
+        log.info("Start describing instances with states filter test");
 
+        List<Instance> instances = describeInstances();
+        
+        for(Instance instance : instances){
+            log.info(instance.getInstanceId());
+        }
+        
+    }
     /**
      * Test describing instances with states filter.
      */

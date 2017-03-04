@@ -1,5 +1,4 @@
 
-
 /**
  * File name: BaseTest.java Author: Davinder Kumar Create date: Nov 9, 2016
  */
@@ -38,7 +37,6 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.SecurityGroup;
 
-
 /**
  * Base underlying class for doing the fundamental calls to aws Cloudwatch interfaces, with neat utility methods which can be
  * made use of by test cases that test aws-mock.
@@ -50,8 +48,8 @@ public class CloudWatchBaseTest {
     /**
      * Name space request.
      */
-     private static final String NAMESPACE = "AWS/EC2";
-     
+    private static final String NAMESPACE = "AWS/EC2";
+
     /**
      * Log writer for this class.
      */
@@ -61,12 +59,11 @@ public class CloudWatchBaseTest {
      * One second in millisecond.
      */
     private static final int ONE_SECOND = 1000;
-    
+
     /**
      * Hours to add start time.
      */
     private static final int HOURS = -5;
-    
 
     /**
      * Property key for AWS access key.
@@ -87,12 +84,12 @@ public class CloudWatchBaseTest {
      * CloudWatch client singleton.
      */
     private static AmazonCloudWatchClient amazonCloudWatchClient;
-    
+
     /**
      * Properties load from INTEGRATION_TEST_PROPERTIES_FILE}.
      */
     private static String INTEGRATION_TEST_PROPERTIES_FILE = "aws-mock.integration-test.properties";
-    
+
     /**
      * Properties load from file {@link INTEGRATION_TEST_PROPERTIES_FILE}.
      */
@@ -114,7 +111,7 @@ public class CloudWatchBaseTest {
             }
         }
     }
-    
+
     /**
      * Load Cloud Watch client URL from test properties and create an Cloud Watch client instance. Invoked after
      * {@link #initTestProperties()}.
@@ -129,7 +126,7 @@ public class CloudWatchBaseTest {
                     .getProperty(PROPERTY_ENDPOINT));
         }
     }
-    
+
     /**
      * Read test properties, create Cloud watch client.
      */
@@ -138,16 +135,16 @@ public class CloudWatchBaseTest {
         initTestProperties();
         initCloudWatchClient();
     }
-    
+
     /**
      * GetMetricStaticticsTest to get the data points
      *
      * @return Datapoint
      */
-     protected final Datapoint getMetricStaticticsTest(String metricName) {
-        
+    protected final Datapoint getMetricStaticticsTest(String metricName) {
+
         Datapoint dataPoint = null;
-       
+
         GetMetricStatisticsRequest request = new GetMetricStatisticsRequest();
         request.setStartTime(new DateTime().plusHours(HOURS).toDate());
         request.withNamespace(NAMESPACE);
@@ -159,8 +156,12 @@ public class CloudWatchBaseTest {
 
         if (result != null && !result.getDatapoints().isEmpty()) {
             dataPoint = result.getDatapoints().get(0);
+
+            for (Datapoint dp : result.getDatapoints()) {
+                System.out.println(dp.getTimestamp());
+            }
         }
 
-        return dataPoint; 
-     }
+        return dataPoint;
+    }
 }

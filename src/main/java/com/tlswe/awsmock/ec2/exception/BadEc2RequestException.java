@@ -25,7 +25,6 @@ public class BadEc2RequestException extends AwsMockException {
      */
     private final String action;
 
-
     /**
      * Constructs a new exception representing a bad EC2 Query Request from client.
      *
@@ -36,11 +35,11 @@ public class BadEc2RequestException extends AwsMockException {
      * @param cause
      *            origin error
      */
-    public BadEc2RequestException(final String actionOfRequest, final String message, final Throwable cause) {
+    public BadEc2RequestException(final String actionOfRequest, final String message,
+            final Throwable cause) {
         super(message, cause);
         this.action = actionOfRequest;
     }
-
 
     /**
      * Constructs a new exception representing a bad EC2 Query Request from client.
@@ -54,7 +53,6 @@ public class BadEc2RequestException extends AwsMockException {
         super(message);
         this.action = actionOfRequest;
     }
-
 
     /**
      * Get the action name in bad EC2 Query Request that leads to this exception.
