@@ -601,6 +601,30 @@ public class MockCloudWatchQueryHandlerTest {
     }
 
     @Test
+    public void Test_handleRequestException() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "GetMetricStatistics" });
+        queryParams.put("Period22", new String[] { "3600" });
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+
+        Assert.assertTrue(responseString.contains("InternalError"));
+
+    }
+    
+    @Test
     public void Test_handleGetMetricStatistics() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);

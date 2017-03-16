@@ -45,10 +45,6 @@ public class MockEc2EndpointServlet extends HttpServlet {
         Map<String, String[]> queryParams = (Map<String, String[]>) request
                 .getParameterMap();
 
-        for (String key : queryParams.keySet()) {
-            System.out.println(key + " : " + queryParams.get(key)[0]);
-        }
-
         response.setContentType("text/xml");
         response.setCharacterEncoding("UTF-8");
 

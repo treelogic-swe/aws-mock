@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
@@ -49,7 +48,6 @@ import com.amazonaws.services.ec2.model.DeleteVolumeRequest;
 import com.amazonaws.services.ec2.model.DeleteVolumeResult;
 import com.amazonaws.services.ec2.model.DeleteVpcRequest;
 import com.amazonaws.services.ec2.model.DeleteVpcResult;
-import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesRequest;
 import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -61,7 +59,6 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.DescribeSubnetsRequest;
 import com.amazonaws.services.ec2.model.DescribeSubnetsResult;
-import com.amazonaws.services.ec2.model.DescribeTagsRequest;
 import com.amazonaws.services.ec2.model.DescribeTagsResult;
 import com.amazonaws.services.ec2.model.DescribeVolumesRequest;
 import com.amazonaws.services.ec2.model.DescribeVolumesResult;
@@ -87,7 +84,6 @@ import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.amazonaws.services.ec2.model.Volume;
 import com.amazonaws.services.ec2.model.Vpc;
-import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneSetType;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 
@@ -390,22 +386,23 @@ public class BaseTest {
         DescribeInstancesRequest request = new DescribeInstancesRequest();
         DescribeInstancesResult result = amazonEC2Client
                 .describeInstances(request);
-        Assert.assertTrue(result.getReservations().size() > 0);
-
         List<Instance> instanceList = new ArrayList<Instance>();
+        if (result.getReservations().size() > 0) {
+	        Assert.assertTrue(result.getReservations().size() > 0);
 
-        for (Reservation reservation : result.getReservations()) {
-            List<Instance> instances = reservation.getInstances();
-
-            if (null != instances) {
-                for (Instance i : instances) {
-                    instanceList.add(i);
-                }
-            }
+	        for (Reservation reservation : result.getReservations()) {
+	            List<Instance> instances = reservation.getInstances();
+	
+	            if (null != instances) {
+	                for (Instance i : instances) {
+	                    instanceList.add(i);
+	                }
+	            }
+	        }
         }
-
         return instanceList;
     }
+    
     /**
      * Describe instances.
      *
@@ -725,6 +722,23 @@ public class BaseTest {
         }
 
         return volume;
+    }
+    
+    /**
+     * Describe All Volume.
+     *
+     * @return Collection Volume
+     */
+    protected final List<Volume> getVolumes() {
+        List<Volume> volumes = null;
+
+        DescribeVolumesRequest req = new DescribeVolumesRequest();
+        DescribeVolumesResult result = amazonEC2Client.describeVolumes(req);
+        if (result != null && !result.getVolumes().isEmpty()) {
+        	volumes = result.getVolumes();
+        }
+
+        return volumes;
     }
 
     /**

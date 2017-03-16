@@ -112,4 +112,19 @@ public final class MockVolumeController {
 
         return null;
     }
+
+    /**
+     * Clear {@link #allMockVolumes} and restore it from given a collection of instances.
+     *
+     * @param volumes
+     *            collection of Volumes to restore
+     */
+    public void restoreAllMockVolume(final Collection<MockVolume> volumes) {
+        allMockVolumes.clear();
+        if (null != volumes) {
+            for (MockVolume instance : volumes) {
+                allMockVolumes.put(instance.getVolumeId(), instance);
+            }
+        }
+    }
 }

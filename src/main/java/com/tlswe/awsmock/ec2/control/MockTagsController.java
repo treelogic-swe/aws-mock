@@ -1,6 +1,7 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -98,5 +99,18 @@ public final class MockTagsController {
         }
 
         return false;
+    }
+
+    /**
+     * Clear {@link #allMockTags} and restore it from given a collection of instances.
+     *
+     * @param tags
+     *            collection of MockTags to restore
+     */
+    public void restoreAllMockTags(final Collection<MockTags> tags) {
+        allMockTags.clear();
+        if (tags != null) {
+           allMockTags.addAll(tags);
+        }
     }
 }

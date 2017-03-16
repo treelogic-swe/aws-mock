@@ -1,6 +1,7 @@
 package com.tlswe.awsmock.ec2.control;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +15,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.tlswe.awsmock.ec2.model.MockInternetGateway;
+import com.tlswe.awsmock.ec2.model.MockVpc;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockInternetGatewayController.class})
@@ -37,8 +39,10 @@ public class MockInternetGatewayControllerTest {
 
         Map<String, MockInternetGateway> allMockInternetGateway = new ConcurrentHashMap<String, MockInternetGateway>();
         MockInternetGateway mockInternetGateway = new MockInternetGateway();
+        mockInternetGateway.setInternetGatewayId("i-werewrw");
         allMockInternetGateway.put("i-2323", mockInternetGateway);
         MockInternetGateway mockInternetGateway1 = new MockInternetGateway();
+        mockInternetGateway1.setInternetGatewayId("i-2323wrw");
         allMockInternetGateway.put("i-23223233", mockInternetGateway1);
 
         MemberModifier.field(MockInternetGatewayController.class, "allMockInternetGateways").set(controller,
@@ -46,10 +50,29 @@ public class MockInternetGatewayControllerTest {
 
         Collection<MockInternetGateway> collectionOfMockInternetGateway = controller.describeInternetGateways();
 
+        Collection<MockInternetGateway> restoreInternetGateways = new ArrayList<MockInternetGateway>(collectionOfMockInternetGateway.size());
+        for (MockInternetGateway mockInternetGatewayRes : collectionOfMockInternetGateway)
+        {
+        	restoreInternetGateways.add(mockInternetGatewayRes);
+        }
         int collectionCount = collectionOfMockInternetGateway.size();
 
         // Returns collection of size 2
         Assert.assertEquals(2, collectionCount);
+        
+        for(MockInternetGateway restoreInternetGateway : collectionOfMockInternetGateway) {
+        	controller.deleteInternetGateway(restoreInternetGateway.getInternetGatewayId());
+        }
+        
+        controller.restoreAllInternetGateway(restoreInternetGateways);
+        
+        collectionOfMockInternetGateway = controller.describeInternetGateways();
+
+        collectionCount = collectionOfMockInternetGateway.size();
+
+        // Returns collection of size 2
+        Assert.assertEquals(2, collectionCount);
+        
     }
     
     @Test

@@ -1,6 +1,7 @@
 package com.tlswe.awsmock.ec2.control;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +15,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.tlswe.awsmock.ec2.model.MockSubnet;
+import com.tlswe.awsmock.ec2.model.MockVpc;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockSubnetController.class})
@@ -37,16 +39,36 @@ public class MockSubnetControllerTest {
 
         Map<String, MockSubnet> allMockSubnet = new ConcurrentHashMap<String, MockSubnet>();
         MockSubnet mockSubnet = new MockSubnet();
+        mockSubnet.setSubnetId("s-wewe");
         allMockSubnet.put("s-2323", mockSubnet);
         MockSubnet mockSubnet1 = new MockSubnet();
+        mockSubnet1.setSubnetId("s-asdasdasd");
         allMockSubnet.put("s-23223233", mockSubnet1);
 
         MemberModifier.field(MockSubnetController.class, "allMockSubnets").set(controller,
                 allMockSubnet);
 
         Collection<MockSubnet> collectionOfMockSubnet = controller.describeSubnets();
-
+        
+        Collection<MockSubnet> restoreSubnets = new ArrayList<MockSubnet>(collectionOfMockSubnet.size());
+        for (MockSubnet mockSubnetRes : collectionOfMockSubnet)
+        {
+        	restoreSubnets.add(mockSubnetRes);
+        }
         int collectionCount = collectionOfMockSubnet.size();
+
+        // Returns collection of size 2
+        Assert.assertEquals(2, collectionCount);
+        
+        for(MockSubnet restoreSubnet : collectionOfMockSubnet) {
+        	controller.deleteSubnet(restoreSubnet.getSubnetId());
+        }
+        
+        controller.restoreAllMockSubnet(restoreSubnets);
+        
+        collectionOfMockSubnet = controller.describeSubnets();
+
+        collectionCount = collectionOfMockSubnet.size();
 
         // Returns collection of size 2
         Assert.assertEquals(2, collectionCount);

@@ -99,18 +99,17 @@ public final class MockInternetGatewayController {
             final String vpcId) {
 
         MockInternetGateway ret = allMockInternetGateways.get(internetgatewayId);
-        MockInternetGatewayAttachmentType internetGatewayAttachmentType = new MockInternetGatewayAttachmentType();
-        internetGatewayAttachmentType.setVpcId(vpcId);
-        internetGatewayAttachmentType.setState("Available");
-        List<MockInternetGatewayAttachmentType> internetGatewayAttachmentSet
-            = new ArrayList<MockInternetGatewayAttachmentType>();
-        internetGatewayAttachmentSet.add(internetGatewayAttachmentType);
+        if (ret != null) {
+            MockInternetGatewayAttachmentType internetGatewayAttachmentType = new MockInternetGatewayAttachmentType();
+            internetGatewayAttachmentType.setVpcId(vpcId);
+            internetGatewayAttachmentType.setState("Available");
+            List<MockInternetGatewayAttachmentType> internetGatewayAttachmentSet
+                = new ArrayList<MockInternetGatewayAttachmentType>();
+            internetGatewayAttachmentSet.add(internetGatewayAttachmentType);
+            ret.setAttachmentSet(internetGatewayAttachmentSet);
+            allMockInternetGateways.put(ret.getInternetGatewayId(), ret);
+            }
 
-        ret.setAttachmentSet(internetGatewayAttachmentSet);
-        ret.setInternetGatewayId("InternetGateway-"
-                + UUID.randomUUID().toString().substring(0, INTERNETGATEWAY_ID_POSTFIX_LENGTH));
-
-        allMockInternetGateways.put(ret.getInternetGatewayId(), ret);
         return ret;
     }
 
@@ -128,5 +127,20 @@ public final class MockInternetGatewayController {
         }
 
         return null;
+    }
+
+    /**
+     * Clear {@link #allMockInternetGateways} and restore it from given a collection of instances.
+     *
+     * @param internetGateways
+     *            collection of MockInternetGateway to restore
+     */
+    public void restoreAllInternetGateway(final Collection<MockInternetGateway> internetGateways) {
+        allMockInternetGateways.clear();
+        if (null != internetGateways) {
+            for (MockInternetGateway instance : internetGateways) {
+                allMockInternetGateways.put(instance.getInternetGatewayId(), instance);
+            }
+        }
     }
 }

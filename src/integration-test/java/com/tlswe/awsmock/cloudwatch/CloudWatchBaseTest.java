@@ -5,37 +5,22 @@
 package com.tlswe.awsmock.cloudwatch;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
-import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
-import com.amazonaws.services.cloudwatch.model.Metric;
-import com.amazonaws.services.cloudwatch.model.transform.GetMetricStatisticsRequestMarshaller;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-import com.amazonaws.services.ec2.model.SecurityGroup;
 
 /**
  * Base underlying class for doing the fundamental calls to aws Cloudwatch interfaces, with neat utility methods which can be
@@ -142,9 +127,7 @@ public class CloudWatchBaseTest {
      * @return Datapoint
      */
     protected final Datapoint getMetricStaticticsTest(String metricName) {
-
         Datapoint dataPoint = null;
-
         GetMetricStatisticsRequest request = new GetMetricStatisticsRequest();
         request.setStartTime(new DateTime().plusHours(HOURS).toDate());
         request.withNamespace(NAMESPACE);
@@ -156,10 +139,6 @@ public class CloudWatchBaseTest {
 
         if (result != null && !result.getDatapoints().isEmpty()) {
             dataPoint = result.getDatapoints().get(0);
-
-            for (Datapoint dp : result.getDatapoints()) {
-                System.out.println(dp.getTimestamp());
-            }
         }
 
         return dataPoint;

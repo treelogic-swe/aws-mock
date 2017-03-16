@@ -206,11 +206,17 @@ public class Ec2EndpointTest extends BaseTest {
         log.info("Start describing instances with states filter test");
 
         List<Instance> instances = describeInstances();
-        
-        for(Instance instance : instances){
-            log.info(instance.getInstanceId());
+        if(instances != null)
+        {
+	        log.info("Count :" + instances.size());
+	        for(Instance instance : instances){
+	            log.info(instance.getInstanceId());
+	        }
         }
-        
+        else
+        {
+        	log.info("Count :" + 0);
+        }
     }
     /**
      * Test describing instances with states filter.

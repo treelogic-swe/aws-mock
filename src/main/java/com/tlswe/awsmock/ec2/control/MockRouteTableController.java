@@ -132,7 +132,9 @@ public final class MockRouteTableController {
         ret.setOrigin("CreateRoute");
 
         MockRouteTable mockRouteTable = getMockRouteTable(routeTableId);
-        mockRouteTable.getRouteSet().add(ret);
+        if (mockRouteTable != null) {
+            mockRouteTable.getRouteSet().add(ret);
+        }
         return ret;
     }
 
@@ -145,5 +147,20 @@ public final class MockRouteTableController {
      */
     public MockRouteTable getMockRouteTable(final String routetableId) {
         return allMockRouteTables.get(routetableId);
+    }
+
+    /**
+     * Clear {@link #allMockRouteTables} and restore it from given a collection of instances.
+     *
+     * @param routeTables
+     *            collection of MockRouteTable to restore
+     */
+    public void restoreAllMockRouteTable(final Collection<MockRouteTable> routeTables) {
+        allMockRouteTables.clear();
+        if (null != routeTables) {
+            for (MockRouteTable instance : routeTables) {
+                allMockRouteTables.put(instance.getRouteTableId(), instance);
+            }
+        }
     }
 }

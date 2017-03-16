@@ -17,6 +17,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.amazonaws.services.ec2.model.Tag;
+import com.tlswe.awsmock.ec2.model.MockSubnet;
 import com.tlswe.awsmock.ec2.model.MockTags;
 
 @RunWith(PowerMockRunner.class)
@@ -41,8 +42,13 @@ public class MockTagsControllerTest {
 
         List<MockTags> allMockTags = new ArrayList<MockTags>();
         MockTags mockTags = new MockTags();
+        List<String> resources = new ArrayList<String>();
+        resources.add("resource1");
+        resources.add("resource2");
+        mockTags.setResourcesSet(resources);
         allMockTags.add(mockTags);
         MockTags mockTags1 = new MockTags();
+        mockTags1.setResourcesSet(resources);
         allMockTags.add(mockTags1);
 
         MemberModifier.field(MockTagsController.class, "allMockTags").set(controller,
@@ -50,7 +56,25 @@ public class MockTagsControllerTest {
 
         Collection<MockTags> collectionOfMockTags = controller.describeTags();
 
+        Collection<MockTags> restoreTagss = new ArrayList<MockTags>(collectionOfMockTags.size());
+        for (MockTags mockTagsRes : collectionOfMockTags)
+        {
+        	restoreTagss.add(mockTagsRes);
+        }
         int collectionCount = collectionOfMockTags.size();
+
+        // Returns collection of size 2
+        Assert.assertEquals(2, collectionCount);
+        
+        for(MockTags restoreTags : collectionOfMockTags) {
+        	controller.deleteTags(restoreTags.getResourcesSet());
+        }
+        
+        controller.restoreAllMockTags(restoreTagss);
+        
+        collectionOfMockTags = controller.describeTags();
+
+        collectionCount = collectionOfMockTags.size();
 
         // Returns collection of size 2
         Assert.assertEquals(2, collectionCount);
@@ -82,13 +106,9 @@ public class MockTagsControllerTest {
         
         Map<String, String> tags = new HashMap<String, String>();
         tags.put("key", "value");
-        
-        MockTags mockTags = MockTagsController
-                .getInstance()
-                .createTags(resources, tags);
-         Assert.assertTrue("Internet gateway deleted.", MockTagsController
-                .getInstance()
-                .deleteTags(resources));
+        MockTagsController mockTagsController = MockTagsController.getInstance();
+        MockTags mockTags = mockTagsController.createTags(resources, tags);
+        Assert.assertTrue("Internet gateway deleted.", mockTagsController.deleteTags(resources));
     }
 
 }

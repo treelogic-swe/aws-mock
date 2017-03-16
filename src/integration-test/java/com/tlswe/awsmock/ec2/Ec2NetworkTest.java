@@ -6,9 +6,7 @@ package com.tlswe.awsmock.ec2;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -291,6 +289,18 @@ public class Ec2NetworkTest extends BaseTest {
         Assert.assertTrue("volume should be deleted", deleteVolume(volume.getVolumeId()));
     }
     
+//    /**
+//     * Test describing Volumes.
+//     */
+//    /*@Test(timeout = TIMEOUT_LEVEL1)
+//    public final void describeVolumesAllTest() {
+//        log.info("Start describing volume test");
+//        List<Volume>  volumes = getVolumes();
+//        Assert.assertNotNull("volume should not be null", volumes);
+//        Assert.assertNotNull("volume size", volumes.size());
+//        log.info("Sizes " + volumes.size());
+//    }*/
+    
     /**
      * Test create Volumes.
      */
@@ -304,50 +314,50 @@ public class Ec2NetworkTest extends BaseTest {
         Assert.assertNotNull("volume id should not be null", volume.getVolumeId());
     }
     
-    /**
-     * Test create Volumes.
-     */
-    @Test(timeout = TIMEOUT_LEVEL1)
-    public final void createVolumes100Test() {
-        for(int i=0 ; i< 100; i++)
-        {
-            createVolumesTest();
-        }
-    }
-    
-    
-    /**
-     * Test create Volumes.
-     */
-    @Test(timeout = TIMEOUT_LEVEL1)
-    public final void createNetworkResourcesTest() {
-        
-        //Create VPCs
-        for(int i =0 ; i < 5 ; i++)
-        {
-            createVpcTest(); 
-        }
-        
-        List<Vpc> vpcs = describeVpcs();
-        
-        // Create Subnet
-        for(Vpc vpc : vpcs) {
-            
-            for(int j=0; j<10; j++)
-            {
-                Subnet subnet = createSubnet(MOCK_CIDR_BLOCK, vpc.getVpcId());
-                RouteTable routeTable = createRouteTable(vpc.getVpcId());
-                InternetGateway internetGateway = createInternetGateway();
-                
-                createRoute(routeTable.getRouteTableId(), internetGateway.getInternetGatewayId(), MOCK_CIDR_BLOCK);
-                
-                attachInternetGateway(internetGateway.getInternetGatewayId(), vpc.getVpcId());
-            }
-        }
-        
-        
-    }
-    
+//    /**
+//     * Test create Volumes.
+//     */
+//    @Test(timeout = TIMEOUT_LEVEL1)
+//    public final void createVolumes100Test() {
+//        for(int i=0 ; i< 500; i++)
+//        {
+//            createVolumesTest();
+//        }
+//    }
+//    
+//    
+//    /**
+//     * Test create Volumes.
+//     */
+//    @Test(timeout = TIMEOUT_LEVEL1)
+//    public final void createNetworkResourcesTest() {
+//        
+//        //Create VPCs
+//        for(int i =0 ; i < 5 ; i++)
+//        {
+//            createVpcTest(); 
+//        }
+//        
+//        List<Vpc> vpcs = describeVpcs();
+//        
+//        // Create Subnet
+//        for(Vpc vpc : vpcs) {
+//            
+//            for(int j=0; j<10; j++)
+//            {
+//                Subnet subnet = createSubnet(MOCK_CIDR_BLOCK, vpc.getVpcId());
+//                RouteTable routeTable = createRouteTable(vpc.getVpcId());
+//                InternetGateway internetGateway = createInternetGateway();
+//                
+//                createRoute(routeTable.getRouteTableId(), internetGateway.getInternetGatewayId(), MOCK_CIDR_BLOCK);
+//                
+//                attachInternetGateway(internetGateway.getInternetGatewayId(), vpc.getVpcId());
+//            }
+//        }
+//        
+//        
+//    }
+//    
     /**
      * Test create Tags.
      */

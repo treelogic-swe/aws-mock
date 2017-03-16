@@ -242,8 +242,6 @@ public final class MockCloudWatchQueryHandler {
                                     getMetricStatistics(statistics, startTime, endTime, period,
                                             metricName),
                                     "GetMetricStatistics", version);
-
-                            System.out.println(responseXml);
                         } else {
                             // unsupported/unimplemented action - write an
                             // error
@@ -271,7 +269,11 @@ public final class MockCloudWatchQueryHandler {
                         log.error("server error occured while processing '{}' request. {}", action,
                                 e.getMessage());
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                        responseXml = getXmlError("InternalError", e.getMessage());
+                        if (e.getMessage() != null) {
+                             responseXml = getXmlError("InternalError", e.getMessage());
+                        } else {
+                             responseXml = "InternalError";
+                        }
                     }
 
                 }

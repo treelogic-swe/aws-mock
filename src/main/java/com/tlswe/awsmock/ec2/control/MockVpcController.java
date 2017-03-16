@@ -85,15 +85,17 @@ public final class MockVpcController {
         ret.setVpcId("vpc-" + UUID.randomUUID().toString().substring(0, VPC_ID_POSTFIX_LENGTH));
         ret.setInstanceTenancy(instanceTenancy);
         // Make sure only one VPC is default.
-        if (allMockVpcInstances.size() == 0) {
-            ret.setIsDefault(true);
-        } else {
-            ret.setIsDefault(false);
+        synchronized (this) {
+            if (allMockVpcInstances.size() == 0) {
+                ret.setIsDefault(true);
+            } else {
+                ret.setIsDefault(false);
+                }
+           allMockVpcInstances.put(ret.getVpcId(), ret);
         }
 
-        allMockVpcInstances.put(ret.getVpcId(), ret);
-        return ret;
-    }
+       return ret;
+     }
 
     /**
      * Delete vpc.
@@ -111,22 +113,17 @@ public final class MockVpcController {
     }
 
     /**
-     * List all mock vpc  within aws-mock.
+     * Clear {@link #allMockVpcInstances} and restore it from given a collection of instances.
      *
-     * @return a collection of all the mock vpc
+     * @param vpcs
+     *            collection of Vpc to restore
      */
-    public Collection<MockVpc> getAllMockVpcInstances() {
-        return allMockVpcInstances.values();
-    }
-
-    /**
-     * Get mock vpc instance by vpc ID.
-     *
-     * @param vpcId
-     *            ID of the mock vpc to get
-     * @return the mock vpc object
-     */
-    public MockVpc getMockVpc(final String vpcId) {
-        return allMockVpcInstances.get(vpcId);
+    public void restoreAllMockVpc(final Collection<MockVpc> vpcs) {
+        allMockVpcInstances.clear();
+        if (null != vpcs) {
+            for (MockVpc instance : vpcs) {
+                allMockVpcInstances.put(instance.getVpcId(), instance);
+            }
+        }
     }
 }

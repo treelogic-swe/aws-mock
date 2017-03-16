@@ -21,9 +21,6 @@ public class MockRouteTable implements Serializable {
     /** The route set. */
     private List<MockRoute> routeSet = null;
 
-    /** The association set. */
-    private List<MockRouteTableAssoication> associationSet = null;
-
     /** The propagating vgw set. */
     private List<String> propagatingVgwSet = null;
 
@@ -52,30 +49,6 @@ public class MockRouteTable implements Serializable {
      */
     public final void setRouteSet(final List<MockRoute> newrouteSet) {
         this.routeSet = newrouteSet;
-    }
-
-    /**
-     * Gets the value of the associationSet property.
-     *
-     * @return
-     *     possible object is
-     *     List of {@link MockRouteTableAssoication }
-     *
-     */
-    public final List<MockRouteTableAssoication> getAssociationSet() {
-        return associationSet;
-    }
-
-    /**
-     * Sets the value of the associationSet property.
-     *
-     * @param newassociationSet
-     *     allowed object is
-     *     List of  {@link MockRouteTableAssoication }
-     *
-     */
-    public final void setAssociationSet(final List<MockRouteTableAssoication> newassociationSet) {
-        this.associationSet = newassociationSet;
     }
 
     /**

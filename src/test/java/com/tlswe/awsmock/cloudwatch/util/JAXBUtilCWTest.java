@@ -12,11 +12,9 @@ import org.powermock.reflect.Whitebox;
 
 import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
+import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
-import com.tlswe.awsmock.ec2.cxf_generated.RunInstancesResponseType;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 import com.tlswe.awsmock.ec2.util.JAXBUtil;
 
 @RunWith(PowerMockRunner.class)
@@ -36,6 +34,18 @@ public class JAXBUtilCWTest {
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
         Assert.assertTrue(xml.contains("<Label>CPUUtilization</Label>"));
+    }
+
+    @Test(expected = AwsMockException.class)
+    public void Test_marshallFailed() throws Exception {
+
+        // A class not made to be marshaled
+        class Person {
+
+            String name;
+        }
+
+        JAXBUtil.marshall(new Person(), "Person", "2012-02-10");
     }
 
     @Test

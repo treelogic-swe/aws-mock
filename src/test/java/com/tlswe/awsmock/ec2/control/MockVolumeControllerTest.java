@@ -1,9 +1,13 @@
 package com.tlswe.awsmock.ec2.control;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,12 +57,50 @@ public class MockVolumeControllerTest {
     }
     
     @Test
+    public void Test_describeVolumeRestore() throws Exception {
+        
+        MockVolumeController controller = Mockito.spy(MockVolumeController.class);
+
+        Map<String, MockVolume> allMockVolume = new ConcurrentHashMap<String, MockVolume>();
+        MockVolume mockVolume = new MockVolume();
+        mockVolume.setVolumeId("vol-21212");
+        allMockVolume.put("i-2323", mockVolume);
+        MockVolume mockVolume1 = new MockVolume();
+        mockVolume1.setVolumeId("vol-21212wewe");
+        allMockVolume.put("i-23223233", mockVolume1);
+
+        MemberModifier.field(MockVolumeController.class, "allMockVolumes").set(controller,
+                allMockVolume);
+
+        Collection<MockVolume> collectionOfMockVolume = controller.describeVolumes();
+        Collection<MockVolume> restoreVolumes = new ArrayList<MockVolume>(collectionOfMockVolume.size());
+        for (MockVolume mockVol : collectionOfMockVolume)
+        {
+        	restoreVolumes.add(mockVol);
+        }
+
+        // Returns collection of size 2
+        Assert.assertEquals(2, collectionOfMockVolume.size());
+        
+        for (MockVolume mockRestoreVol : collectionOfMockVolume) {
+        	controller.deleteVolume(mockRestoreVol.getVolumeId());
+        }
+        
+        controller.restoreAllMockVolume(restoreVolumes);
+        
+        collectionOfMockVolume = controller.describeVolumes();
+
+        // Returns collection of size 2
+        Assert.assertEquals(2, collectionOfMockVolume.size());
+        
+    }
+    @Test
     public void Test_createVolume() throws Exception {
         
        MockVolume mockVolume = MockVolumeController
                 .getInstance()
                 .createVolume("TestCDR", "Deafult", "11", 12, "23");
-        Assert.assertNotNull("Internet gateway created.", mockVolume.getVolumeId());
+        Assert.assertNotNull("Volume created.", mockVolume.getVolumeId());
     }
     
     @Test
@@ -71,7 +113,18 @@ public class MockVolumeControllerTest {
                .getInstance()
                .deleteVolume(mockVolume.getVolumeId());
     
-        Assert.assertNotNull("Internet gateway deleted.", mockVolumeDelete.getVolumeId());
+        Assert.assertNotNull("Volume deleted.", mockVolumeDelete.getVolumeId());
     }
+    
+    @Test
+    public void Test_deleteVolumeForNull() throws Exception {
+        
+        MockVolume mockVolumeDelete = MockVolumeController
+               .getInstance()
+               .deleteVolume(null);
+    
+        Assert.assertNull("Volume should deleted.", mockVolumeDelete);
+    }    
+    
 
 }

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Assert;
@@ -265,6 +266,29 @@ public class MockEc2ControllerTest {
         Assert.assertTrue(controller.getMockEc2Instance("ec2Mocked1") == ec2Mocked1);
         Assert.assertTrue(controller.getMockEc2Instance("ec2Mocked2") == ec2Mocked2);
 
+    }
+    
+    @Test
+    public void Test_listInstanceIDs() throws Exception {
+
+        DefaultMockEc2Instance ec2Mocked1 = new DefaultMockEc2Instance();
+        ec2Mocked1.setInstanceType(InstanceType.C1_MEDIUM);
+
+        DefaultMockEc2Instance ec2Mocked2 = new DefaultMockEc2Instance();
+        ec2Mocked2.setInstanceType(InstanceType.C3_8XLARGE);
+
+        MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
+
+        Map<String, AbstractMockEc2Instance> allMockEc2Instances = new ConcurrentHashMap<String, AbstractMockEc2Instance>();
+        allMockEc2Instances.put("ec2Mocked1", ec2Mocked1);
+        allMockEc2Instances.put("ec2Mocked2", ec2Mocked2);
+
+        MemberModifier.field(MockEc2Controller.class, "allMockEc2Instances").set(controller,
+                allMockEc2Instances);
+        Set<String> instanceIDs = new TreeSet<String>();
+        instanceIDs.add("ec2Mocked1");
+        
+        Assert.assertTrue(controller.listInstanceIDs(instanceIDs).get(0).equals("ec2Mocked1"));
     }
 
     @Test

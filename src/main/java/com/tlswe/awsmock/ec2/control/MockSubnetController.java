@@ -108,13 +108,17 @@ public final class MockSubnetController {
     }
 
     /**
-     * Get mock subnet instance by Subnet ID.
+     * Clear {@link #allMockSubnets} and restore it from given a collection of instances.
      *
-     * @param subnetId
-     *            ID of the mock subnet to get
-     * @return the mock subnet object
+     * @param subnets
+     *            collection of MockSubnet to restore
      */
-    public MockSubnet getMockSubnet(final String subnetId) {
-        return allMockSubnets.get(subnetId);
+    public void restoreAllMockSubnet(final Collection<MockSubnet> subnets) {
+        allMockSubnets.clear();
+        if (null != subnets) {
+            for (MockSubnet instance : subnets) {
+                allMockSubnets.put(instance.getSubnetId(), instance);
+            }
+        }
     }
 }

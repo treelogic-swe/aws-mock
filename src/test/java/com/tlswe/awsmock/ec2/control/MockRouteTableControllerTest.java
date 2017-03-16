@@ -1,6 +1,7 @@
 package com.tlswe.awsmock.ec2.control;
 
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,6 +15,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.tlswe.awsmock.ec2.model.MockRouteTable;
+import com.tlswe.awsmock.ec2.model.MockVpc;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockRouteTableController.class})
@@ -37,8 +39,10 @@ public class MockRouteTableControllerTest {
 
         Map<String, MockRouteTable> allMockRouteTable = new ConcurrentHashMap<String, MockRouteTable>();
         MockRouteTable mockRouteTable = new MockRouteTable();
+        mockRouteTable.setRouteTableId("rt-324324");
         allMockRouteTable.put("i-2323", mockRouteTable);
         MockRouteTable mockRouteTable1 = new MockRouteTable();
+        mockRouteTable1.setRouteTableId("rt-32sdadasd");
         allMockRouteTable.put("i-23223233", mockRouteTable1);
 
         MemberModifier.field(MockRouteTableController.class, "allMockRouteTables").set(controller,
@@ -46,7 +50,25 @@ public class MockRouteTableControllerTest {
 
         Collection<MockRouteTable> collectionOfMockRouteTable = controller.describeRouteTables();
 
+        Collection<MockRouteTable> restoreRouteTables = new ArrayList<MockRouteTable>(collectionOfMockRouteTable.size());
+        for (MockRouteTable mockRtRes : collectionOfMockRouteTable)
+        {
+        	restoreRouteTables.add(mockRtRes);
+        }
         int collectionCount = collectionOfMockRouteTable.size();
+
+        // Returns collection of size 2
+        Assert.assertEquals(2, collectionCount);
+        
+        for(MockRouteTable restoreVpc : collectionOfMockRouteTable) {
+        	controller.deleteRouteTable(restoreVpc.getVpcId());
+        }
+        
+        controller.restoreAllMockRouteTable(restoreRouteTables);
+        
+        collectionOfMockRouteTable = controller.describeRouteTables();
+
+        collectionCount = collectionOfMockRouteTable.size();
 
         // Returns collection of size 2
         Assert.assertEquals(2, collectionCount);
