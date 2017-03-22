@@ -559,6 +559,22 @@ public class BaseTest {
     }
     
     /**
+    * Describe internet gateways.
+    *
+    * @return List of InternetGateway
+    */
+    protected final List<InternetGateway> getInternetGateways() {
+       List<InternetGateway> internetGateways = null;
+       DescribeInternetGatewaysRequest req = new DescribeInternetGatewaysRequest();
+       DescribeInternetGatewaysResult result = amazonEC2Client.describeInternetGateways(req);
+       if (result != null && !result.getInternetGateways().isEmpty()) {
+           internetGateways = result.getInternetGateways();
+       }
+
+       return internetGateways;
+    }
+
+    /**
      * Create internet gateway.
      *
      * @return InternetGateway
@@ -733,11 +749,22 @@ public class BaseTest {
         List<Volume> volumes = null;
 
         DescribeVolumesRequest req = new DescribeVolumesRequest();
+        req.setMaxResults(20);
         DescribeVolumesResult result = amazonEC2Client.describeVolumes(req);
         if (result != null && !result.getVolumes().isEmpty()) {
-        	volumes = result.getVolumes();
+            volumes = result.getVolumes();
+            log.info("Page Size : " + volumes.size());
         }
 
+        while(result.getNextToken() != null) { 
+            req.setNextToken(result.getNextToken());
+            result = amazonEC2Client.describeVolumes(req);
+            if (result != null && !result.getVolumes().isEmpty()) {
+                 volumes = result.getVolumes();
+                 log.info("Page Size : " + volumes.size());
+            }
+        }
+        
         return volumes;
     }
 
@@ -865,7 +892,23 @@ public class BaseTest {
 
         return subnet;
     }
-    
+
+    /**
+     * Describe Subnets.
+     * @return List of Subnet
+     */
+    protected final List<Subnet> getSubnets() {
+        List<Subnet> subnets = null;
+
+        DescribeSubnetsRequest req = new DescribeSubnetsRequest();
+        DescribeSubnetsResult result = amazonEC2Client.describeSubnets(req);
+        if (result != null && !result.getSubnets().isEmpty()) {
+            subnets = result.getSubnets();
+        }
+
+         return subnets;
+      }
+
     /**
      * Create Subnet.
      *
@@ -886,7 +929,7 @@ public class BaseTest {
 
         return subnet;
     }
-    
+
     /**
      * Delete Subnet.
      *

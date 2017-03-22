@@ -1,6 +1,8 @@
 package com.tlswe.awsmock.ec2.control;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -126,5 +128,14 @@ public final class MockVolumeController {
                 allMockVolumes.put(instance.getVolumeId(), instance);
             }
         }
+    }
+
+    /**
+     * List mock volume IDs in current aws-mock.
+     *
+     * @return a collection of IDs all of the mock volumeIds.
+     */
+    public List<String> listVolumeIDs() {
+       return new ArrayList<String>(allMockVolumes.keySet());
     }
 }

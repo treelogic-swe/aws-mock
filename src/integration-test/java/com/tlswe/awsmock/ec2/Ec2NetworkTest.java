@@ -289,18 +289,18 @@ public class Ec2NetworkTest extends BaseTest {
         Assert.assertTrue("volume should be deleted", deleteVolume(volume.getVolumeId()));
     }
     
-//    /**
-//     * Test describing Volumes.
-//     */
-//    /*@Test(timeout = TIMEOUT_LEVEL1)
-//    public final void describeVolumesAllTest() {
-//        log.info("Start describing volume test");
-//        List<Volume>  volumes = getVolumes();
-//        Assert.assertNotNull("volume should not be null", volumes);
-//        Assert.assertNotNull("volume size", volumes.size());
-//        log.info("Sizes " + volumes.size());
-//    }*/
-    
+    /**
+     * Test describing Volumes.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void describeVolumesAllTest() {
+        log.info("Start describing volume test");
+        List<Volume>  volumes = getVolumes();
+        Assert.assertNotNull("volume should not be null", volumes);
+        Assert.assertNotNull("volume size", volumes.size());
+        log.info("Sizes " + volumes.size());
+    }
+
     /**
      * Test create Volumes.
      */
@@ -313,51 +313,76 @@ public class Ec2NetworkTest extends BaseTest {
         Assert.assertNotNull("volume should not be null", volume);
         Assert.assertNotNull("volume id should not be null", volume.getVolumeId());
     }
-    
-//    /**
-//     * Test create Volumes.
-//     */
-//    @Test(timeout = TIMEOUT_LEVEL1)
-//    public final void createVolumes100Test() {
-//        for(int i=0 ; i< 500; i++)
-//        {
-//            createVolumesTest();
-//        }
-//    }
-//    
-//    
-//    /**
-//     * Test create Volumes.
-//     */
-//    @Test(timeout = TIMEOUT_LEVEL1)
-//    public final void createNetworkResourcesTest() {
-//        
-//        //Create VPCs
-//        for(int i =0 ; i < 5 ; i++)
-//        {
-//            createVpcTest(); 
-//        }
-//        
-//        List<Vpc> vpcs = describeVpcs();
-//        
-//        // Create Subnet
-//        for(Vpc vpc : vpcs) {
-//            
-//            for(int j=0; j<10; j++)
-//            {
-//                Subnet subnet = createSubnet(MOCK_CIDR_BLOCK, vpc.getVpcId());
-//                RouteTable routeTable = createRouteTable(vpc.getVpcId());
-//                InternetGateway internetGateway = createInternetGateway();
-//                
-//                createRoute(routeTable.getRouteTableId(), internetGateway.getInternetGatewayId(), MOCK_CIDR_BLOCK);
-//                
-//                attachInternetGateway(internetGateway.getInternetGatewayId(), vpc.getVpcId());
-//            }
-//        }
-//        
-//        
-//    }
-//    
+
+    /**
+     * Test create Volumes.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void createVolumes100Test() {
+        for(int i=0 ; i< 10; i++)
+        {
+            createVolumesTest();
+        }
+    }
+
+    /**
+     * Test describing vpcs.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void describeAllNetworksTest() {
+        log.info("Start describing vpcs test");
+        List<Vpc> vpcs = describeVpcs();
+
+        Assert.assertNotNull("vpcs should not be null", vpcs);
+        Assert.assertNotNull("vpc id should not be null", vpcs.get(0).getVpcId());
+        log.info("Vpc Sizes " + vpcs.size());
+
+        log.info("Start describing vpcs test");
+        List<Subnet> subnets = getSubnets();
+
+        Assert.assertNotNull("vpcs should not be null", subnets);
+        Assert.assertNotNull("vpc id should not be null", subnets.get(0).getSubnetId());
+        log.info("Subnets Sizes " + subnets.size());
+
+        log.info("Start describing vpcs test");
+        List<InternetGateway> internetGateways = getInternetGateways();
+
+        Assert.assertNotNull("vpcs should not be null", internetGateways);
+        Assert.assertNotNull("vpc id should not be null", internetGateways.get(0).getInternetGatewayId());
+        log.info("Subnets Sizes " + internetGateways.size());
+
+    }
+
+    /**
+     * Test create Volumes.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void createNetworkResourcesTest() {
+        
+        //Create VPCs
+        for(int i =0 ; i < 2 ; i++)
+        {
+            createVpcTest(); 
+        }
+        
+        List<Vpc> vpcs = describeVpcs();
+        
+        // Create Subnet
+        for(Vpc vpc : vpcs) {
+            
+            for(int j=0; j<2; j++)
+            {
+                Subnet subnet = createSubnet(MOCK_CIDR_BLOCK, vpc.getVpcId());
+                RouteTable routeTable = createRouteTable(vpc.getVpcId());
+                InternetGateway internetGateway = createInternetGateway();
+                
+                createRoute(routeTable.getRouteTableId(), internetGateway.getInternetGatewayId(), MOCK_CIDR_BLOCK);
+                
+                attachInternetGateway(internetGateway.getInternetGatewayId(), vpc.getVpcId());
+            }
+        }
+    }
+
     /**
      * Test create Tags.
      */

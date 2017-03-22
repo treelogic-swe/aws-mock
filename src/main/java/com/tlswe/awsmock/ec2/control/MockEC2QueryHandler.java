@@ -290,6 +290,13 @@ public final class MockEC2QueryHandler {
             new ConcurrentHashMap<String, Set<String>>();
 
     /**
+     * The remaining paged records of instance IDs per token by 'describeVolumes'.
+     */
+    private static Map<String, Set<String>> token2RemainingDescribedVolumeIDs =
+            new ConcurrentHashMap<String, Set<String>>();
+
+    /**
+    /**
      * A common random generator.
      */
     private static Random random = new Random();
@@ -602,8 +609,18 @@ public final class MockEC2QueryHandler {
                                         "DescribeRouteTablesResponse", version);
                             } else if ("DescribeVolumes".equals(action)) {
 
-                                responseXml = JAXBUtil.marshall(describeVolumes(),
-                                        "DescribeVolumesResponseType", version);
+                                String[] paramNextToken = queryParams.get("NextToken");
+                                String nextToken = null == paramNextToken
+                                         || paramNextToken.length == 0 ? null
+                                                 : paramNextToken[0];
+                                 String[] paramMaxResults = queryParams.get("MaxResults");
+                                 int maxResults = null == paramMaxResults
+                                         || paramMaxResults.length == 0 ? 0
+                                                 : NumberUtils.toInt(paramMaxResults[0]);
+
+                                responseXml = JAXBUtil.marshall(describeVolumes(nextToken, maxResults),
+                                         "DescribeVolumesResponseType", version);
+
                             } else if ("CreateVolume".equals(action)) {
 
                                 String[] snapshotIdParam = queryParams.get("SnapshotId");
@@ -1332,40 +1349,120 @@ public final class MockEC2QueryHandler {
 
     /**
      * Handles "describeVolumes" request and returns response with a volumes Set.
-     *
+     * @param token
+     *            token for next page
+     * @param pMaxResults
+     *            max result in page, if over 1000, only 1000 instances would be returned
+
      * @return a DescribeVolumesResponseType with our predefined route table in aws-mock.properties (or if not
      *         overridden, as defined in aws-mock-default.properties)
      */
-    private DescribeVolumesResponseType describeVolumes() {
+    private DescribeVolumesResponseType describeVolumes(final String token, final int pMaxResults) {
         DescribeVolumesResponseType ret = new DescribeVolumesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
 
-        DescribeVolumesSetResponseType volumesSet = new DescribeVolumesSetResponseType();
+        Set<String> idsInThisPageIfToken = null;
 
-        for (Iterator<MockVolume> mockVolume = mockVolumeController.describeVolumes()
+       if (null != token && token.length() > 0) {
+
+           // should retrieve next page using token
+            idsInThisPageIfToken = token2RemainingDescribedVolumeIDs.get(token);
+           if (null == idsInThisPageIfToken) {
+                // mock real AWS' 400 error message in case of invalid token
+                throw new BadEc2RequestException("DescribeVolumes",
+                        "AWS Error Code: InvalidParameterValue, AWS Error Message: Unable to parse pagination token");
+            }
+        }
+
+        /**
+         * The calculated maxResults used in pagination.
+         */
+        int maxResults = pMaxResults;
+
+       if (maxResults < 1) {
+            maxResults = MAX_RESULTS_DEFAULT;
+        }
+
+        List<String> idsToDescribe = null;
+
+        if (null != token && token.length() > 0) {
+            idsToDescribe = new ArrayList<String>(
+                    token2RemainingDescribedVolumeIDs.remove(token));
+        } else {
+        // will return all instance IDs if the param 'instanceIDs' is empty here
+            idsToDescribe = mockVolumeController.listVolumeIDs();
+        }
+
+        System.out.println(idsToDescribe);
+
+       if (idsToDescribe.size() > maxResults) {
+            // generate next token (for next page of results) and put the remaining IDs to the map for later use
+            String newToken = generateToken();
+            // deduct the current page instances from the total remaining and put the rest into map again, with new
+            // token as key
+           token2RemainingDescribedVolumeIDs.put(newToken,
+                    new TreeSet<String>(idsToDescribe.subList(maxResults, idsToDescribe.size())));
+            // set idsToDescribe as the top maxResults instance IDs
+           idsToDescribe = new ArrayList<String>(idsToDescribe.subList(0, maxResults));
+            // put the new token into response
+           ret.setNextToken(newToken);
+       }
+
+       DescribeVolumesSetResponseType volumesSet = new DescribeVolumesSetResponseType();
+       int recordCount = 1;
+       for (Iterator<MockVolume> mockVolume = mockVolumeController.describeVolumes()
                 .iterator(); mockVolume.hasNext();) {
             MockVolume item = mockVolume.next();
-            DescribeVolumesSetItemResponseType volumesSetItem = new DescribeVolumesSetItemResponseType();
-            volumesSetItem.setVolumeId(item.getVolumeId());
-            volumesSetItem.setVolumeType(item.getVolumeType());
-            volumesSetItem.setSize(item.getSize());
-            volumesSetItem.setAvailabilityZone(item.getAvailabilityZone());
-            volumesSetItem.setStatus(MOCK_VOLUME_STATUS);
-            AttachmentSetResponseType attachmentSet = new AttachmentSetResponseType();
+            System.out.println(idsToDescribe);
+            System.out.println(item.getVolumeId());
+            if (isVolumeIdExists(idsToDescribe, item.getVolumeId())) {
+               DescribeVolumesSetItemResponseType volumesSetItem = new DescribeVolumesSetItemResponseType();
+               volumesSetItem.setVolumeId(item.getVolumeId());
+               volumesSetItem.setVolumeType(item.getVolumeType());
+               volumesSetItem.setSize(item.getSize());
+               volumesSetItem.setAvailabilityZone(item.getAvailabilityZone());
+               volumesSetItem.setStatus(MOCK_VOLUME_STATUS);
+               AttachmentSetResponseType attachmentSet = new AttachmentSetResponseType();
 
-            AttachmentSetItemResponseType attachmentSetItem = new AttachmentSetItemResponseType();
-            attachmentSetItem.setVolumeId(item.getVolumeId());
-            attachmentSetItem.setInstanceId(MOCK_INSTANCE_ID);
-            attachmentSetItem.setDevice("/dev/sdh");
-            attachmentSetItem.setStatus("attached");
-            attachmentSet.getItem().add(attachmentSetItem);
-            volumesSetItem.setAttachmentSet(attachmentSet);
+               AttachmentSetItemResponseType attachmentSetItem = new AttachmentSetItemResponseType();
+               attachmentSetItem.setVolumeId(item.getVolumeId());
+               attachmentSetItem.setInstanceId(MOCK_INSTANCE_ID);
+               attachmentSetItem.setDevice("/dev/sdh");
+               attachmentSetItem.setStatus("attached");
+               attachmentSet.getItem().add(attachmentSetItem);
+               volumesSetItem.setAttachmentSet(attachmentSet);
 
-            volumesSet.getItem().add(volumesSetItem);
+               volumesSet.getItem().add(volumesSetItem);
+               recordCount++;
+            }
+
+            System.out.println("Max Count :" + maxResults);
+            if (recordCount > maxResults) {
+                break;
+            }
         }
+
         ret.setVolumeSet(volumesSet);
 
         return ret;
+    }
+
+    /**
+    * Check whether volumeId exists in list.
+    * @param volumeIds List of volume Ids.
+    * @param volumeId to check in the list.
+    * @return true if volumeId is valid.
+    */
+    private boolean isVolumeIdExists(final List<String> volumeIds, final String volumeId) {
+        if (volumeIds != null && volumeIds.size() > 0) {
+            for (String volId : volumeIds) {
+                if (volId.equals(volumeId)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
