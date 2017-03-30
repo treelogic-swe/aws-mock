@@ -27,17 +27,21 @@ import com.tlswe.awsmock.common.util.TemplateUtils;
 import com.tlswe.awsmock.ec2.cxf_generated.AttachInternetGatewayResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.AttachmentSetItemResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.AttachmentSetResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.AuthorizeSecurityGroupEgressResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.AuthorizeSecurityGroupIngressResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateInternetGatewayResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateRouteResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateRouteTableResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.CreateSecurityGroupResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateSubnetResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateTagsResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateVolumeResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateVpcResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteInternetGatewayResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteRouteTableResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DeleteSecurityGroupResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteSubnetResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteTagsResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteVolumeResponseType;
@@ -91,7 +95,9 @@ import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
 import com.tlswe.awsmock.ec2.model.MockInternetGateway;
 import com.tlswe.awsmock.ec2.model.MockInternetGatewayAttachmentType;
+import com.tlswe.awsmock.ec2.model.MockIpPermissionType;
 import com.tlswe.awsmock.ec2.model.MockRouteTable;
+import com.tlswe.awsmock.ec2.model.MockSecurityGroup;
 import com.tlswe.awsmock.ec2.model.MockSubnet;
 import com.tlswe.awsmock.ec2.model.MockTags;
 import com.tlswe.awsmock.ec2.model.MockVolume;
@@ -167,6 +173,11 @@ public final class MockEC2QueryHandler {
      * Instance of {@link MockSubnetController} used in this class that controls mock Subnet instances.
      */
     private final MockSubnetController mockSubnetController = MockSubnetController.getInstance();
+
+    /**
+     * Instance of {@link MockSecurityGroupController} used in this class that controls mock SecurityGroup instances.
+     */
+    private final MockSecurityGroupController mockSecurityGroupController = MockSecurityGroupController.getInstance();
 
     /**
      * Instance of {@link MockRouteTableController} used in this class that controls mock RouteTable instances.
@@ -520,6 +531,14 @@ public final class MockEC2QueryHandler {
                                                 : vpcIdParam[0];
                                 responseXml = JAXBUtil.marshall(deleteVpc(vpcId),
                                         "DeleteVpcResponse", version);
+                            } else if ("DeleteSecurityGroup".equals(action)) {
+
+                                String[] securityGroupIdParam = queryParams.get("SecurityGroupId");
+                                String securityGroupId = null == securityGroupIdParam
+                                        || securityGroupIdParam.length == 0 ? null
+                                                : securityGroupIdParam[0];
+                                responseXml = JAXBUtil.marshall(deleteSecurityGroup(securityGroupId),
+                                        "DeleteSecurityGroupResponse", version);
                             } else if ("CreateRouteTable".equals(action)) {
 
                                 String[] cidrBlockParam = queryParams.get("CidrBlock");
@@ -679,6 +698,77 @@ public final class MockEC2QueryHandler {
 
                                 responseXml = JAXBUtil.marshall(createSubnet(vpcId, cidrBlock),
                                         "CreateSubnetResponse", version);
+                            } else if ("CreateSecurityGroup".equals(action)) {
+
+                                String[] groupNameParam = queryParams.get("GroupName");
+                                String groupName = null == groupNameParam
+                                        || groupNameParam.length == 0 ? null
+                                                : groupNameParam[0];
+                                String[] groupDescriptionParam = queryParams.get("GroupDescription");
+                                String groupDescription = null == groupDescriptionParam
+                                        || groupDescriptionParam.length == 0 ? null
+                                                : groupDescriptionParam[0];
+                                String[] vpcIdParam = queryParams.get("VpcId");
+                                String vpcId = null == vpcIdParam
+                                        || vpcIdParam.length == 0 ? null
+                                                : vpcIdParam[0];
+
+                                responseXml = JAXBUtil.marshall(createSecurityGroup(groupName, groupDescription, vpcId),
+                                        "CreateSecurityGroupResponse", version);
+                            } else if ("AuthorizeSecurityGroupIngress".equals(action)) {
+
+                                String[] groupIdParam = queryParams.get("GroupId");
+                                String groupId = null == groupIdParam
+                                        || groupIdParam.length == 0 ? null
+                                                : groupIdParam[0];
+                                String[] ipProtocolParam = queryParams.get("IpProtocol");
+                                String ipProtocol = null == ipProtocolParam
+                                        || ipProtocolParam.length == 0 ? null
+                                                : ipProtocolParam[0];
+                                String[] fromPortParam = queryParams.get("FromPort");
+                                String fromPort = null == fromPortParam
+                                        || fromPortParam.length == 0 ? null
+                                                : fromPortParam[0];
+                                String[] toPortParam = queryParams.get("ToPort");
+                                String toPort = null == toPortParam
+                                        || toPortParam.length == 0 ? null
+                                                : toPortParam[0];
+                                String[] cidrParam = queryParams.get("CidrIp");
+                                Integer fromPortValue = fromPort == null ? 0 : Integer.parseInt(fromPort);
+                                Integer toPortValue = toPort == null ? 0 : Integer.parseInt(toPort);
+                                String cidrIp = null == cidrParam
+                                        || cidrParam.length == 0 ? null
+                                                : cidrParam[0];
+                                responseXml = JAXBUtil.marshall(authorizeSecurityGroupIngress(groupId, ipProtocol,
+                                              fromPortValue, toPortValue, cidrIp),
+                                              "AuthorizeSecurityGroupIngressResponseType", version);
+                            } else if ("AuthorizeSecurityGroupEgress".equals(action)) {
+
+                                String[] groupIdParam = queryParams.get("GroupId");
+                                String groupId = null == groupIdParam
+                                        || groupIdParam.length == 0 ? null
+                                                : groupIdParam[0];
+                                String[] ipProtocolParam = queryParams.get("IpProtocol");
+                                String ipProtocol = null == ipProtocolParam
+                                        || ipProtocolParam.length == 0 ? null
+                                                : ipProtocolParam[0];
+                                String[] fromPortParam = queryParams.get("FromPort");
+                                String fromPort = null == fromPortParam
+                                        || fromPortParam.length == 0 ? null
+                                                : fromPortParam[0];
+                                String[] toPortParam = queryParams.get("ToPort");
+                                String toPort = null == toPortParam
+                                        || toPortParam.length == 0 ? null
+                                                : toPortParam[0];
+                                String[] cidrParam = queryParams.get("CidrIp");
+                                String cidrIp = null == cidrParam
+                                        || cidrParam.length == 0 ? null
+                                                : cidrParam[0];
+                                Integer fromPortValue = fromPort == null ? 0 : Integer.parseInt(fromPort);
+                                Integer toPortValue = toPort == null ? 0 : Integer.parseInt(toPort);
+                                responseXml = JAXBUtil.marshall(authorizeSecurityGroupEgress(groupId, ipProtocol,
+                                         fromPortValue, toPortValue, cidrIp),
+                                         "AuthorizeSecurityGroupEgressResponseType", version);
                             } else if ("CreateTags".equals(action)) {
 
                                 int tagsCounter = 1;
@@ -1269,6 +1359,57 @@ public final class MockEC2QueryHandler {
     }
 
     /**
+     * Handles "createSecurityGroup" request to create SecurityGroup and returns response with a SecurityGroup.
+     * @param vpcId vpc Id for SecurityGroup.
+     * @param groupName group Name.
+     * @param groupDescription group Desc.
+     * @return a CreateSecurityGroupResponseType with our new SecurityGroup
+     */
+    private CreateSecurityGroupResponseType createSecurityGroup(final String groupName,
+        final String groupDescription, final String vpcId) {
+        CreateSecurityGroupResponseType ret = new CreateSecurityGroupResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+        MockSecurityGroup mockSecurityGroup = mockSecurityGroupController.createSecurityGroup(groupName
+              , groupDescription, vpcId);
+        ret.setGroupId(mockSecurityGroup.getGroupId());
+        return ret;
+    }
+
+    /**
+     * Handles "authorizeSecurityGroupIngress" request to SecurityGroup and returns response with a SecurityGroup.
+     * @param groupId group Id for SecurityGroup.
+     * @param ipProtocol Ip protocol Name.
+     * @param fromPort from port ranges.
+     * @param toPort to port ranges.
+     * @param cidrIp  cidr Ip for Permission
+     * @return a AuthorizeSecurityGroupIngressResponseType with our new SecurityGroup
+     */
+    private AuthorizeSecurityGroupIngressResponseType authorizeSecurityGroupIngress(final String groupId,
+           final String ipProtocol, final Integer fromPort, final Integer toPort, final String cidrIp) {
+        AuthorizeSecurityGroupIngressResponseType ret = new AuthorizeSecurityGroupIngressResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+        mockSecurityGroupController.authorizeSecurityGroupIngress(groupId, ipProtocol, fromPort, toPort, cidrIp);
+        return ret;
+    }
+
+    /**
+     * Handles "authorizeSecurityGroupEgress" request to SecurityGroup and returns response with a SecurityGroup.
+     * @param groupId group Id for SecurityGroup.
+     * @param ipProtocol Ip protocol Name.
+     * @param fromPort from port ranges.
+     * @param toPort to port ranges.
+     * @param cidrIp  cidr Ip for Permission
+     * @return a AuthorizeSecurityGroupEgressResponseType with our new SecurityGroup
+     */
+    private AuthorizeSecurityGroupEgressResponseType authorizeSecurityGroupEgress(final String groupId,
+         final String ipProtocol, final Integer fromPort, final Integer toPort, final String cidrIp) {
+        AuthorizeSecurityGroupEgressResponseType ret = new AuthorizeSecurityGroupEgressResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+        mockSecurityGroupController.authorizeSecurityGroupEgress(groupId, ipProtocol, fromPort, toPort, cidrIp);
+        return ret;
+    }
+
+    /**
      * Handles "createInternetGateway" request to create InternetGateway and returns response with a InternetGateway.
      * @return a CreateInternetGatewayResponseType with our new InternetGateway
      */
@@ -1304,6 +1445,18 @@ public final class MockEC2QueryHandler {
         DeleteSubnetResponseType ret = new DeleteSubnetResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
         mockSubnetController.deleteSubnet(subnetId);
+        return ret;
+    }
+
+    /**
+     * Handles "deleteSecurityGroup" request to delete SecurityGroup and returns response with a SecurityGroup.
+     * @param securityGroupId SecurityGroup Id.
+     * @return a DeleteSecurityGroupResponseType with SecurityGroup.
+     */
+    private DeleteSecurityGroupResponseType deleteSecurityGroup(final String securityGroupId) {
+        DeleteSecurityGroupResponseType ret = new DeleteSecurityGroupResponseType();
+        ret.setRequestId(UUID.randomUUID().toString());
+        mockSecurityGroupController.deleteSecurityGroup(securityGroupId);
         return ret;
     }
 
@@ -1393,9 +1546,7 @@ public final class MockEC2QueryHandler {
             idsToDescribe = mockVolumeController.listVolumeIDs();
         }
 
-        System.out.println(idsToDescribe);
-
-       if (idsToDescribe.size() > maxResults) {
+        if (idsToDescribe.size() > maxResults) {
             // generate next token (for next page of results) and put the remaining IDs to the map for later use
             String newToken = generateToken();
             // deduct the current page instances from the total remaining and put the rest into map again, with new
@@ -1413,8 +1564,6 @@ public final class MockEC2QueryHandler {
        for (Iterator<MockVolume> mockVolume = mockVolumeController.describeVolumes()
                 .iterator(); mockVolume.hasNext();) {
             MockVolume item = mockVolume.next();
-            System.out.println(idsToDescribe);
-            System.out.println(item.getVolumeId());
             if (isVolumeIdExists(idsToDescribe, item.getVolumeId())) {
                DescribeVolumesSetItemResponseType volumesSetItem = new DescribeVolumesSetItemResponseType();
                volumesSetItem.setVolumeId(item.getVolumeId());
@@ -1436,7 +1585,6 @@ public final class MockEC2QueryHandler {
                recordCount++;
             }
 
-            System.out.println("Max Count :" + maxResults);
             if (recordCount > maxResults) {
                 break;
             }
@@ -1546,26 +1694,40 @@ public final class MockEC2QueryHandler {
 
         SecurityGroupSetType securityGroupSet = new SecurityGroupSetType();
 
-        // initialize securityGroupItem
-        SecurityGroupItemType securityGroupItem = new SecurityGroupItemType();
-        securityGroupItem.setOwnerId(MOCK_SECURITY_OWNER_ID);
-        securityGroupItem.setGroupName(MOCK_SECURITY_GROUP_NAME);
-        securityGroupItem.setGroupId(MOCK_SECURITY_GROUP_ID);
-        securityGroupItem.setVpcId(MOCK_VPC_ID);
+        for (Iterator<MockSecurityGroup> mockSecurityGroup =
+            mockSecurityGroupController.describeSecurityGroups().iterator(); mockSecurityGroup.hasNext();) {
+            MockSecurityGroup item = mockSecurityGroup.next();
+            // initialize securityGroupItem
+            SecurityGroupItemType securityGroupItem = new SecurityGroupItemType();
+            securityGroupItem.setOwnerId(MOCK_SECURITY_OWNER_ID);
+            securityGroupItem.setGroupName(item.getGroupName());
+            securityGroupItem.setGroupId(item.getGroupId());
+            securityGroupItem.setVpcId(item.getVpcId());
+            securityGroupItem.setGroupDescription(item.getGroupDescription());
+            IpPermissionSetType ipPermissionSet = new IpPermissionSetType();
 
-        // initialize ipPermission
-        IpPermissionType ipPermission = new IpPermissionType();
-        ipPermission.setFromPort(MOCK_SOURCE_PORT);
-        ipPermission.setToPort(MOCK_DEST_PORT);
-        ipPermission.setIpProtocol(MOCK_IP_PROTOCOL);
+            for (MockIpPermissionType mockIpPermissionType : item.getIpPermissions()) {
+                // initialize ipPermission
+                IpPermissionType ipPermission = new IpPermissionType();
+                ipPermission.setFromPort(mockIpPermissionType.getFromPort());
+                ipPermission.setToPort(mockIpPermissionType.getToPort());
+                ipPermission.setIpProtocol(mockIpPermissionType.getIpProtocol());
+                ipPermissionSet.getItem().add(ipPermission);
+            }
 
-        // initialize ipPermissionSet
-        IpPermissionSetType ipPermissionSet = new IpPermissionSetType();
-        ipPermissionSet.getItem().add(ipPermission);
+            IpPermissionSetType ipPermissionEgressSet = new IpPermissionSetType();
 
-        securityGroupItem.setIpPermissions(ipPermissionSet);
-
-        securityGroupSet.getItem().add(securityGroupItem);
+            for (MockIpPermissionType mockIpPermissionType : item.getIpPermissionsEgress()) {
+                // initialize ipPermission
+                IpPermissionType ipPermission = new IpPermissionType();
+                ipPermission.setFromPort(mockIpPermissionType.getFromPort());
+                ipPermission.setToPort(mockIpPermissionType.getToPort());
+                ipPermission.setIpProtocol(mockIpPermissionType.getIpProtocol());
+                ipPermissionEgressSet.getItem().add(ipPermission);
+            }
+            securityGroupItem.setIpPermissionsEgress(ipPermissionEgressSet);
+            securityGroupSet.getItem().add(securityGroupItem);
+        }
         ret.setSecurityGroupInfo(securityGroupSet);
 
         return ret;

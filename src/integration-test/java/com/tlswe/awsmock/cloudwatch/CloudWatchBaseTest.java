@@ -19,8 +19,11 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsRequest;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsResult;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
+import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 
 /**
  * Base underlying class for doing the fundamental calls to aws Cloudwatch interfaces, with neat utility methods which can be
@@ -136,11 +139,27 @@ public class CloudWatchBaseTest {
         request.withStatistics("Average", "SampleCount");
         request.withEndTime(new Date());
         GetMetricStatisticsResult result = amazonCloudWatchClient.getMetricStatistics(request);
-
         if (result != null && !result.getDatapoints().isEmpty()) {
             dataPoint = result.getDatapoints().get(0);
         }
 
         return dataPoint;
+    }
+
+    /**
+     * describerAlarmsTest to get the data points
+     *
+     * @return MetricAlarm
+     */
+    protected final MetricAlarm describerAlarmsTest() {
+    	MetricAlarm metricAlarm = null;
+        DescribeAlarmsRequest describeAlarmsRequest = new DescribeAlarmsRequest();
+        DescribeAlarmsResult result = amazonCloudWatchClient.describeAlarms(describeAlarmsRequest);
+        
+        if (result != null && !result.getMetricAlarms().isEmpty()) {
+        	metricAlarm = result.getMetricAlarms().get(0);
+        }
+
+        return metricAlarm;
     }
 }

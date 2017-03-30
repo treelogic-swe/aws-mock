@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
+import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 import com.tlswe.awsmock.common.util.Constants;
 
 public class GetMetricStaticticsCloudwatchTest extends CloudWatchBaseTest {
@@ -115,5 +116,18 @@ public class GetMetricStaticticsCloudwatchTest extends CloudWatchBaseTest {
         Assert.assertNotNull("data point should not be null", dataPoint);
         Assert.assertNotNull("average should not be null", dataPoint.getAverage());
         Assert.assertNotNull("sample count should not be null", dataPoint.getSampleCount());
+    }
+    
+    /**
+     * Test GetMetricAlarm.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void GetMetricAlarm() {
+        log.info("Start GetMetricAlarm Cloudwatch test");
+
+        MetricAlarm metricAlarm = describerAlarmsTest();
+
+        Assert.assertNotNull("metricAlarm should not be null", metricAlarm);
+        Assert.assertNotNull("metricAlarm Name should not be null", metricAlarm.getAlarmName());
     }
 }

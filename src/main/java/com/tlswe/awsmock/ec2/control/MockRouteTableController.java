@@ -146,7 +146,11 @@ public final class MockRouteTableController {
      * @return the mock RouteTable object
      */
     public MockRouteTable getMockRouteTable(final String routetableId) {
-        return allMockRouteTables.get(routetableId);
+        if (routetableId != null) {
+             return allMockRouteTables.get(routetableId);
+        }
+
+        return null;
     }
 
     /**

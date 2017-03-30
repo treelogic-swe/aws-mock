@@ -24,8 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import com.tlswe.awsmock.cloudwatch.cxf_generated.Datapoint;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.Datapoints;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResult;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResult;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.MetricAlarm;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.MetricAlarms;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.ResponseMetadata;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.StandardUnit;
 import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
@@ -242,6 +246,10 @@ public final class MockCloudWatchQueryHandler {
                                     getMetricStatistics(statistics, startTime, endTime, period,
                                             metricName),
                                     "GetMetricStatistics", version);
+                        } else  if ("DescribeAlarms".equals(action)) {
+                                responseXml = JAXBUtilCW.marshall(
+                                        describeAlarms(),
+                                        "DescribeAlarmsResponse", version);
                         } else {
                             // unsupported/unimplemented action - write an
                             // error
@@ -327,6 +335,35 @@ public final class MockCloudWatchQueryHandler {
         result.setDatapoints(dataPoints);
         result.setLabel(metricName);
         ret.setGetMetricStatisticsResult(result);
+        ResponseMetadata responseMetadata = new ResponseMetadata();
+        responseMetadata.setRequestId(UUID.randomUUID().toString());
+        ret.setResponseMetadata(responseMetadata);
+        return ret;
+    }
+
+    /**
+     * Handles "describeAlarms" request.
+     *
+     * @return a GetMetricStatisticsResult for metricName.
+     */
+    private DescribeAlarmsResponse describeAlarms() {
+        DescribeAlarmsResponse ret = new DescribeAlarmsResponse();
+        DescribeAlarmsResult result = new DescribeAlarmsResult();
+        MetricAlarms metricAlarms = new MetricAlarms();
+
+        MetricAlarm metricAlarm = new MetricAlarm();
+        metricAlarm.setAlarmDescription("CPU usage exceeds 70 percent");
+        metricAlarm.setAlarmName("AwsMockAlarmCPU");
+        metricAlarms.getMember().add(metricAlarm);
+
+        metricAlarm = new MetricAlarm();
+        metricAlarm.setAlarmDescription("Memory usage exceeds 80 percent");
+        metricAlarm.setAlarmName("AwsMockAlarmMemory");
+        metricAlarms.getMember().add(metricAlarm);
+
+        result.setMetricAlarms(metricAlarms);
+
+        ret.setDescribeAlarmsResult(result);
         ResponseMetadata responseMetadata = new ResponseMetadata();
         responseMetadata.setRequestId(UUID.randomUUID().toString());
         ret.setResponseMetadata(responseMetadata);

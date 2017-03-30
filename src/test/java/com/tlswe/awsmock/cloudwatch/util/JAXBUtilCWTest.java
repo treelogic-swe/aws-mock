@@ -11,6 +11,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
@@ -72,6 +73,8 @@ public class JAXBUtilCWTest {
         PowerMockito.spy(PropertiesUtils.class);
         Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE))
                 .thenReturn("true");
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX))
+                .thenReturn("2010-11-15");
         MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
         DateTime startTime = new DateTime().plusHours(-1);
         String[] statistics = { "Average", "SampleCount" };
@@ -102,5 +105,40 @@ public class JAXBUtilCWTest {
                 xml.contains("xmlns:ns2=\"http://monitoring.amazonaws.com/doc/" + PropertiesUtils
                         .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL)));
         Assert.assertTrue(xml.contains("<Label>NetworkOut</Label>"));
+    }
+
+    @Test
+    public void Test_mashallDescribeAlarams() throws Exception {
+        PowerMockito.spy(PropertiesUtils.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+        DescribeAlarmsResponse alarms = Whitebox.invokeMethod(handler,
+                "describeAlarms");
+
+        String xml = JAXBUtilCW.marshall(alarms, "describeAlarms", PropertiesUtils
+                .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL));
+
+        Assert.assertTrue(xml != null && !xml.isEmpty());
+        Assert.assertTrue(
+                xml.contains("xmlns:ns2=\"http://monitoring.amazonaws.com/doc/" + PropertiesUtils
+                        .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL)));
+    }
+    
+    @Test
+    public void Test_mashallDescribeAlaramsElasticFoxTrue() throws Exception {
+
+        PowerMockito.spy(PropertiesUtils.class);
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE))
+                .thenReturn("true");
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX))
+                .thenReturn("2010-08-01");
+
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+        DescribeAlarmsResponse alarms = Whitebox.invokeMethod(handler,
+                "describeAlarms");
+
+        String xml = JAXBUtilCW.marshall(alarms, "describeAlarms", PropertiesUtils
+                .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL));
+
+        Assert.assertTrue(xml != null && !xml.isEmpty());
     }
 }

@@ -97,7 +97,9 @@ public final class MockInternetGatewayController {
      */
     public MockInternetGateway attachInternetGateway(final String internetgatewayId,
             final String vpcId) {
-
+        if (internetgatewayId == null) {
+            return null;
+        }
         MockInternetGateway ret = allMockInternetGateways.get(internetgatewayId);
         if (ret != null) {
             MockInternetGatewayAttachmentType internetGatewayAttachmentType = new MockInternetGatewayAttachmentType();

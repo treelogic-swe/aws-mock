@@ -24,6 +24,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import com.tlswe.awsmock.cloudwatch.cxf_generated.StandardUnit;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
 import com.tlswe.awsmock.common.util.Constants;
@@ -108,6 +109,16 @@ public class MockCloudWatchQueryHandlerTest {
         Assert.assertTrue(getMetric != null);
         Assert.assertTrue(
                 getMetric.getGetMetricStatisticsResult().getDatapoints().getMember().size() == 1);
+    }
+    
+    @Test
+    public void Test_describeAlarms() throws Exception {
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+        DescribeAlarmsResponse alarms = Whitebox.invokeMethod(handler,
+                "describeAlarms");
+        Assert.assertTrue(alarms != null);
+        Assert.assertTrue(
+        		alarms.getDescribeAlarmsResult().getMetricAlarms().getMember().size() == 2);
     }
 
     @Test
@@ -656,6 +667,30 @@ public class MockCloudWatchQueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+    @Test
+    public void Test_handleDescribeAlarms() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtilCW.marshall(Mockito.any(DescribeAlarmsResponse.class),
+                Mockito.eq("DescribeAlarmsResponse"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeAlarms" });
+        
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
     @Test
     public void Test_handleGetMetricStatisticsForNetworkIn() throws IOException {
 

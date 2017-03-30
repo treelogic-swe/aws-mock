@@ -188,8 +188,9 @@ public class Ec2EndpointTest extends BaseTest {
                         AbstractMockEc2Instance.InstanceState.RUNNING);
             }
             
-          /*  // wait for running
-            for (Instance i : instances) {
+           
+            // wait for running
+            /* for (Instance i : instances) {
                 waitForState(i.getInstanceId(),
                         AbstractMockEc2Instance.InstanceState.TERMINATED);
             }*/

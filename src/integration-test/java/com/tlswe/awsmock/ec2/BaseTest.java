@@ -21,6 +21,10 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.AttachInternetGatewayRequest;
 import com.amazonaws.services.ec2.model.AttachInternetGatewayResult;
+import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupEgressRequest;
+import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupEgressResult;
+import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupIngressRequest;
+import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupIngressResult;
 import com.amazonaws.services.ec2.model.AvailabilityZone;
 import com.amazonaws.services.ec2.model.CreateInternetGatewayRequest;
 import com.amazonaws.services.ec2.model.CreateInternetGatewayResult;
@@ -28,6 +32,8 @@ import com.amazonaws.services.ec2.model.CreateRouteRequest;
 import com.amazonaws.services.ec2.model.CreateRouteResult;
 import com.amazonaws.services.ec2.model.CreateRouteTableRequest;
 import com.amazonaws.services.ec2.model.CreateRouteTableResult;
+import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
+import com.amazonaws.services.ec2.model.CreateSecurityGroupResult;
 import com.amazonaws.services.ec2.model.CreateSubnetRequest;
 import com.amazonaws.services.ec2.model.CreateSubnetResult;
 import com.amazonaws.services.ec2.model.CreateTagsRequest;
@@ -40,6 +46,8 @@ import com.amazonaws.services.ec2.model.DeleteInternetGatewayRequest;
 import com.amazonaws.services.ec2.model.DeleteInternetGatewayResult;
 import com.amazonaws.services.ec2.model.DeleteRouteTableRequest;
 import com.amazonaws.services.ec2.model.DeleteRouteTableResult;
+import com.amazonaws.services.ec2.model.DeleteSecurityGroupRequest;
+import com.amazonaws.services.ec2.model.DeleteSecurityGroupResult;
 import com.amazonaws.services.ec2.model.DeleteSubnetRequest;
 import com.amazonaws.services.ec2.model.DeleteTagsRequest;
 import com.amazonaws.services.ec2.model.DeleteTagsResult;
@@ -929,6 +937,29 @@ public class BaseTest {
 
         return subnet;
     }
+    
+    /**
+     * Create Security Group.
+     *
+     * @param groupName the group Name
+     * @param groupDescription the group Description
+     * @param vpcId vpcId for Sg
+     * @return Security Group Id
+     */
+    protected final String createSecurityGroup(final String groupName, final String groupDescription, final String vpcId) {
+        String groupId = null;
+
+        CreateSecurityGroupRequest req = new CreateSecurityGroupRequest();
+        req.setGroupName(groupName);
+        req.setDescription(groupDescription);
+        req.setVpcId(vpcId);
+        CreateSecurityGroupResult result = amazonEC2Client.createSecurityGroup(req);
+        if (result != null) {
+        	groupId = result.getGroupId();
+        }
+
+        return groupId;
+    }
 
     /**
      * Delete Subnet.
@@ -940,6 +971,72 @@ public class BaseTest {
         DeleteSubnetRequest req = new DeleteSubnetRequest();
         req.setSubnetId(subnetId);
         DeleteSubnetResult result = amazonEC2Client.deleteSubnet(req);
+        if (result != null) {
+            return true;
+        }
+        return false;
+     }
+
+    /**
+     * Delete SecurityGroup.
+     *
+     * @param groupId the group id
+     * @return true if deleted, otherwise false.
+     */
+    protected final boolean deleteSecurityGroup(final String groupId) {
+        DeleteSecurityGroupRequest req = new DeleteSecurityGroupRequest();
+        req.setGroupId(groupId);
+        DeleteSecurityGroupResult result = amazonEC2Client.deleteSecurityGroup(req);
+        if (result != null) {
+            return true;
+        }
+
+        /*CreateSecurityGroupRequest createSecurityGroupRequest = new CreateSecurityGroupRequest();
+        AuthorizeSecurityGroupEgressRequest authorizeSecurityGroupEgressRequest = new AuthorizeSecurityGroupEgressRequest();
+        authorizeSecurityGroupEgressRequest.setIpProtocol(ipProtocol);
+        CreateSecurityGroupResult result = amazonEC2Client.authorizeSecurityGroupEgress(authorizeSecurityGroupEgressRequest);*/
+        return false;
+    }
+
+    /**
+     * Authorize SecurityGroup Ingress.
+     * @param groupId the group id
+     * @param ipProtocol ipProtocol for Ingress.
+     * @param port portRange for Ingress.
+     * @param cidrIp cidr Ip for Ingress
+     * @return true if deleted, otherwise false.
+     */
+    protected final boolean authorizeSecurityGroupIngress(final String groupId, final String ipProtocol, final Integer port, final String cidrIp) {
+    	AuthorizeSecurityGroupIngressRequest req = new AuthorizeSecurityGroupIngressRequest();
+        req.setGroupId(groupId);
+        req.setCidrIp(cidrIp);
+        req.setFromPort(port);
+        req.setToPort(port);
+        req.setIpProtocol(ipProtocol);
+        AuthorizeSecurityGroupIngressResult result = amazonEC2Client.authorizeSecurityGroupIngress(req);
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Authorize SecurityGroup Egress.
+     * @param groupId the group id
+     * @param ipProtocol ipProtocol for Egress.
+     * @param port portRange for Egress.
+     * @param cidrIp cidr Ip for Egress
+     * @return true if deleted, otherwise false.
+     */
+    protected final boolean authorizeSecurityGroupEgress(final String groupId, final String ipProtocol, final Integer port, final String cidrIp) {
+    	AuthorizeSecurityGroupEgressRequest req = new AuthorizeSecurityGroupEgressRequest();
+        req.setGroupId(groupId);
+        req.setCidrIp(cidrIp);
+        req.setFromPort(port);
+        req.setToPort(port);
+        req.setIpProtocol(ipProtocol);
+        AuthorizeSecurityGroupEgressResult result = amazonEC2Client.authorizeSecurityGroupEgress(req);
         if (result != null) {
             return true;
         }

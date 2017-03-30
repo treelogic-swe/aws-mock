@@ -34,12 +34,15 @@ import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateInternetGatewayResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateRouteTableResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.CreateSecurityGroupResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateSubnetResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateTagsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.CreateVolumeResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateVpcResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteInternetGatewayResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteRouteTableResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteTagsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DeleteVolumeResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DeleteVpcResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeAvailabilityZonesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
@@ -51,6 +54,7 @@ import com.tlswe.awsmock.ec2.cxf_generated.DescribeRouteTablesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeSecurityGroupsResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeSubnetsResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeTagsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeVpcsResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.InternetGatewayType;
 import com.tlswe.awsmock.ec2.cxf_generated.IpPermissionType;
@@ -69,7 +73,8 @@ import com.tlswe.example.CustomMockEc2Instance;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockEC2QueryHandler.class, MockEc2Controller.class, MockInternetGatewayController.class, MockRouteTableController.class,
-    MockSubnetController.class, MockVolumeController.class, MockVpcController.class, MockTagsController.class, JAXBUtil.class })
+    MockSubnetController.class, MockVolumeController.class, MockVpcController.class, MockTagsController.class, MockSecurityGroupController.class,
+    JAXBUtil.class })
 public class MockEC2QueryHandlerTest {
 
     private static Properties properties = new Properties();
@@ -160,6 +165,31 @@ public class MockEC2QueryHandlerTest {
     @Test
     public void Test_describeSecurityGroups() throws Exception {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+        
+        MockVpcController controller = Mockito.spy(MockVpcController.class);
+        Whitebox.setInternalState(handler, "mockVpcController", controller);
+
+        CreateVpcResponseType ret = Whitebox.invokeMethod(handler, "createVpc", properties.get(Constants.PROP_NAME_CIDR_BLOCK),
+                "Default");
+
+        Assert.assertTrue(ret != null);
+        Assert.assertTrue(ret.getVpc().getVpcId() != null);
+        
+        
+        MockSecurityGroupController controllerSG = Mockito.spy(MockSecurityGroupController.class);
+        Whitebox.setInternalState(handler, "mockSecurityGroupController", controllerSG);
+
+        CreateSecurityGroupResponseType retSg = Whitebox.invokeMethod(handler, "createSecurityGroup", "SgName", "SgDesc", ret.getVpc().getVpcId());
+
+        Assert.assertTrue(retSg != null);
+        Assert.assertTrue(retSg.getGroupId() != null);
+
+        // Ingress
+        Whitebox.invokeMethod(handler, "authorizeSecurityGroupIngress", retSg.getGroupId(),  "TCP", 22, 22, properties.get(Constants.PROP_NAME_CIDR_BLOCK));
+
+        // Egress
+        Whitebox.invokeMethod(handler, "authorizeSecurityGroupEgress", retSg.getGroupId(),  "TCP", 22, 22, properties.get(Constants.PROP_NAME_CIDR_BLOCK));
+
         DescribeSecurityGroupsResponseType describeSecurityGroupsResponseType = Whitebox
                 .invokeMethod(handler,
                         "describeSecurityGroups");
@@ -167,29 +197,6 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(describeSecurityGroupsResponseType != null);
         Assert.assertTrue(
                 describeSecurityGroupsResponseType.getSecurityGroupInfo().getItem().size() == 1); // has one
-                                                                                                                    // Security
-                                                                                                                    // Group
-
-        SecurityGroupItemType securityGroupItem = describeSecurityGroupsResponseType
-                .getSecurityGroupInfo().getItem()
-                .get(0);
-        Assert.assertTrue(securityGroupItem.getGroupId()
-                .equals(properties.get(Constants.PROP_NAME_SECURITY_GROUP_ID)));
-        Assert.assertTrue(securityGroupItem.getGroupName().equals(
-                properties.get(Constants.PROP_NAME_SECURITY_GROUP_NAME)));
-        Assert.assertTrue(securityGroupItem.getOwnerId()
-                .equals(properties.get(Constants.PROP_NAME_SECURITY_OWNER_ID)));
-        Assert.assertTrue(
-                securityGroupItem.getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID)));
-
-        IpPermissionType ipPermission = securityGroupItem.getIpPermissions().getItem().get(0);
-        Assert.assertTrue(ipPermission.getIpProtocol()
-                .equals(properties.get(Constants.PROP_NAME_IP_PROTOCOL)));
-        Assert.assertTrue(ipPermission.getFromPort().equals(
-                Integer.parseInt((String) properties.get(Constants.PROP_NAME_SOURCE_PORT))));
-        Assert.assertTrue(ipPermission.getToPort().equals(
-                Integer.parseInt((String) properties.get(Constants.PROP_NAME_DEST_PORT))));
-
     }
 
     @Test
@@ -289,6 +296,28 @@ public class MockEC2QueryHandlerTest {
 
         Assert.assertTrue(describeRouteTablesResponseType != null);
         Assert.assertTrue(describeRouteTablesResponseType.getSubnetSet().getItem().size() == 1);
+    }
+
+    
+    @Test
+    public void Test_describeVolumes() throws Exception {
+    	MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+    	MockVolumeController controller = Mockito.spy(MockVolumeController.class);
+        Whitebox.setInternalState(handler, "mockVolumeController", controller);
+
+        CreateVolumeResponseType retCreate = Whitebox.invokeMethod(handler, "createVolume", "VolumeType", "23GB", "us-east-1a", 23, "2323");
+
+        Assert.assertTrue(retCreate != null);
+        Assert.assertTrue(retCreate.getVolumeId() != null);
+        DescribeVolumesResponseType volumeResponseType = Whitebox.invokeMethod(handler, "describeVolumes", "", 50);
+
+        Assert.assertTrue(volumeResponseType != null);
+        Assert.assertTrue(volumeResponseType.getVolumeSet().getItem().size() == 1); // has one VPC
+
+        Assert.assertTrue(volumeResponseType.getVolumeSet().getItem().get(0).getVolumeType() != null);
+        
+        DeleteVolumeResponseType deleteVolumeResponseType = Whitebox.invokeMethod(handler, "deleteVolume", volumeResponseType.getVolumeSet().getItem().get(0).getVolumeId());
+        Assert.assertTrue(deleteVolumeResponseType != null);
     }
 
     @Test
@@ -1373,6 +1402,33 @@ public class MockEC2QueryHandlerTest {
     }
 
     @Test
+    public void Test_handleCreateVpcNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("CreateVpcResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "CreateVpc" });
+
+        queryParams.put("CidrBlock", null);
+        queryParams.put("InstanceTenancy", null);
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
     public void Test_handleDeleteVpc() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
@@ -1391,6 +1447,31 @@ public class MockEC2QueryHandlerTest {
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "DeleteVpc" });
         queryParams.put("VpcId", new String[] { "VpcId" });
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleDeleteVpcNull() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DeleteVpcResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DeleteVpc" });
+        queryParams.put("VpcId", null);
         handler.handle(queryParams, response);
 
         String responseString = sw.toString();
@@ -1450,6 +1531,33 @@ public class MockEC2QueryHandlerTest {
     }
 
     @Test
+    public void Test_handleAttachInternetGatewayWithNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("AttachInternetGatewayResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "AttachInternetGateway" });
+        queryParams.put("InternetGatewayId", null);
+        queryParams.put("VpcId", null);
+        
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
     public void Test_handleCreateRoute() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
@@ -1471,6 +1579,34 @@ public class MockEC2QueryHandlerTest {
         queryParams.put("InternetGatewayId", new String[] { "InternetGatewayId1" });
         queryParams.put("DestinationCidrBlock", new String[] { "DestinationCidrBlock1" });
         
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleCreateRouteWithNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("CreateRouteResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "CreateRoute" });
+        queryParams.put("RouteTableId", null);
+        queryParams.put("InternetGatewayId", null);
+        queryParams.put("DestinationCidrBlock", null);
+
         handler.handle(queryParams, response);
 
         String responseString = sw.toString();
@@ -1502,6 +1638,30 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+    public void Test_handleDeleteInternetGatewayWithNull() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DeleteInternetGatewayResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DeleteInternetGateway" });
+        queryParams.put("InternetGatewayId", null);
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+    
     @Test
     public void Test_handleCreateVolume() throws IOException {
 
@@ -1549,11 +1709,11 @@ public class MockEC2QueryHandlerTest {
 
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "CreateVolume" });
-        queryParams.put("SnapshotId", new String[] {});
-        queryParams.put("VolumeType", new String[] {});
-        queryParams.put("Size", new String[] {});
-        queryParams.put("AvailabilityZone", new String[] {});
-        queryParams.put("Iops", new String[] {});
+        queryParams.put("SnapshotId", null);
+        queryParams.put("VolumeType", null);
+        queryParams.put("Size", null);
+        queryParams.put("AvailabilityZone", null);
+        queryParams.put("Iops", null);
         handler.handle(queryParams, response);
 
         String responseString = sw.toString();
@@ -1578,7 +1738,7 @@ public class MockEC2QueryHandlerTest {
 
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "DeleteVolume" });
-
+        queryParams.put("VolumeId", null);
         handler.handle(queryParams, response);
 
         String responseString = sw.toString();
@@ -1612,6 +1772,198 @@ public class MockEC2QueryHandlerTest {
     }
 
     @Test
+    public void Test_handleCreateRouteTableWithNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("CreateRouteTableResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "CreateRouteTable" });
+        queryParams.put("CidrBlock", null);
+        queryParams.put("VpcId", null);
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleCreateSecurityGroup() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("CreateSecurityGroupResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "CreateSecurityGroup" });
+        queryParams.put("GroupName", new String[] { "sgName" });
+        queryParams.put("GroupDescription", new String[] { "sgDesc" });
+        queryParams.put("VpcId", new String[] { "VpcId" });
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleCreateSecurityGroupWithNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("CreateSecurityGroupResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "CreateSecurityGroup" });
+        queryParams.put("GroupName", null);
+        queryParams.put("GroupDescription", null);
+        queryParams.put("VpcId", null);
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleAuthorizeSecurityGroupIngress() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("AuthorizeSecurityGroupIngressResponseType"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "AuthorizeSecurityGroupIngress" });
+        queryParams.put("GroupId", new String[] { "GroupId" });
+        queryParams.put("FromPort", new String[] { "22" });
+        queryParams.put("ToPort", new String[] { "22" });
+        queryParams.put("CidrIp", new String[] { "CidrIp" });
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleAuthorizeSecurityGroupIngressWithNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("AuthorizeSecurityGroupIngressResponseType"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "AuthorizeSecurityGroupIngress" });
+        queryParams.put("GroupId", null);
+        queryParams.put("FromPort", null);
+        queryParams.put("ToPort", null);
+        queryParams.put("CidrIp", null);
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleAuthorizeSecurityGroupEgress() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("AuthorizeSecurityGroupEgressResponseType"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "AuthorizeSecurityGroupEgress" });
+        queryParams.put("GroupId", new String[] { "GroupId" });
+        queryParams.put("FromPort", new String[] { "22" });
+        queryParams.put("ToPort", new String[] { "22" });
+        queryParams.put("CidrIp", new String[] { "CidrIp" });
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+    
+    @Test
+    public void Test_handleAuthorizeSecurityGroupEgressWithNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("AuthorizeSecurityGroupEgressResponseType"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "AuthorizeSecurityGroupEgress" });
+        queryParams.put("GroupId", null);
+        queryParams.put("FromPort", null);
+        queryParams.put("ToPort", null);
+        queryParams.put("CidrIp", null);
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
     public void Test_handleDeleteRouteTable() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
@@ -1636,6 +1988,81 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+    @Test
+    public void Test_handleDeleteRouteTableWithNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DeleteRouteTableResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DeleteRouteTable" });
+        queryParams.put("RouteTableId", null);
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    
+    @Test
+    public void Test_handleDeleteSecurityGroup() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DeleteSecurityGroupResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DeleteSecurityGroup" });
+
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleDeleteSecurityGroupWithNullParam() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DeleteSecurityGroupResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DeleteSecurityGroup" });
+        queryParams.put("SecurityGroupId", null);
+        handler.handle(queryParams, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
 
     @Test
     public void Test_handleDescribeVolumes() throws IOException {
@@ -1655,7 +2082,8 @@ public class MockEC2QueryHandlerTest {
 
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "DescribeVolumes" });
-
+        queryParams.put("MaxResults", new String[] { "50"});
+       
         handler.handle(queryParams, response);
 
         String responseString = sw.toString();

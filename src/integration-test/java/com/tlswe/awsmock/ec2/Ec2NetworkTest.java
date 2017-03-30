@@ -106,7 +106,7 @@ public class Ec2NetworkTest extends BaseTest {
     @Test(timeout = TIMEOUT_LEVEL1)
     public final void describeSecurityGroupTest() {
         log.info("Start describing security group test");
-
+        createSecurityGroupTest();
         SecurityGroup securityGroup = getSecurityGroup();
 
         Assert.assertNotNull("security group should not be null", securityGroup);
@@ -261,11 +261,54 @@ public class Ec2NetworkTest extends BaseTest {
     }
     
     /**
+     * Test create Security Group.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void createSecurityGroupTest() {
+        log.info("Start create Security Group test");
+        Vpc vpc = createVpc(MOCK_CIDR_BLOCK, PROPERTY_TENANCY);
+        
+        String securityGroupId = createSecurityGroup("test-sg", "groupDescription", vpc.getVpcId());
+
+        Assert.assertNotNull("Security Group id should not be null", securityGroupId);
+    }
+
+    /**
+     * Test Authorize Security Group Ingress.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void authorizeSecurityGroupIngressTest() {
+        log.info("Start authorizeSecurityGroupIngressTest test");
+        Vpc vpc = createVpc(MOCK_CIDR_BLOCK, PROPERTY_TENANCY);
+        
+        String securityGroupId = createSecurityGroup("test-sg", "groupDescription", vpc.getVpcId());
+
+        Assert.assertNotNull("Security Group id id should not be null", securityGroupId);
+        Assert.assertTrue("Security Group should be deleted", authorizeSecurityGroupIngress(securityGroupId, "TCP", 22, MOCK_CIDR_BLOCK));
+        
+    }
+
+    /**
+     * Test Authorize Security Group Egress.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void authorizeSecurityGroupEgressTest() {
+        log.info("Start authorizeSecurityGroupEgressTest test");
+        Vpc vpc = createVpc(MOCK_CIDR_BLOCK, PROPERTY_TENANCY);
+        
+        String securityGroupId = createSecurityGroup("test-sg", "groupDescription", vpc.getVpcId());
+
+        Assert.assertNotNull("Security Group id should not be null", securityGroupId);
+        Assert.assertTrue("Security Group should be deleted", authorizeSecurityGroupEgress(securityGroupId, "TCP", 22, MOCK_CIDR_BLOCK));
+        
+    }
+    
+    /**
      * Test delete Subnet.
      */
     @Test(timeout = TIMEOUT_LEVEL1)
     public final void deleteSubnetTest() {
-        log.info("Start create Subnet test");
+        log.info("Start delete Subnet test");
         Vpc vpc = createVpc(MOCK_CIDR_BLOCK, PROPERTY_TENANCY);
         
         Subnet subnet = createSubnet(MOCK_CIDR_BLOCK, vpc.getVpcId());
@@ -275,6 +318,20 @@ public class Ec2NetworkTest extends BaseTest {
         Assert.assertTrue("subnet should be deleted", deleteSubnet(subnet.getSubnetId()));
     }
     
+    /**
+     * Test delete SecurityGroup.
+     */
+    @Test(timeout = TIMEOUT_LEVEL1)
+    public final void deleteSecurityGroupTest() {
+        log.info("Start delete SecurityGroup test");
+        Vpc vpc = createVpc(MOCK_CIDR_BLOCK, PROPERTY_TENANCY);
+        
+        String securityGroupId = createSecurityGroup("test-sg", "groupDescription", vpc.getVpcId());
+
+        Assert.assertNotNull("Security Group should not be null", securityGroupId);
+        Assert.assertTrue("Security Group should be deleted", deleteSecurityGroup(securityGroupId));
+    }
+
     /**
      * Test describing Volumes.
      */
@@ -375,7 +432,7 @@ public class Ec2NetworkTest extends BaseTest {
                 Subnet subnet = createSubnet(MOCK_CIDR_BLOCK, vpc.getVpcId());
                 RouteTable routeTable = createRouteTable(vpc.getVpcId());
                 InternetGateway internetGateway = createInternetGateway();
-                
+
                 createRoute(routeTable.getRouteTableId(), internetGateway.getInternetGatewayId(), MOCK_CIDR_BLOCK);
                 
                 attachInternetGateway(internetGateway.getInternetGatewayId(), vpc.getVpcId());

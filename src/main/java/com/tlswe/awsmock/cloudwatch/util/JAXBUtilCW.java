@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
@@ -72,7 +73,7 @@ public final class JAXBUtilCW {
     }
 
     /**
-     *
+     * marshall object to string.
      * @param obj
      *            GetMetricStatisticsResponse to be serialized and built into xml
      * @param localPartQName
@@ -132,5 +133,67 @@ public final class JAXBUtilCW {
         return ret;
 
     }
+
+    /**
+    *
+    * @param obj
+    *            DescribeAlarmsResponse to be serialized and built into xml
+    * @param localPartQName
+    *            local part of the QName
+    * @param requestVersion
+    *            the version of CloudWatch API used by client (aws-sdk, cmd-line tools or other
+    *            third-party client tools)
+    * @return xml representation bound to the given object
+    */
+   public static String marshall(final DescribeAlarmsResponse obj,
+           final String localPartQName, final String requestVersion) {
+
+       StringWriter writer = new StringWriter();
+
+       try {
+           /*-
+            *  call jaxbMarshaller.marshal() synchronized (fixes the issue of
+            *  java.lang.ArrayIndexOutOfBoundsException: -1
+            *  at com.sun.xml.internal.bind.v2.util.CollisionCheckStack.pushNocheck(CollisionCheckStack.java:117))
+            *  in case of jaxbMarshaller.marshal() is called concurrently
+            */
+           synchronized (jaxbMarshaller) {
+
+               JAXBElement<DescribeAlarmsResponse> jAXBElement = new JAXBElement<DescribeAlarmsResponse>(
+                       new QName(PropertiesUtils
+                               .getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT),
+                               "local"),
+                       DescribeAlarmsResponse.class, obj);
+
+               jaxbMarshaller.marshal(jAXBElement, writer);
+           }
+       } catch (JAXBException e) {
+           String errMsg = "failed to marshall object to xml, localPartQName="
+                   + localPartQName + ", requestVersion="
+                   + requestVersion;
+           log.error("{}, exception message: {}", errMsg, e.getLinkedException());
+           throw new AwsMockException(errMsg, e);
+       }
+
+       String ret = writer.toString();
+
+       /*- If elasticfox.compatible set to true, we replace the version number in the xml
+        * to match the version of elasticfox so that it could successfully accept the xml as reponse.
+        */
+       if ("true".equalsIgnoreCase(PropertiesUtils
+               .getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE))
+               && null != requestVersion
+               && requestVersion.equals(PropertiesUtils
+                       .getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX))) {
+           ret = StringUtils
+                   .replaceOnce(ret, PropertiesUtils
+                           .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL),
+                           PropertiesUtils
+                                   .getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX));
+       }
+
+       return ret;
+
+   }
 
 }
