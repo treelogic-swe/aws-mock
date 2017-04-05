@@ -19,7 +19,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MockEC2QueryHandler.class, HttpServletRequest.class, HttpServletResponse.class})
+@PrepareForTest({ MockEC2QueryHandler.class, HttpServletRequest.class, HttpServletResponse.class })
 public class MockEc2EndpointServletTest {
 
     @Mock
@@ -34,20 +34,20 @@ public class MockEc2EndpointServletTest {
     Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
     @Before
-    public void doSetup(){
-      PowerMockito.mockStatic(MockEC2QueryHandler.class);
-      Mockito.when(MockEC2QueryHandler.getInstance()).thenReturn(handler);
-      Mockito.when(request.getParameterMap()).thenReturn(queryParams);
+    public void doSetup() {
+        PowerMockito.mockStatic(MockEC2QueryHandler.class);
+        Mockito.when(MockEC2QueryHandler.getInstance()).thenReturn(handler);
+        Mockito.when(request.getParameterMap()).thenReturn(queryParams);
     }
 
     @Test
-    public void Test_doPost() throws IOException{
+    public void Test_doPost() throws IOException {
         MockEc2EndpointServlet mockEc2EndpointServlet = new MockEc2EndpointServlet();
         mockEc2EndpointServlet.doPost(request, response);
     }
 
     @Test
-    public void Test_doGet() throws IOException{
+    public void Test_doGet() throws IOException {
         MockEc2EndpointServlet mockEc2EndpointServlet = new MockEc2EndpointServlet();
         mockEc2EndpointServlet.doPost(request, response);
     }

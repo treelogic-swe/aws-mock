@@ -1443,6 +1443,7 @@
       <xs:complexType name="DescribeVolumesResponseType">
         <xs:sequence>
           <xs:element name="requestId" type="xs:string"/>
+          <xs:element name="nextToken" type="xs:string" minOccurs="0"/>
           <xs:element name="volumeSet" type="tns:DescribeVolumesSetResponseType"/>
         </xs:sequence>
       </xs:complexType>

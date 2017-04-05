@@ -17,42 +17,35 @@ public class DefaultMockEc2Instance extends AbstractMockEc2Instance {
      */
     private static final long serialVersionUID = 1L;
 
-
     @Override
     public void onStarted() {
         // do nothing by default
     }
-
 
     @Override
     public void onBooted() {
         // do nothing by default
     }
 
-
     @Override
     public void onStopping() {
         // do nothing by default
     }
-
 
     @Override
     public void onStopped() {
         // do nothing by default
     }
 
-
     @Override
     public void onTerminating() {
         // do nothing by default
     }
 
-
     @Override
     public void onTerminated() {
         // do nothing by default
     }
-
 
     @Override
     public void onInternalTimer() {

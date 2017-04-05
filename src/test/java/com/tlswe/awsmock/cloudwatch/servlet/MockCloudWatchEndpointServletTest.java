@@ -20,7 +20,8 @@ import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
 import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({MockCloudWatchQueryHandler.class, HttpServletRequest.class, HttpServletResponse.class})
+@PrepareForTest({ MockCloudWatchQueryHandler.class, HttpServletRequest.class,
+        HttpServletResponse.class })
 public class MockCloudWatchEndpointServletTest {
 
     @Mock
@@ -35,20 +36,20 @@ public class MockCloudWatchEndpointServletTest {
     Map<String, String[]> queryParams = new HashMap<String, String[]>();
 
     @Before
-    public void doSetup(){
-      PowerMockito.mockStatic(MockCloudWatchQueryHandler.class);
-      Mockito.when(MockCloudWatchQueryHandler.getInstance()).thenReturn(handler);
-      Mockito.when(request.getParameterMap()).thenReturn(queryParams);
+    public void doSetup() {
+        PowerMockito.mockStatic(MockCloudWatchQueryHandler.class);
+        Mockito.when(MockCloudWatchQueryHandler.getInstance()).thenReturn(handler);
+        Mockito.when(request.getParameterMap()).thenReturn(queryParams);
     }
 
     @Test
-    public void Test_doPost() throws IOException{
+    public void Test_doPost() throws IOException {
         MockCloudWatchEndpointServlet mockCloudWatchEndpointServlet = new MockCloudWatchEndpointServlet();
         mockCloudWatchEndpointServlet.doPost(request, response);
     }
 
     @Test
-    public void Test_doGet() throws IOException{
+    public void Test_doGet() throws IOException {
         MockCloudWatchEndpointServlet mockCloudWatchEndpointServlet = new MockCloudWatchEndpointServlet();
         mockCloudWatchEndpointServlet.doPost(request, response);
     }

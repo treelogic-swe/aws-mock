@@ -63,14 +63,12 @@ public final class MockEc2Controller {
      */
     private ScheduledFuture cleanupTerminatedInstancesScheduledFuture = null;
 
-
     /**
      * Constructor of MockEc2Controller is made private and only called once by {@link #getInstance()}.
      */
     private MockEc2Controller() {
 
     }
-
 
     /**
      *
@@ -88,7 +86,6 @@ public final class MockEc2Controller {
         return singletonMockEc2Controller;
     }
 
-
     /**
      * List mock ec2 instances in current aws-mock.
      *
@@ -104,7 +101,6 @@ public final class MockEc2Controller {
             return getInstances(instanceIDs);
         }
     }
-
 
     /**
      * List mock ec2 instance IDs in current aws-mock.
@@ -127,7 +123,6 @@ public final class MockEc2Controller {
             return filteredInstanceIDs;
         }
     }
-
 
     /**
      *
@@ -172,11 +167,13 @@ public final class MockEc2Controller {
         }
 
         if (minCount < 1) {
-            throw new BadEc2RequestException(action, "you should request to run at least 1 instance!");
+            throw new BadEc2RequestException(action,
+                    "you should request to run at least 1 instance!");
         }
 
         if (minCount > maxCount) {
-            throw new BadEc2RequestException(action, "minCount should not be greater than maxCount!");
+            throw new BadEc2RequestException(action,
+                    "minCount should not be greater than maxCount!");
         }
 
         List<T> ret = new ArrayList<T>();
@@ -217,7 +214,6 @@ public final class MockEc2Controller {
 
     }
 
-
     /**
      * Start one or more existing mock ec2 instances.
      *
@@ -254,7 +250,6 @@ public final class MockEc2Controller {
         return ret;
 
     }
-
 
     /**
      * Stop one or more existing mock ec2 instances.
@@ -293,7 +288,6 @@ public final class MockEc2Controller {
 
     }
 
-
     /**
      * Terminate one or more existing mock ec2 instances.
      *
@@ -331,7 +325,6 @@ public final class MockEc2Controller {
 
     }
 
-
     /**
      * List all mock ec2 instances within aws-mock.
      *
@@ -340,7 +333,6 @@ public final class MockEc2Controller {
     public Collection<AbstractMockEc2Instance> getAllMockEc2Instances() {
         return allMockEc2Instances.values();
     }
-
 
     /**
      * Get mock ec2 instance by instance ID.
@@ -352,7 +344,6 @@ public final class MockEc2Controller {
     public AbstractMockEc2Instance getMockEc2Instance(final String instanceID) {
         return allMockEc2Instances.get(instanceID);
     }
-
 
     /**
      * Get mock ec2 instances by instance IDs.
@@ -368,7 +359,6 @@ public final class MockEc2Controller {
         }
         return ret;
     }
-
 
     /**
      * Clear {@link #allMockEc2Instances} and restore it from given a collection of instances.
@@ -387,7 +377,6 @@ public final class MockEc2Controller {
         }
     }
 
-
     /**
      * Clean up terminated mock instances after a pre-defined period. Period is defined in aws-mock.properties (or if
      * not overridden, as defined in aws-mock-default.properties)
@@ -402,8 +391,8 @@ public final class MockEc2Controller {
             /**
              * this method is triggered every pre-defined period
              */
-            private String terminatedState = AbstractMockEc2Instance.InstanceState.TERMINATED.getName();
-
+            private String terminatedState = AbstractMockEc2Instance.InstanceState.TERMINATED
+                    .getName();
 
             @Override
             public void run() {
@@ -418,10 +407,9 @@ public final class MockEc2Controller {
         };
 
         cleanupTerminatedInstancesTimer = Executors.newSingleThreadScheduledExecutor();
-        cleanupTerminatedInstancesScheduledFuture = cleanupTerminatedInstancesTimer.
-                scheduleAtFixedRate(cleanupTerminatedInstancesTask, 0L, period, TimeUnit.SECONDS);
+        cleanupTerminatedInstancesScheduledFuture = cleanupTerminatedInstancesTimer
+                .scheduleAtFixedRate(cleanupTerminatedInstancesTask, 0L, period, TimeUnit.SECONDS);
     }
-
 
     /**
      * Cancel the internal timer of cleaning up terminated mock ec2 instances.

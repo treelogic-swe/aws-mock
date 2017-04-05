@@ -19,7 +19,7 @@ public interface Constants {
      * Property name for the target file to which to make runtime objects
      * persistent.
      */
-    String PROP_NAME_PERSISTENCE_STORE_FILE = "persistence.store.file";
+    String PROP_NAME_PERSISTENCE_STORE_PATH = "persistence.store.path";
 
     /**
      * Property name for class name for objects of mock ec2 instances to be

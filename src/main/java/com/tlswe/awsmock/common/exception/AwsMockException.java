@@ -15,14 +15,12 @@ public class AwsMockException extends RuntimeException {
      */
     private static final long serialVersionUID = 1L;
 
-
     /**
     *
     */
     public AwsMockException() {
         super();
     }
-
 
     /**
      *
@@ -32,7 +30,6 @@ public class AwsMockException extends RuntimeException {
     public AwsMockException(final String message) {
         super(message);
     }
-
 
     /**
      *
@@ -44,7 +41,6 @@ public class AwsMockException extends RuntimeException {
     public AwsMockException(final String message, final Throwable cause) {
         super(message, cause);
     }
-
 
     /**
      *

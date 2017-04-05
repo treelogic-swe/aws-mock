@@ -22,20 +22,20 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Configuration.class, Template.class})
+@PrepareForTest({ Configuration.class, Template.class })
 public class TemplateUtilsTest {
 
     private final String errFTemplateFile = "error.xml.ftl";
 
     @Before
-    public void doSetup(){
+    public void doSetup() {
         Configuration config = new Configuration();
-        config.setClassForTemplateLoading(TemplateUtils.class,"/templates");
+        config.setClassForTemplateLoading(TemplateUtils.class, "/templates");
         Whitebox.setInternalState(TemplateUtils.class, "conf", config);
     }
 
     @Test
-    public void Test_get(){
+    public void Test_get() {
 
         Map<String, Object> data = new HashMap<String, Object>();
 
@@ -46,38 +46,38 @@ public class TemplateUtilsTest {
         String output = TemplateUtils.get(errFTemplateFile, data);
 
         // check that the template file is populated
-        Assert.assertTrue(output!=null && !output.isEmpty());
+        Assert.assertTrue(output != null && !output.isEmpty());
         Assert.assertTrue(output.contains("<Code>101</Code>"));
         Assert.assertTrue(output.contains("<Message>Error happened!</Message>"));
         Assert.assertTrue(output.contains("<RequestID>1</RequestID>"));
     }
 
-    @Test(expected=AwsMockException.class)
-    public void Test_getNoFile(){
+    @Test(expected = AwsMockException.class)
+    public void Test_getNoFile() {
 
         Map<String, Object> data = new HashMap<String, Object>();
 
         TemplateUtils.get("notgiven", data);
     }
 
-    @Test(expected=AwsMockException.class)
-    public void Test_getIOException() throws Exception{
+    @Test(expected = AwsMockException.class)
+    public void Test_getIOException() throws Exception {
 
         Configuration config = Mockito.mock(Configuration.class);
 
         Whitebox.setInternalState(TemplateUtils.class, "conf", config);
         Mockito.doNothing().when(config)
                 .setClassForTemplateLoading(Mockito.eq(TemplateUtils.class), Mockito.anyString());
-        Mockito.when(config.getTemplate(Mockito.anyString())).thenThrow(new IOException("Force IOException"));
+        Mockito.when(config.getTemplate(Mockito.anyString()))
+                .thenThrow(new IOException("Force IOException"));
 
         Map<String, Object> data = new HashMap<String, Object>();
         TemplateUtils.get(errFTemplateFile, data);
 
-
     }
 
-    @Test(expected=AwsMockException.class)
-    public void Test_getProcessTemplateExceptionWithData() throws Exception{
+    @Test(expected = AwsMockException.class)
+    public void Test_getProcessTemplateExceptionWithData() throws Exception {
 
         Configuration config = Mockito.mock(Configuration.class);
         Template template = Mockito.mock(Template.class);
@@ -87,7 +87,8 @@ public class TemplateUtilsTest {
                 .setClassForTemplateLoading(Mockito.eq(TemplateUtils.class), Mockito.anyString());
 
         Mockito.when(config.getTemplate(Mockito.anyString())).thenReturn(template);
-        Mockito.doThrow(new TemplateException("Forced TemplateException", null)).when(template).process(Mockito.any(), Mockito.any(Writer.class));
+        Mockito.doThrow(new TemplateException("Forced TemplateException", null)).when(template)
+                .process(Mockito.any(), Mockito.any(Writer.class));
 
         Map<String, Object> data = new HashMap<String, Object>();
         data.put("errorCode", "101");
@@ -98,8 +99,8 @@ public class TemplateUtilsTest {
 
     }
 
-    @Test(expected=AwsMockException.class)
-    public void Test_getProcessTemplateExceptionWithNoData() throws Exception{
+    @Test(expected = AwsMockException.class)
+    public void Test_getProcessTemplateExceptionWithNoData() throws Exception {
 
         Configuration config = Mockito.mock(Configuration.class);
         Template template = Mockito.mock(Template.class);
@@ -109,14 +110,15 @@ public class TemplateUtilsTest {
                 .setClassForTemplateLoading(Mockito.eq(TemplateUtils.class), Mockito.anyString());
 
         Mockito.when(config.getTemplate(Mockito.anyString())).thenReturn(template);
-        Mockito.doThrow(new TemplateException("Forced TemplateException", null)).when(template).process(Mockito.any(), Mockito.any(Writer.class));
+        Mockito.doThrow(new TemplateException("Forced TemplateException", null)).when(template)
+                .process(Mockito.any(), Mockito.any(Writer.class));
 
         TemplateUtils.get(errFTemplateFile, null);
 
     }
 
-    @Test(expected=AwsMockException.class)
-    public void Test_getProcessIOExceptionWithNoData() throws Exception{
+    @Test(expected = AwsMockException.class)
+    public void Test_getProcessIOExceptionWithNoData() throws Exception {
 
         Configuration config = Mockito.mock(Configuration.class);
         Template template = Mockito.mock(Template.class);
@@ -126,7 +128,8 @@ public class TemplateUtilsTest {
                 .setClassForTemplateLoading(Mockito.eq(TemplateUtils.class), Mockito.anyString());
 
         Mockito.when(config.getTemplate(Mockito.anyString())).thenReturn(template);
-        Mockito.doThrow(new IOException("Forced IOException", null)).when(template).process(Mockito.any(), Mockito.any(Writer.class));
+        Mockito.doThrow(new IOException("Forced IOException", null)).when(template)
+                .process(Mockito.any(), Mockito.any(Writer.class));
 
         Map<String, Object> data = new HashMap<String, Object>();
         TemplateUtils.get(errFTemplateFile, data);
@@ -134,7 +137,7 @@ public class TemplateUtilsTest {
     }
 
     @Test
-    public void Test_write(){
+    public void Test_write() {
 
         Map<String, Object> data = new HashMap<String, Object>();
 
@@ -147,7 +150,7 @@ public class TemplateUtilsTest {
         String output = writer.toString();
 
         // check that the template file is populated
-        Assert.assertTrue(output!=null && !output.isEmpty());
+        Assert.assertTrue(output != null && !output.isEmpty());
         Assert.assertTrue(output.contains("<Code>101</Code>"));
         Assert.assertTrue(output.contains("<Message>Error happened!</Message>"));
         Assert.assertTrue(output.contains("<RequestID>1</RequestID>"));

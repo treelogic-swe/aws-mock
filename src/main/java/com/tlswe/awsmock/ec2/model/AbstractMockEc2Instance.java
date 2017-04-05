@@ -281,7 +281,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          */
         private String name;
 
-
         /**
          * Private constructor for the enums of instance types defined above.
          *
@@ -293,7 +292,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
             this.name = typeName;
         }
 
-
         /**
          * Get the instance type name.
          *
@@ -302,7 +300,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         public String getName() {
             return this.name;
         }
-
 
         /**
          * Tests if an instance type of the given name exists as among all the defined instance types.
@@ -320,7 +317,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
             }
             return false;
         }
-
 
         /**
          * Get enum of an instance type of the given name exists as among all the defined instance types.
@@ -384,7 +380,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          */
         private String name;
 
-
         /**
          * Private constructor for the enums of instance states defined above.
          *
@@ -398,7 +393,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
             this.name = stateName;
         }
 
-
         /**
          * Get the instance state code.
          *
@@ -407,7 +401,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         public int getCode() {
             return code;
         }
-
 
         /**
          * Get the instance state name.
@@ -436,14 +429,12 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          */
         private static final long serialVersionUID = 1L;
 
-
         /**
          * Constructor from superclass.
          */
         public SerializableTimer() {
             super();
         }
-
 
         /**
          * Constructor from superclass.
@@ -492,7 +483,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
      */
     private static final long MILLISECS_IN_A_SECOND = 1000L;
 
-
     /**
      * Get millisecs from properties.
      *
@@ -502,12 +492,14 @@ public abstract class AbstractMockEc2Instance implements Serializable {
      *            the property name for seconds
      * @return millisecs
      */
-    private static long getMsFromProperty(final String propertyName, final String propertyNameInSeconds) {
+    private static long getMsFromProperty(final String propertyName,
+            final String propertyNameInSeconds) {
         String property = PropertiesUtils.getProperty(propertyName);
         if (property != null) {
             return Long.parseLong(property);
         }
-        return Integer.parseInt(PropertiesUtils.getProperty(propertyNameInSeconds)) * MILLISECS_IN_A_SECOND;
+        return Integer.parseInt(PropertiesUtils.getProperty(propertyNameInSeconds))
+                * MILLISECS_IN_A_SECOND;
     }
 
     static {
@@ -576,7 +568,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
      */
     private SerializableTimer timer = null;
 
-
     /**
      * On constructing, an instance ID is assigned.
      */
@@ -588,7 +579,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         }
     }
 
-
     /**
      * Get ID of this mock ec2 instance.
      *
@@ -597,7 +587,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     public final String getInstanceID() {
         return instanceID;
     }
-
 
     /**
      * Test if this mock ec2 instance is during booting phase (pending).
@@ -608,7 +597,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         return booting;
     }
 
-
     /**
      * Test if this mock ec2 instance is running (started/power-on).
      *
@@ -617,7 +605,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     public final boolean isRunning() {
         return running;
     }
-
 
     /**
      * Get public DNS of this mock ec2 instance.
@@ -628,7 +615,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         return pubDns;
     }
 
-
     /**
      * Test if this mock ec2 instance is during stopping phase.
      *
@@ -638,7 +624,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         return stopping;
     }
 
-
     /**
      * Test if this mock ec2 instance is terminated.
      *
@@ -647,7 +632,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     public final boolean isTerminated() {
         return terminated;
     }
-
 
     /**
      * Start scheduling the internal timer that controls the behaviors and states of this mock ec2 instance.
@@ -683,7 +667,8 @@ public abstract class AbstractMockEc2Instance implements Serializable {
                             if (MAX_BOOT_TIME_MILLS != 0) {
                                 try {
                                     Thread.sleep(MIN_BOOT_TIME_MILLS
-                                            + random.nextInt((int) (MAX_BOOT_TIME_MILLS - MIN_BOOT_TIME_MILLS)));
+                                            + random.nextInt((int) (MAX_BOOT_TIME_MILLS
+                                                    - MIN_BOOT_TIME_MILLS)));
                                 } catch (InterruptedException e) {
                                     throw new AwsMockException(
                                             "InterruptedException caught when delaying a mock random 'boot time'",
@@ -737,7 +722,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         }
     }
 
-
     /**
      * Cancel the internal timer of this mock ec2 instance so that it stops its lifecycle-emulation.
      */
@@ -746,7 +730,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         timer = null;
         internalTimerInitialized = false;
     }
-
 
     /**
      * Start a stopped mock ec2 instance.
@@ -769,7 +752,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         }
     }
 
-
     /**
      * Stop this ec2 instance.
      *
@@ -788,7 +770,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
 
     }
 
-
     /**
      * Terminate this ec2 instance.
      *
@@ -806,7 +787,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
 
     }
 
-
     /**
      * Get state of this mock ec2 instance.
      *
@@ -820,7 +800,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
                                         : InstanceState.STOPPED)));
     }
 
-
     /**
      * Get the AMI this mock ec2 instance started from.
      *
@@ -829,7 +808,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     public final String getImageId() {
         return imageId;
     }
-
 
     /**
      * Set the AMI this mock ec2 instance starts from.
@@ -841,7 +819,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         this.imageId = newImageID;
     }
 
-
     /**
      * Get type of this mock ec2 instance.
      *
@@ -850,7 +827,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     public final InstanceType getInstanceType() {
         return instanceType;
     }
-
 
     /**
      * Set type of this mock ec2 instance.
@@ -862,7 +838,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         this.instanceType = newInstanceType;
     }
 
-
     /**
      * Get the security groups used by this mock ec2 instance.
      *
@@ -871,7 +846,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
     public final Set<String> getSecurityGroups() {
         return securityGroups;
     }
-
 
     /**
      * Get the security groups used by this mock ec2 instance.
@@ -885,7 +859,6 @@ public abstract class AbstractMockEc2Instance implements Serializable {
         }
     }
 
-
     /**
      * Generate a random public dns name for a mock EC2 instance.
      *
@@ -895,45 +868,39 @@ public abstract class AbstractMockEc2Instance implements Serializable {
 
         return MOCK_PUBDNS_PREFIX
                 + UUID.randomUUID().toString()
-                        .toLowerCase() + MOCK_PUBDNS_POSTFIX;
+                        .toLowerCase()
+                + MOCK_PUBDNS_POSTFIX;
     }
-
 
     /**
      * Triggered right after the 'instance' is 'powered-on'.
      */
     public abstract void onStarted();
 
-
     /**
      * Triggered after the 'instance' boots into 'OS'.
      */
     public abstract void onBooted();
-
 
     /**
      * Triggered on 'instance' entering the process of shutdown.
      */
     public abstract void onStopping();
 
-
     /**
      * Triggered right after the 'instance' is 'powered-off'.
      */
     public abstract void onStopped();
-
 
     /**
      * Triggered on 'instance' entering the process of termination.
      */
     public abstract void onTerminating();
 
-
     /**
      * Triggered right after the 'instance' is terminated.
      */
     public abstract void onTerminated();
-
 
     /**
      * Triggered on arriving interval of the internal timer of mock ec2 instance. <br>

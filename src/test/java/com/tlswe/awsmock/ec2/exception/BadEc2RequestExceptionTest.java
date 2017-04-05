@@ -5,20 +5,21 @@ import org.junit.Test;
 
 public class BadEc2RequestExceptionTest {
 
-    @Test(expected=BadEc2RequestException.class)
-    public void TestBadEc2RequestExceptionActionAndMessage(){
+    @Test(expected = BadEc2RequestException.class)
+    public void TestBadEc2RequestExceptionActionAndMessage() {
         throw new BadEc2RequestException("Action", "Message");
     }
 
-    @Test(expected=BadEc2RequestException.class)
-    public void TestBadEc2RequestExceptionActionMessageAndThrowable(){
+    @Test(expected = BadEc2RequestException.class)
+    public void TestBadEc2RequestExceptionActionMessageAndThrowable() {
         throw new BadEc2RequestException("Action", "Message", new Exception());
     }
 
     @Test
-    public void TestGetAction(){
+    public void TestGetAction() {
 
-        BadEc2RequestException exception= new BadEc2RequestException("Action", "Message", new Exception());
+        BadEc2RequestException exception = new BadEc2RequestException("Action", "Message",
+                new Exception());
         Assert.assertTrue("Action".equals(exception.getAction()));
     }
 

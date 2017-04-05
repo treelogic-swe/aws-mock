@@ -24,8 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import com.tlswe.awsmock.cloudwatch.cxf_generated.Datapoint;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.Datapoints;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResult;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResult;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.MetricAlarm;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.MetricAlarms;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.ResponseMetadata;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.StandardUnit;
 import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
@@ -75,23 +79,6 @@ public final class MockCloudWatchQueryHandler {
     private static final Set<String> MOCK_AMIS = new TreeSet<String>();
 
     /**
-     * Predefined mock volume Type.
-     */
-    private static final String MOCK_VOLUME_TYPE = PropertiesUtils.getProperty(Constants.PROP_NAME_VOLUME_TYPE);
-
-    /**
-     * Predefined mock volume Status.
-     */
-    private static final String MOCK_VOLUME_STATUS = PropertiesUtils.getProperty(Constants.PROP_NAME_VOLUME_STATUS);
-
-    /**
-     * The remaining paged records of instance IDs per token by
-     * 'describeInstances'.
-     */
-    private static Map<String, Set<String>> token2RemainingDescribedInstanceIDs
-                    = new ConcurrentHashMap<String, Set<String>>();
-
-    /**
      * A common random generator.
      */
     private static Random random = new Random();
@@ -101,11 +88,6 @@ public final class MockCloudWatchQueryHandler {
      * req/resp pagination).
      */
     private static final String TOKEN_DICT = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    /**
-     * Token mid-string length.
-     */
-    private static final int AVAILABLE_IP_ADDRESS_COUNT = 251;
 
     /**
      * Token prefix length.
@@ -199,7 +181,7 @@ public final class MockCloudWatchQueryHandler {
      *
      */
     public void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
-           throws IOException {
+            throws IOException {
         if (null == response) {
             // do nothing in case null is passed in
             return;
@@ -210,7 +192,8 @@ public final class MockCloudWatchQueryHandler {
         if (null == queryParams || queryParams.size() == 0) {
             // no params found at all - write an error xml response
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            responseXml = getXmlError("InvalidQuery", "No parameter in query at all! " + REF_CLOUDWATCH_QUERY_API_DESC);
+            responseXml = getXmlError("InvalidQuery",
+                    "No parameter in query at all! " + REF_CLOUDWATCH_QUERY_API_DESC);
         } else {
             // parse the parameters in query
             String[] versionParamValues = queryParams.get("Version");
@@ -219,7 +202,8 @@ public final class MockCloudWatchQueryHandler {
                 // no version param found - write an error xml response
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 responseXml = getXmlError("InvalidQuery",
-                   "There should be a parameter of 'Version' provided in the query! " + REF_CLOUDWATCH_QUERY_API_DESC);
+                        "There should be a parameter of 'Version' provided in the query! "
+                                + REF_CLOUDWATCH_QUERY_API_DESC);
             } else {
 
                 String version = versionParamValues[0];
@@ -230,7 +214,8 @@ public final class MockCloudWatchQueryHandler {
                     // no action found - write response for error
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     responseXml = getXmlError("InvalidQuery",
-                    "There should be a parameter of 'Action' provided in the query! " + REF_CLOUDWATCH_QUERY_API_DESC);
+                            "There should be a parameter of 'Action' provided in the query! "
+                                    + REF_CLOUDWATCH_QUERY_API_DESC);
                 } else {
 
                     String action = actions[0];
@@ -242,7 +227,8 @@ public final class MockCloudWatchQueryHandler {
                         if ("GetMetricStatistics".equals(action)) {
 
                             DateTimeZone zone = DateTimeZone.UTC;
-                            DateTime startTime = new DateTime(queryParams.get("StartTime")[0], zone);
+                            DateTime startTime = new DateTime(queryParams.get("StartTime")[0],
+                                    zone);
                             DateTime endTime = new DateTime(queryParams.get("EndTime")[0], zone);
 
                             String[] statistics = new String[2];
@@ -257,8 +243,13 @@ public final class MockCloudWatchQueryHandler {
                             String metricName = queryParams.get("MetricName")[0];
                             int period = Integer.parseInt(queryParams.get("Period")[0]);
                             responseXml = JAXBUtilCW.marshall(
-                                    getMetricStatistics(statistics, startTime, endTime, period, metricName),
+                                    getMetricStatistics(statistics, startTime, endTime, period,
+                                            metricName),
                                     "GetMetricStatistics", version);
+                        } else  if ("DescribeAlarms".equals(action)) {
+                                responseXml = JAXBUtilCW.marshall(
+                                        describeAlarms(),
+                                        "DescribeAlarmsResponse", version);
                         } else {
                             // unsupported/unimplemented action - write an
                             // error
@@ -267,21 +258,30 @@ public final class MockCloudWatchQueryHandler {
                             String allImplementedActions = "runInstances|stopInstances|startInstances|"
                                     + "terminateInstances|describeInstances|describeImages";
                             responseXml = getXmlError("NotImplementedAction",
-                                    "Action '" + action + "' has not been implemented yet in aws-mock. "
-                                         + "For now we only support actions as following: " + allImplementedActions);
+                                    "Action '" + action
+                                            + "' has not been implemented yet in aws-mock. "
+                                            + "For now we only support actions as following: "
+                                            + allImplementedActions);
                         }
                     } catch (BadEc2RequestException e) {
                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                         responseXml = getXmlError("InvalidQuery",
-                          "invalid request for '" + action + "'. " + e.getMessage() + REF_CLOUDWATCH_QUERY_API_DESC);
+                                "invalid request for '" + action + "'. " + e.getMessage()
+                                        + REF_CLOUDWATCH_QUERY_API_DESC);
                     } catch (AwsMockException e) {
-                        log.error("server error occured while processing '{}' request. {}", action, e.getMessage());
+                        log.error("server error occured while processing '{}' request. {}", action,
+                                e.getMessage());
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                         responseXml = getXmlError("InternalError", e.getMessage());
                     } catch (Exception e) {
-                        log.error("server error occured while processing '{}' request. {}", action, e.getMessage());
+                        log.error("server error occured while processing '{}' request. {}", action,
+                                e.getMessage());
                         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                        responseXml = getXmlError("InternalError", e.getMessage());
+                        if (e.getMessage() != null) {
+                             responseXml = getXmlError("InternalError", e.getMessage());
+                        } else {
+                             responseXml = "InternalError";
+                        }
                     }
 
                 }
@@ -311,7 +311,8 @@ public final class MockCloudWatchQueryHandler {
      *            Metric Name.
      * @return a GetMetricStatisticsResult for metricName.
      */
-    private GetMetricStatisticsResponse getMetricStatistics(final String[] statistics, final DateTime startTime,
+    private GetMetricStatisticsResponse getMetricStatistics(final String[] statistics,
+            final DateTime startTime,
             final DateTime endTime, final int period, final String metricName) {
         GetMetricStatisticsResponse ret = new GetMetricStatisticsResponse();
         GetMetricStatisticsResult result = new GetMetricStatisticsResult();
@@ -334,6 +335,35 @@ public final class MockCloudWatchQueryHandler {
         result.setDatapoints(dataPoints);
         result.setLabel(metricName);
         ret.setGetMetricStatisticsResult(result);
+        ResponseMetadata responseMetadata = new ResponseMetadata();
+        responseMetadata.setRequestId(UUID.randomUUID().toString());
+        ret.setResponseMetadata(responseMetadata);
+        return ret;
+    }
+
+    /**
+     * Handles "describeAlarms" request.
+     *
+     * @return a GetMetricStatisticsResult for metricName.
+     */
+    private DescribeAlarmsResponse describeAlarms() {
+        DescribeAlarmsResponse ret = new DescribeAlarmsResponse();
+        DescribeAlarmsResult result = new DescribeAlarmsResult();
+        MetricAlarms metricAlarms = new MetricAlarms();
+
+        MetricAlarm metricAlarm = new MetricAlarm();
+        metricAlarm.setAlarmDescription("CPU usage exceeds 70 percent");
+        metricAlarm.setAlarmName("AwsMockAlarmCPU");
+        metricAlarms.getMember().add(metricAlarm);
+
+        metricAlarm = new MetricAlarm();
+        metricAlarm.setAlarmDescription("Memory usage exceeds 80 percent");
+        metricAlarm.setAlarmName("AwsMockAlarmMemory");
+        metricAlarms.getMember().add(metricAlarm);
+
+        result.setMetricAlarms(metricAlarms);
+
+        ret.setDescribeAlarmsResult(result);
         ResponseMetadata responseMetadata = new ResponseMetadata();
         responseMetadata.setRequestId(UUID.randomUUID().toString());
         ret.setResponseMetadata(responseMetadata);
@@ -373,62 +403,97 @@ public final class MockCloudWatchQueryHandler {
         int max = 1;
 
         if (metricName.equals(Constants.CPU_UTILIZATION)) {
-           min = Integer.parseInt(PropertiesUtils.getProperty(Constants.CPU_UTILIZATION_RANGE_AVERAGE).split(",")[0]);
-           max = Integer.parseInt(PropertiesUtils.getProperty(Constants.CPU_UTILIZATION_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.CPU_UTILIZATION_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.CPU_UTILIZATION_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.DISK_READ_BYTES)) {
-           min = Integer.parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_BYTES_RANGE_AVERAGE).split(",")[0]);
-           max = Integer.parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_BYTES_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.DISK_READ_BYTES_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.DISK_READ_BYTES_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.DISK_READ_OPS)) {
-           min = Integer.parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_OPS_RANGE_AVERAGE).split(",")[0]);
-           max = Integer.parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_OPS_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.DISK_READ_OPS_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.DISK_READ_OPS_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.DISK_WRITE_BYTES)) {
-           min = Integer.parseInt(PropertiesUtils.getProperty(Constants.DISK_WRITE_BYTES_RANGE_AVERAGE).split(",")[0]);
-           max = Integer.parseInt(PropertiesUtils.getProperty(Constants.DISK_WRITE_BYTES_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.DISK_WRITE_BYTES_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.DISK_WRITE_BYTES_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.DISK_WRITE_OPS)) {
-           min = Integer.parseInt(PropertiesUtils.getProperty(Constants.DISK_WRITE_OPS_RANGE_AVERAGE).split(",")[0]);
-           max = Integer.parseInt(PropertiesUtils.getProperty(Constants.DISK_WRITE_OPS_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.DISK_WRITE_OPS_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.DISK_WRITE_OPS_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.NETWORK_IN)) {
-           min = Integer.parseInt(PropertiesUtils.getProperty(Constants.NETWORK_IN_RANGE_AVERAGE).split(",")[0]);
-           max = Integer.parseInt(PropertiesUtils.getProperty(Constants.NETWORK_IN_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(
+                    PropertiesUtils.getProperty(Constants.NETWORK_IN_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(
+                    PropertiesUtils.getProperty(Constants.NETWORK_IN_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.NETWORK_OUT)) {
-           min = Integer.parseInt(PropertiesUtils.getProperty(Constants.NETWORK_OUT_RANGE_AVERAGE).split(",")[0]);
-           max = Integer.parseInt(PropertiesUtils.getProperty(Constants.NETWORK_OUT_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(
+                    PropertiesUtils.getProperty(Constants.NETWORK_OUT_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(
+                    PropertiesUtils.getProperty(Constants.NETWORK_OUT_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.NETWORK_PACKETS_IN)) {
-           min = Integer.
-                   parseInt(PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_IN_RANGE_AVERAGE).split(",")[0]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.NETWORK_PACKETS_IN_RANGE_AVERAGE).split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_IN_RANGE_AVERAGE).split(",")[1]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.NETWORK_PACKETS_IN_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.NETWORK_PACKETS_OUT)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_OUT_RANGE_AVERAGE).split(",")[0]);
+                    .parseInt(
+                            PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_OUT_RANGE_AVERAGE)
+                                    .split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_OUT_RANGE_AVERAGE).split(",")[1]);
+                    .parseInt(
+                            PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_OUT_RANGE_AVERAGE)
+                                    .split(",")[1]);
         } else if (metricName.equals(Constants.STATUS_CHECK_FAILED)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_RANGE_AVERAGE).split(",")[0]);
+                    .parseInt(
+                            PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_RANGE_AVERAGE)
+                                    .split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_RANGE_AVERAGE).split(",")[1]);
+                    .parseInt(
+                            PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_RANGE_AVERAGE)
+                                    .split(",")[1]);
         } else if (metricName.equals(Constants.STATUS_CHECK_FAILED_INSTANCE)) {
             min = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_INSTANCE_RANGE_AVERAGE).split(",")[0]);
+                    PropertiesUtils
+                            .getProperty(Constants.STATUS_CHECK_FAILED_INSTANCE_RANGE_AVERAGE)
+                            .split(",")[0]);
             max = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_INSTANCE_RANGE_AVERAGE).split(",")[1]);
+                    PropertiesUtils
+                            .getProperty(Constants.STATUS_CHECK_FAILED_INSTANCE_RANGE_AVERAGE)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.STATUS_CHECK_FAILED_SYSTEM)) {
             min = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_SYSTEM_RANGE_AVERAGE).split(",")[0]);
+                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_SYSTEM_RANGE_AVERAGE)
+                            .split(",")[0]);
             max = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_SYSTEM_RANGE_AVERAGE).split(",")[1]);
+                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_SYSTEM_RANGE_AVERAGE)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.CPU_CREDIT_USAGE)) {
-           min = Integer.parseInt(PropertiesUtils.getProperty(Constants.CPU_CREDIT_USAGE_RANGE_AVERAGE).split(",")[0]);
-           max = Integer.parseInt(PropertiesUtils.getProperty(Constants.CPU_CREDIT_USAGE_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.CPU_CREDIT_USAGE_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.CPU_CREDIT_USAGE_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.ESTIMATED_CHARGES)) {
-          min = Integer.parseInt(PropertiesUtils.getProperty(Constants.ESTIMATED_CHARGES_RANGE_AVERAGE).split(",")[0]);
-          max = Integer.parseInt(PropertiesUtils.getProperty(Constants.ESTIMATED_CHARGES_RANGE_AVERAGE).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.ESTIMATED_CHARGES_RANGE_AVERAGE).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.ESTIMATED_CHARGES_RANGE_AVERAGE).split(",")[1]);
         } else if (metricName.equals(Constants.CPU_CREDIT_BALANCE)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.CPU_CREDIT_BALANCE_RANGE_AVERAGE).split(",")[0]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.CPU_CREDIT_BALANCE_RANGE_AVERAGE).split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.CPU_CREDIT_BALANCE_RANGE_AVERAGE).split(",")[1]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.CPU_CREDIT_BALANCE_RANGE_AVERAGE).split(",")[1]);
         }
 
         return new Random().nextInt((max - min) + 1) + min;
@@ -447,75 +512,113 @@ public final class MockCloudWatchQueryHandler {
 
         if (metricName.equals(Constants.CPU_UTILIZATION)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.CPU_UTILIZATION_RANGE_SAMPLECOUNT).split(",")[0]);
+                    .parseInt(
+                            PropertiesUtils.getProperty(Constants.CPU_UTILIZATION_RANGE_SAMPLECOUNT)
+                                    .split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.CPU_UTILIZATION_RANGE_SAMPLECOUNT).split(",")[1]);
+                    .parseInt(
+                            PropertiesUtils.getProperty(Constants.CPU_UTILIZATION_RANGE_SAMPLECOUNT)
+                                    .split(",")[1]);
         } else if (metricName.equals(Constants.DISK_READ_BYTES)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_BYTES_RANGE_SAMPLECOUNT).split(",")[0]);
+                    .parseInt(
+                            PropertiesUtils.getProperty(Constants.DISK_READ_BYTES_RANGE_SAMPLECOUNT)
+                                    .split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_BYTES_RANGE_SAMPLECOUNT).split(",")[1]);
+                    .parseInt(
+                            PropertiesUtils.getProperty(Constants.DISK_READ_BYTES_RANGE_SAMPLECOUNT)
+                                    .split(",")[1]);
         } else if (metricName.equals(Constants.DISK_READ_OPS)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_OPS_RANGE_SAMPLECOUNT).split(",")[0]);
+                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_OPS_RANGE_SAMPLECOUNT)
+                            .split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_OPS_RANGE_SAMPLECOUNT).split(",")[1]);
+                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_READ_OPS_RANGE_SAMPLECOUNT)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.DISK_WRITE_BYTES)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_WRITE_BYTES_RANGE_SAMPLECOUNT).split(",")[0]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.DISK_WRITE_BYTES_RANGE_SAMPLECOUNT)
+                            .split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_WRITE_BYTES_RANGE_SAMPLECOUNT).split(",")[1]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.DISK_WRITE_BYTES_RANGE_SAMPLECOUNT)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.DISK_WRITE_OPS)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_WRITE_OPS_RANGE_SAMPLECOUNT).split(",")[0]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.DISK_WRITE_OPS_RANGE_SAMPLECOUNT).split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.DISK_WRITE_OPS_RANGE_SAMPLECOUNT).split(",")[1]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.DISK_WRITE_OPS_RANGE_SAMPLECOUNT).split(",")[1]);
         } else if (metricName.equals(Constants.NETWORK_IN)) {
-            min = Integer.parseInt(PropertiesUtils.getProperty(Constants.NETWORK_IN_RANGE_SAMPLECOUNT).split(",")[0]);
-            max = Integer.parseInt(PropertiesUtils.getProperty(Constants.NETWORK_IN_RANGE_SAMPLECOUNT).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.NETWORK_IN_RANGE_SAMPLECOUNT).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.NETWORK_IN_RANGE_SAMPLECOUNT).split(",")[1]);
         } else if (metricName.equals(Constants.NETWORK_OUT)) {
-            min = Integer.parseInt(PropertiesUtils.getProperty(Constants.NETWORK_OUT_RANGE_SAMPLECOUNT).split(",")[0]);
-            max = Integer.parseInt(PropertiesUtils.getProperty(Constants.NETWORK_OUT_RANGE_SAMPLECOUNT).split(",")[1]);
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.NETWORK_OUT_RANGE_SAMPLECOUNT).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.NETWORK_OUT_RANGE_SAMPLECOUNT).split(",")[1]);
         } else if (metricName.equals(Constants.NETWORK_PACKETS_IN)) {
             min = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_IN_RANGE_SAMPLECOUNT).split(",")[0]);
+                    PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_IN_RANGE_SAMPLECOUNT)
+                            .split(",")[0]);
             max = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_IN_RANGE_SAMPLECOUNT).split(",")[1]);
+                    PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_IN_RANGE_SAMPLECOUNT)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.NETWORK_PACKETS_OUT)) {
             min = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_OUT_RANGE_SAMPLECOUNT).split(",")[0]);
+                    PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_OUT_RANGE_SAMPLECOUNT)
+                            .split(",")[0]);
             max = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_OUT_RANGE_SAMPLECOUNT).split(",")[1]);
+                    PropertiesUtils.getProperty(Constants.NETWORK_PACKETS_OUT_RANGE_SAMPLECOUNT)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.STATUS_CHECK_FAILED)) {
             min = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_RANGE_SAMPLECOUNT).split(",")[0]);
+                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_RANGE_SAMPLECOUNT)
+                            .split(",")[0]);
             max = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_RANGE_SAMPLECOUNT).split(",")[1]);
+                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_RANGE_SAMPLECOUNT)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.STATUS_CHECK_FAILED_INSTANCE)) {
-            min = Integer.parseInt(PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_INSTANCE_RANGE_SAMPLECOUNT)
+            min = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.STATUS_CHECK_FAILED_INSTANCE_RANGE_SAMPLECOUNT)
                     .split(",")[0]);
-            max = Integer.parseInt(PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_INSTANCE_RANGE_SAMPLECOUNT)
+            max = Integer.parseInt(PropertiesUtils
+                    .getProperty(Constants.STATUS_CHECK_FAILED_INSTANCE_RANGE_SAMPLECOUNT)
                     .split(",")[1]);
         } else if (metricName.equals(Constants.STATUS_CHECK_FAILED_SYSTEM)) {
             min = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_SYSTEM_RANGE_SAMPLECOUNT).split(",")[0]);
+                    PropertiesUtils
+                            .getProperty(Constants.STATUS_CHECK_FAILED_SYSTEM_RANGE_SAMPLECOUNT)
+                            .split(",")[0]);
             max = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.STATUS_CHECK_FAILED_SYSTEM_RANGE_SAMPLECOUNT).split(",")[1]);
+                    PropertiesUtils
+                            .getProperty(Constants.STATUS_CHECK_FAILED_SYSTEM_RANGE_SAMPLECOUNT)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.CPU_CREDIT_USAGE)) {
             min = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.CPU_CREDIT_USAGE_RANGE_SAMPLECOUNT).split(",")[0]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.CPU_CREDIT_USAGE_RANGE_SAMPLECOUNT)
+                            .split(",")[0]);
             max = Integer
-                    .parseInt(PropertiesUtils.getProperty(Constants.CPU_CREDIT_USAGE_RANGE_SAMPLECOUNT).split(",")[1]);
+                    .parseInt(PropertiesUtils
+                            .getProperty(Constants.CPU_CREDIT_USAGE_RANGE_SAMPLECOUNT)
+                            .split(",")[1]);
         } else if (metricName.equals(Constants.ESTIMATED_CHARGES)) {
-          min = Integer.parseInt(PropertiesUtils.getProperty(
-                  Constants.ESTIMATED_CHARGES_RANGE_SAMPLECOUNT).split(",")[0]);
-          max = Integer.parseInt(PropertiesUtils.getProperty(
-                  Constants.ESTIMATED_CHARGES_RANGE_SAMPLECOUNT).split(",")[1]);
-         } else if (metricName.equals(Constants.CPU_CREDIT_BALANCE)) {
+            min = Integer.parseInt(PropertiesUtils.getProperty(
+                    Constants.ESTIMATED_CHARGES_RANGE_SAMPLECOUNT).split(",")[0]);
+            max = Integer.parseInt(PropertiesUtils.getProperty(
+                    Constants.ESTIMATED_CHARGES_RANGE_SAMPLECOUNT).split(",")[1]);
+        } else if (metricName.equals(Constants.CPU_CREDIT_BALANCE)) {
             min = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.CPU_CREDIT_BALANCE_RANGE_SAMPLECOUNT).split(",")[0]);
+                    PropertiesUtils.getProperty(Constants.CPU_CREDIT_BALANCE_RANGE_SAMPLECOUNT)
+                            .split(",")[0]);
             max = Integer.parseInt(
-                    PropertiesUtils.getProperty(Constants.CPU_CREDIT_BALANCE_RANGE_SAMPLECOUNT).split(",")[1]);
+                    PropertiesUtils.getProperty(Constants.CPU_CREDIT_BALANCE_RANGE_SAMPLECOUNT)
+                            .split(",")[1]);
         }
 
         return new Random().nextInt((max - min) + 1) + min;

@@ -25,7 +25,6 @@ public class MockCloudWatchEndpointServlet extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
-
     /**
      * Pass the query parameters from client to {@link MockCloudWatchQueryHandler} and write response to client.
      *
@@ -38,8 +37,7 @@ public class MockCloudWatchEndpointServlet extends HttpServlet {
      */
     @Override
     protected final void doGet(final HttpServletRequest request,
-            final HttpServletResponse response) throws
-            IOException {
+            final HttpServletResponse response) throws IOException {
 
         @SuppressWarnings("unchecked")
         /*-
@@ -49,16 +47,11 @@ public class MockCloudWatchEndpointServlet extends HttpServlet {
         Map<String, String[]> queryParams = (Map<String, String[]>) request
                 .getParameterMap();
 
-        for (String key: queryParams.keySet()) {
-            System.out.println(key + " : "  + queryParams.get(key)[0]);
-        }
-
         response.setContentType("text/xml");
         response.setCharacterEncoding("UTF-8");
 
         MockCloudWatchQueryHandler.getInstance().handle(queryParams, response);
     }
-
 
     /**
      * Refer to {@link MockCloudWatchEndpointServlet#doGet}.
@@ -72,8 +65,7 @@ public class MockCloudWatchEndpointServlet extends HttpServlet {
      */
     @Override
     protected final void doPost(final HttpServletRequest request,
-            final HttpServletResponse response) throws
-            IOException {
+            final HttpServletResponse response) throws IOException {
         doGet(request, response);
     }
 

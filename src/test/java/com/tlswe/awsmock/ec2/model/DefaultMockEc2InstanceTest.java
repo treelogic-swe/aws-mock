@@ -17,7 +17,7 @@ import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({AbstractMockEc2Instance.class})
+@PrepareForTest({ AbstractMockEc2Instance.class })
 public class DefaultMockEc2InstanceTest {
 
     private static final String MAX_BOOT_TIME_MILLS = "MAX_BOOT_TIME_MILLS";
@@ -26,7 +26,7 @@ public class DefaultMockEc2InstanceTest {
     private static final String AMI_234 = "ami-234";
 
     @Test
-    public void Test_allOverriddenMethods(){
+    public void Test_allOverriddenMethods() {
 
         DefaultMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
         defaultMockEc2Instance.onStarted();
@@ -39,7 +39,7 @@ public class DefaultMockEc2InstanceTest {
     }
 
     @Test
-    public void Test_instanceTypeEnum(){
+    public void Test_instanceTypeEnum() {
 
         InstanceType instanceType = InstanceType.C1_XLARGE;
 
@@ -51,7 +51,7 @@ public class DefaultMockEc2InstanceTest {
     }
 
     @Test
-    public void Test_instanceStateEnum(){
+    public void Test_instanceStateEnum() {
 
         InstanceState instanceState = InstanceState.RUNNING;
 
@@ -60,7 +60,7 @@ public class DefaultMockEc2InstanceTest {
     }
 
     @Test
-    public void Test_getInstanceID(){
+    public void Test_getInstanceID() {
 
         DefaultMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
         Assert.assertNotNull(defaultMockEc2Instance.getInstanceID());
@@ -68,7 +68,7 @@ public class DefaultMockEc2InstanceTest {
     }
 
     @Test
-    public void Test_routineLifeCycleMethodsForInstance(){
+    public void Test_routineLifeCycleMethodsForInstance() {
 
         DefaultMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
         defaultMockEc2Instance.setInstanceType(InstanceType.C1_MEDIUM);
@@ -96,17 +96,17 @@ public class DefaultMockEc2InstanceTest {
         Assert.assertTrue(defaultMockEc2Instance.isTerminated());
 
         // check instance state
-        Assert.assertTrue(defaultMockEc2Instance.getInstanceState()==InstanceState.TERMINATED);
+        Assert.assertTrue(defaultMockEc2Instance.getInstanceState() == InstanceState.TERMINATED);
 
         // check instance type
-        Assert.assertTrue(defaultMockEc2Instance.getInstanceType()==InstanceType.C1_MEDIUM);
+        Assert.assertTrue(defaultMockEc2Instance.getInstanceType() == InstanceType.C1_MEDIUM);
 
         // check image
         Assert.assertTrue(defaultMockEc2Instance.getImageId().equals(AMI_234));
     }
 
     @Test
-    public void Test_timerInstanceStarted() throws Exception{
+    public void Test_timerInstanceStarted() throws Exception {
 
         DefaultMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
 
@@ -122,7 +122,7 @@ public class DefaultMockEc2InstanceTest {
     }
 
     @Test
-    public void Test_timerInstanceStartedMaxBoot0() throws Exception{
+    public void Test_timerInstanceStartedMaxBoot0() throws Exception {
 
         setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_BOOT_TIME_MILLS), 0);
         AbstractMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
@@ -138,17 +138,19 @@ public class DefaultMockEc2InstanceTest {
         defaultMockEc2Instance.destroyInternalTimer();
 
         // reset the value
-        long resetValue = Whitebox.invokeMethod(defaultMockEc2Instance, "getMsFromProperty", Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME,
+        long resetValue = Whitebox.invokeMethod(defaultMockEc2Instance, "getMsFromProperty",
+                Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME,
                 Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS);
 
-        setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_BOOT_TIME_MILLS), resetValue);
+        setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_BOOT_TIME_MILLS),
+                resetValue);
 
         Assert.assertFalse(defaultMockEc2Instance.isBooting());
         Assert.assertNotNull(defaultMockEc2Instance.getPubDns());
     }
 
     @Test
-    public void Test_timerInstanceStopped() throws InterruptedException{
+    public void Test_timerInstanceStopped() throws InterruptedException {
 
         DefaultMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
         defaultMockEc2Instance.setInstanceType(InstanceType.C1_MEDIUM);
@@ -164,7 +166,7 @@ public class DefaultMockEc2InstanceTest {
     }
 
     @Test
-    public void Test_timerInstanceStoppedMaxShutdown0() throws Exception{
+    public void Test_timerInstanceStoppedMaxShutdown0() throws Exception {
 
         setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_SHUTDOWN_TIME_MILLS), 0);
         AbstractMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
@@ -181,10 +183,12 @@ public class DefaultMockEc2InstanceTest {
         defaultMockEc2Instance.destroyInternalTimer();
 
         // reset the value
-        long resetValue = Whitebox.invokeMethod(defaultMockEc2Instance, "getMsFromProperty", Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME,
+        long resetValue = Whitebox.invokeMethod(defaultMockEc2Instance, "getMsFromProperty",
+                Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME,
                 Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS);
 
-        setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_SHUTDOWN_TIME_MILLS), resetValue);
+        setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_SHUTDOWN_TIME_MILLS),
+                resetValue);
 
         Assert.assertFalse(defaultMockEc2Instance.isStopping());
         Assert.assertFalse(defaultMockEc2Instance.isRunning());
@@ -192,7 +196,7 @@ public class DefaultMockEc2InstanceTest {
     }
 
     @Test
-    public void Test_securityGroups(){
+    public void Test_securityGroups() {
 
         AbstractMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
         defaultMockEc2Instance.setSecurityGroups(null); // simply for branch coverage
@@ -203,7 +207,7 @@ public class DefaultMockEc2InstanceTest {
 
         defaultMockEc2Instance.setSecurityGroups(securityGroups);
 
-        Assert.assertTrue(defaultMockEc2Instance.getSecurityGroups()== securityGroups);
+        Assert.assertTrue(defaultMockEc2Instance.getSecurityGroups() == securityGroups);
     }
 
     static void setFinalStatic(Field field, Object newValue) throws Exception {
@@ -213,7 +217,5 @@ public class DefaultMockEc2InstanceTest {
         modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
         field.set(null, newValue);
     }
-
-
 
 }

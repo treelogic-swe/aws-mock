@@ -1,43 +1,29 @@
 
-
 /**
  * File name: BaseTest.java Author: Davinder Kumar Create date: Nov 9, 2016
  */
 package com.tlswe.awsmock.cloudwatch;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+
 
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
-import com.amazonaws.services.cloudwatch.model.Dimension;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsRequest;
+import com.amazonaws.services.cloudwatch.model.DescribeAlarmsResult;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsRequest;
 import com.amazonaws.services.cloudwatch.model.GetMetricStatisticsResult;
-import com.amazonaws.services.cloudwatch.model.Metric;
-import com.amazonaws.services.cloudwatch.model.transform.GetMetricStatisticsRequestMarshaller;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
-import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
-import com.amazonaws.services.ec2.model.SecurityGroup;
-
+import com.amazonaws.services.cloudwatch.model.MetricAlarm;
 
 /**
  * Base underlying class for doing the fundamental calls to aws Cloudwatch interfaces, with neat utility methods which can be
@@ -50,8 +36,8 @@ public class CloudWatchBaseTest {
     /**
      * Name space request.
      */
-     private static final String NAMESPACE = "AWS/EC2";
-     
+    private static final String NAMESPACE = "AWS/EC2";
+
     /**
      * Log writer for this class.
      */
@@ -61,12 +47,11 @@ public class CloudWatchBaseTest {
      * One second in millisecond.
      */
     private static final int ONE_SECOND = 1000;
-    
+
     /**
      * Hours to add start time.
      */
     private static final int HOURS = -5;
-    
 
     /**
      * Property key for AWS access key.
@@ -87,12 +72,12 @@ public class CloudWatchBaseTest {
      * CloudWatch client singleton.
      */
     private static AmazonCloudWatchClient amazonCloudWatchClient;
-    
+
     /**
      * Properties load from INTEGRATION_TEST_PROPERTIES_FILE}.
      */
     private static String INTEGRATION_TEST_PROPERTIES_FILE = "aws-mock.integration-test.properties";
-    
+
     /**
      * Properties load from file {@link INTEGRATION_TEST_PROPERTIES_FILE}.
      */
@@ -114,7 +99,7 @@ public class CloudWatchBaseTest {
             }
         }
     }
-    
+
     /**
      * Load Cloud Watch client URL from test properties and create an Cloud Watch client instance. Invoked after
      * {@link #initTestProperties()}.
@@ -129,7 +114,7 @@ public class CloudWatchBaseTest {
                     .getProperty(PROPERTY_ENDPOINT));
         }
     }
-    
+
     /**
      * Read test properties, create Cloud watch client.
      */
@@ -138,16 +123,14 @@ public class CloudWatchBaseTest {
         initTestProperties();
         initCloudWatchClient();
     }
-    
+
     /**
      * GetMetricStaticticsTest to get the data points
      *
      * @return Datapoint
      */
-     protected final Datapoint getMetricStaticticsTest(String metricName) {
-        
+    protected final Datapoint getMetricStaticticsTest(String metricName) {
         Datapoint dataPoint = null;
-       
         GetMetricStatisticsRequest request = new GetMetricStatisticsRequest();
         request.setStartTime(new DateTime().plusHours(HOURS).toDate());
         request.withNamespace(NAMESPACE);
@@ -156,11 +139,27 @@ public class CloudWatchBaseTest {
         request.withStatistics("Average", "SampleCount");
         request.withEndTime(new Date());
         GetMetricStatisticsResult result = amazonCloudWatchClient.getMetricStatistics(request);
-
         if (result != null && !result.getDatapoints().isEmpty()) {
             dataPoint = result.getDatapoints().get(0);
         }
 
-        return dataPoint; 
-     }
+        return dataPoint;
+    }
+
+    /**
+     * describerAlarmsTest to get the data points
+     *
+     * @return MetricAlarm
+     */
+    protected final MetricAlarm describerAlarmsTest() {
+    	MetricAlarm metricAlarm = null;
+        DescribeAlarmsRequest describeAlarmsRequest = new DescribeAlarmsRequest();
+        DescribeAlarmsResult result = amazonCloudWatchClient.describeAlarms(describeAlarmsRequest);
+        
+        if (result != null && !result.getMetricAlarms().isEmpty()) {
+        	metricAlarm = result.getMetricAlarms().get(0);
+        }
+
+        return metricAlarm;
+    }
 }

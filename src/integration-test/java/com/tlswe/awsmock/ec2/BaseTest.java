@@ -19,8 +19,43 @@ import org.slf4j.LoggerFactory;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.AttachInternetGatewayRequest;
+import com.amazonaws.services.ec2.model.AttachInternetGatewayResult;
+import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupEgressRequest;
+import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupEgressResult;
+import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupIngressRequest;
+import com.amazonaws.services.ec2.model.AuthorizeSecurityGroupIngressResult;
 import com.amazonaws.services.ec2.model.AvailabilityZone;
-import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesRequest;
+import com.amazonaws.services.ec2.model.CreateInternetGatewayRequest;
+import com.amazonaws.services.ec2.model.CreateInternetGatewayResult;
+import com.amazonaws.services.ec2.model.CreateRouteRequest;
+import com.amazonaws.services.ec2.model.CreateRouteResult;
+import com.amazonaws.services.ec2.model.CreateRouteTableRequest;
+import com.amazonaws.services.ec2.model.CreateRouteTableResult;
+import com.amazonaws.services.ec2.model.CreateSecurityGroupRequest;
+import com.amazonaws.services.ec2.model.CreateSecurityGroupResult;
+import com.amazonaws.services.ec2.model.CreateSubnetRequest;
+import com.amazonaws.services.ec2.model.CreateSubnetResult;
+import com.amazonaws.services.ec2.model.CreateTagsRequest;
+import com.amazonaws.services.ec2.model.CreateTagsResult;
+import com.amazonaws.services.ec2.model.CreateVolumeRequest;
+import com.amazonaws.services.ec2.model.CreateVolumeResult;
+import com.amazonaws.services.ec2.model.CreateVpcRequest;
+import com.amazonaws.services.ec2.model.CreateVpcResult;
+import com.amazonaws.services.ec2.model.DeleteInternetGatewayRequest;
+import com.amazonaws.services.ec2.model.DeleteInternetGatewayResult;
+import com.amazonaws.services.ec2.model.DeleteRouteTableRequest;
+import com.amazonaws.services.ec2.model.DeleteRouteTableResult;
+import com.amazonaws.services.ec2.model.DeleteSecurityGroupRequest;
+import com.amazonaws.services.ec2.model.DeleteSecurityGroupResult;
+import com.amazonaws.services.ec2.model.DeleteSubnetRequest;
+import com.amazonaws.services.ec2.model.DeleteTagsRequest;
+import com.amazonaws.services.ec2.model.DeleteTagsResult;
+import com.amazonaws.services.ec2.model.DeleteSubnetResult;
+import com.amazonaws.services.ec2.model.DeleteVolumeRequest;
+import com.amazonaws.services.ec2.model.DeleteVolumeResult;
+import com.amazonaws.services.ec2.model.DeleteVpcRequest;
+import com.amazonaws.services.ec2.model.DeleteVpcResult;
 import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
@@ -32,11 +67,14 @@ import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest;
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsResult;
 import com.amazonaws.services.ec2.model.DescribeSubnetsRequest;
 import com.amazonaws.services.ec2.model.DescribeSubnetsResult;
+import com.amazonaws.services.ec2.model.DescribeTagsResult;
 import com.amazonaws.services.ec2.model.DescribeVolumesRequest;
 import com.amazonaws.services.ec2.model.DescribeVolumesResult;
 import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
 import com.amazonaws.services.ec2.model.DescribeVpcsResult;
 import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.Tag;
+import com.amazonaws.services.ec2.model.TagDescription;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.InstanceStateChange;
 import com.amazonaws.services.ec2.model.InternetGateway;
@@ -54,10 +92,10 @@ import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.amazonaws.services.ec2.model.Volume;
 import com.amazonaws.services.ec2.model.Vpc;
-import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneSetType;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 
+// TODO: Auto-generated Javadoc
 /**
  * Base underlying class for doing the fundamental calls to aws ec2 interfaces, with neat utility methods which can be
  * made use of by test cases that test aws-mock.
@@ -103,6 +141,7 @@ public class BaseTest {
      */
     private static AmazonEC2Client amazonEC2Client;
 
+    /** The integration test properties file. */
     private static String INTEGRATION_TEST_PROPERTIES_FILE = "aws-mock.integration-test.properties";
     /**
      * Properties load from file {@link INTEGRATION_TEST_PROPERTIES_FILE}.
@@ -113,7 +152,6 @@ public class BaseTest {
      * Predefined AMIs load from {@link #testProperties}.
      */
     private static List<String> predefinedAMIs;
-
 
     /**
      * Load test properties from file {@link INTEGRATION_TEST_PROPERTIES_FILE}.
@@ -132,7 +170,6 @@ public class BaseTest {
         }
     }
 
-
     /**
      * Load predefined AMIs from test properties. Invoked after {@link #initTestProperties()}.
      */
@@ -145,7 +182,6 @@ public class BaseTest {
             }
         }
     }
-
 
     /**
      * Load ec2 client URL from test properties and create an ec2 client instance. Invoked after
@@ -162,8 +198,9 @@ public class BaseTest {
         }
     }
 
-
     /**
+     * Random AMI.
+     *
      * @return a random predefined AMI id.
      */
     protected static String randomAMI() {
@@ -175,7 +212,6 @@ public class BaseTest {
         return predefinedAMIs.get(index);
     }
 
-
     /**
      * Read test properties, setup predefined AMIs and create EC2 client.
      */
@@ -185,7 +221,6 @@ public class BaseTest {
         initPredefinedAMIs();
         initEc2Client();
     }
-
 
     /**
      * Construct a List of Instances' IDs.
@@ -202,7 +237,6 @@ public class BaseTest {
         }
         return ids;
     }
-
 
     /**
      * Run instances with a random AMI ID.
@@ -227,9 +261,9 @@ public class BaseTest {
                 .withMinCount(minCount).withMaxCount(maxCount);
 
         RunInstancesResult result = amazonEC2Client.runInstances(request);
+      
         return result.getReservation().getInstances();
     }
-
 
     /**
      * Start instances.
@@ -248,7 +282,6 @@ public class BaseTest {
         return result.getStartingInstances();
     }
 
-
     /**
      * Start instances.
      *
@@ -260,7 +293,6 @@ public class BaseTest {
             final List<Instance> instances) {
         return startInstances(getInstanceIds(instances));
     }
-
 
     /**
      * Stop instances.
@@ -278,7 +310,6 @@ public class BaseTest {
         return result.getStoppingInstances();
     }
 
-
     /**
      * Stop instances.
      *
@@ -290,7 +321,6 @@ public class BaseTest {
             final List<Instance> instances) {
         return stopInstances(getInstanceIds(instances));
     }
-
 
     /**
      * Terminate instances.
@@ -309,7 +339,6 @@ public class BaseTest {
         return result.getTerminatingInstances();
     }
 
-
     /**
      * Terminate instances.
      *
@@ -322,12 +351,11 @@ public class BaseTest {
         return terminateInstances(getInstanceIds(instances));
     }
 
-
     /**
-     * @param instanceIds
-     *            instances' IDs
-     * @param enableLogging
-     *            log to standard out
+     * Describe instances.
+     *
+     * @param instanceIds            instances' IDs
+     * @param enableLogging            log to standard out
      * @return list of instances
      */
     protected final List<Instance> describeInstances(
@@ -356,7 +384,33 @@ public class BaseTest {
         return instanceList;
     }
 
+    /**
+     * Describe instances.
+     *
+      * @return list of instances
+     */
+    protected final List<Instance> describeInstances() {
+      
+        DescribeInstancesRequest request = new DescribeInstancesRequest();
+        DescribeInstancesResult result = amazonEC2Client
+                .describeInstances(request);
+        List<Instance> instanceList = new ArrayList<Instance>();
+        if (result.getReservations().size() > 0) {
+	        Assert.assertTrue(result.getReservations().size() > 0);
 
+	        for (Reservation reservation : result.getReservations()) {
+	            List<Instance> instances = reservation.getInstances();
+	
+	            if (null != instances) {
+	                for (Instance i : instances) {
+	                    instanceList.add(i);
+	                }
+	            }
+	        }
+        }
+        return instanceList;
+    }
+    
     /**
      * Describe instances.
      *
@@ -370,7 +424,6 @@ public class BaseTest {
         return describeInstances(getInstanceIds(instances));
     }
 
-
     /**
      * Describe instances.
      *
@@ -382,7 +435,6 @@ public class BaseTest {
             final Collection<String> instanceIds) {
         return describeInstances(instanceIds, true);
     }
-
 
     /**
      * Describe non terminated instances.
@@ -419,22 +471,21 @@ public class BaseTest {
         return instanceList;
     }
 
-
     /**
      * Create a filter to only get non terminated instances.
      *
      * @return list of instances
      */
     protected final Filter getNonTerminatedInstancesFilter() {
-        List<String> stateValues = new ArrayList<String>(Arrays.asList(InstanceState.RUNNING.getName(),
-                InstanceState.PENDING.getName(), InstanceState.STOPPING.getName(),
-                InstanceState.STOPPED.getName(), InstanceState.SHUTTING_DOWN.getName()));
+        List<String> stateValues = new ArrayList<String>(
+                Arrays.asList(InstanceState.RUNNING.getName(),
+                        InstanceState.PENDING.getName(), InstanceState.STOPPING.getName(),
+                        InstanceState.STOPPED.getName(), InstanceState.SHUTTING_DOWN.getName()));
 
         Filter runningInstanceFilter = new Filter();
         runningInstanceFilter.setValues(stateValues);
         return runningInstanceFilter;
     }
-
 
     /**
      * Describe VPCs.
@@ -447,7 +498,39 @@ public class BaseTest {
         List<Vpc> vpcs = result.getVpcs();
         return vpcs;
     }
+    
+    /**
+     * Create VPC.
+     *
+     * @param cidrBlock the cidr block
+     * @param instanceTenancy the instance tenancy
+     * @return New vpc
+     */
+    protected final Vpc createVpc(final String cidrBlock, final String instanceTenancy) {
+        CreateVpcRequest req = new CreateVpcRequest();
+        req.setCidrBlock(cidrBlock);
+        req.setInstanceTenancy(instanceTenancy);
+        CreateVpcResult result = amazonEC2Client.createVpc(req);
+        return result.getVpc();
+    }
 
+    /**
+     * delete VPC.
+     *
+     * @param vpcId the vpc id
+     * @return true if delete.
+     */
+    protected final boolean deleteVpc(final String vpcId) {
+        DeleteVpcRequest req = new DeleteVpcRequest();
+        req.setVpcId(vpcId);
+        DeleteVpcResult result = amazonEC2Client.deleteVpc(req);
+        
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Describe security group.
@@ -466,7 +549,6 @@ public class BaseTest {
         return cellGroup;
     }
 
-
     /**
      * Describe internet gateway.
      *
@@ -483,7 +565,77 @@ public class BaseTest {
 
         return internetGateway;
     }
+    
+    /**
+    * Describe internet gateways.
+    *
+    * @return List of InternetGateway
+    */
+    protected final List<InternetGateway> getInternetGateways() {
+       List<InternetGateway> internetGateways = null;
+       DescribeInternetGatewaysRequest req = new DescribeInternetGatewaysRequest();
+       DescribeInternetGatewaysResult result = amazonEC2Client.describeInternetGateways(req);
+       if (result != null && !result.getInternetGateways().isEmpty()) {
+           internetGateways = result.getInternetGateways();
+       }
 
+       return internetGateways;
+    }
+
+    /**
+     * Create internet gateway.
+     *
+     * @return InternetGateway
+     */
+    protected final InternetGateway createInternetGateway() {
+        InternetGateway internetGateway = null;
+
+        CreateInternetGatewayRequest req = new CreateInternetGatewayRequest();
+        CreateInternetGatewayResult result = amazonEC2Client.createInternetGateway(req);
+        if (result != null) {
+            internetGateway = result.getInternetGateway();
+        }
+
+        return internetGateway;
+    }
+
+    /**
+     * Attach internet gateway with Vpc.
+     *
+     * @param internetGatewayId the internet gateway id
+     * @param vpcId the vpc id
+     * @return true if attach
+     */
+    protected final boolean attachInternetGateway(final String internetGatewayId, final String vpcId) {
+        AttachInternetGatewayRequest req = new AttachInternetGatewayRequest();
+        req.setInternetGatewayId(internetGatewayId);
+        req.setVpcId(vpcId);
+        AttachInternetGatewayResult result = amazonEC2Client.attachInternetGateway(req);
+        
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    /**
+     * Delete internet gateway.
+     *
+     * @param internetGatewayId the internet gateway id
+     * @return true if deleted
+     */
+    protected final boolean deleteInternetGateway(final String internetGatewayId) {
+        DeleteInternetGatewayRequest req = new DeleteInternetGatewayRequest();
+        req.setInternetGatewayId(internetGatewayId);
+        DeleteInternetGatewayResult result = amazonEC2Client.deleteInternetGateway(req);
+        
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Describe route table.
@@ -501,6 +653,67 @@ public class BaseTest {
 
         return routeTable;
     }
+    
+    /**
+     * Create route table.
+     *
+     * @param vpcId the vpc id
+     * @return RouteTable
+     */
+    protected final RouteTable createRouteTable(final String vpcId) {
+        RouteTable routeTable = null;
+
+        CreateRouteTableRequest req = new CreateRouteTableRequest();
+        req.setVpcId(vpcId);
+        CreateRouteTableResult result = amazonEC2Client.createRouteTable(req);
+        
+        if (result != null) {
+            routeTable = result.getRouteTable();
+        }
+
+        return routeTable;
+    }
+    
+    /**
+     * Create route with gateway and route table.
+     *
+     * @param routeTableId the route table id
+     * @param gatewayId the gateway id
+     * @param destinationCidrBlock the destination cidr block
+     * @return true if Created Route
+     */
+    protected final boolean createRoute(final String routeTableId, final String gatewayId, final String destinationCidrBlock) {
+      
+        CreateRouteRequest req = new CreateRouteRequest();
+        req.setDestinationCidrBlock(destinationCidrBlock);
+        req.setGatewayId(gatewayId);
+        req.setRouteTableId(routeTableId);
+        CreateRouteResult result = amazonEC2Client.createRoute(req);
+        
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    /**
+     * Delete route table.
+     *
+     * @param routeTableId the route table id
+     * @return true if deleted
+     */
+    protected final boolean deleteRouteTable(final String routeTableId) {
+        DeleteRouteTableRequest req = new DeleteRouteTableRequest();
+        req.setRouteTableId(routeTableId);
+        DeleteRouteTableResult result = amazonEC2Client.deleteRouteTable(req);
+        
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Describe AvailabilityZone.
@@ -517,7 +730,7 @@ public class BaseTest {
 
         return availabilityZone;
     }
-    
+
     /**
      * Describe Volume.
      *
@@ -529,29 +742,308 @@ public class BaseTest {
         DescribeVolumesRequest req = new DescribeVolumesRequest();
         DescribeVolumesResult result = amazonEC2Client.describeVolumes(req);
         if (result != null && !result.getVolumes().isEmpty()) {
-        	volume = result.getVolumes().get(0);
+            volume = result.getVolumes().get(0);
         }
 
         return volume;
     }
+    
+    /**
+     * Describe All Volume.
+     *
+     * @return Collection Volume
+     */
+    protected final List<Volume> getVolumes() {
+        List<Volume> volumes = null;
 
+        DescribeVolumesRequest req = new DescribeVolumesRequest();
+        req.setMaxResults(20);
+        DescribeVolumesResult result = amazonEC2Client.describeVolumes(req);
+        if (result != null && !result.getVolumes().isEmpty()) {
+            volumes = result.getVolumes();
+            log.info("Page Size : " + volumes.size());
+        }
+
+        while(result.getNextToken() != null) { 
+            req.setNextToken(result.getNextToken());
+            result = amazonEC2Client.describeVolumes(req);
+            if (result != null && !result.getVolumes().isEmpty()) {
+                 volumes = result.getVolumes();
+                 log.info("Page Size : " + volumes.size());
+            }
+        }
+        
+        return volumes;
+    }
+
+    /**
+     * Create Volume.
+     *
+     * @param availabilityZone the availability zone
+     * @param iops the iops
+     * @param size the size
+     * @param snapshotId the snapshot id
+     * @param volumeType the volume type
+     * @return Volume
+     */
+    protected final Volume createVolume(final String availabilityZone, final Integer iops, final Integer size, final String snapshotId, final String volumeType) {
+        Volume volume = null;
+
+        CreateVolumeRequest req = new CreateVolumeRequest();
+        req.setAvailabilityZone(availabilityZone);
+        req.setIops(iops);
+        req.setSize(size);
+        req.setSnapshotId(snapshotId);
+        req.setVolumeType(volumeType);
+        
+        CreateVolumeResult result = amazonEC2Client.createVolume(req);
+        if (result != null) {
+            volume = result.getVolume();
+        }
+
+        return volume;
+    }
+    
+    /**
+     * Create Tags.
+     *
+     * @param availabilityZone the availability zone
+     * @param iops the iops
+     * @param size the size
+     * @param snapshotId the snapshot id
+     * @param volumeType the volume type
+     * @return Volume
+     */
+    protected final boolean createTags(final Collection<String> resources, final Collection<Tag> tags) {
+        CreateTagsRequest req = new CreateTagsRequest();
+        req.setResources(resources);
+        req.setTags(tags);
+        
+        CreateTagsResult result = amazonEC2Client.createTags(req);
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    /**
+     * Create Tags.
+     *
+     * @param availabilityZone the availability zone
+     * @param iops the iops
+     * @param size the size
+     * @param snapshotId the snapshot id
+     * @param volumeType the volume type
+     * @return Volume
+     */
+    protected final boolean deleteTags(final Collection<String> resources, final Collection<Tag> tags) {
+        DeleteTagsRequest req = new DeleteTagsRequest();
+        req.setResources(resources);
+        req.setTags(tags);
+        
+        DeleteTagsResult result = amazonEC2Client.deleteTags(req);
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
+    
+    /**
+     * Describe Tags.
+     * @return TagsDescription
+     */
+    protected final List<TagDescription> getTags() {
+        DescribeTagsResult result = amazonEC2Client.describeTags();
+        List<TagDescription> tagsDesc = null;
+        
+        if (result != null) {
+            
+            tagsDesc = result.getTags();
+        }
+
+        return tagsDesc;
+    }
+    
+    /**
+     * Delete Volume.
+     *
+     * @param volumeId the volume id
+     * @return true if deleted, otherwise false.
+     */
+    protected final boolean deleteVolume(final String volumeId) {
+        DeleteVolumeRequest req = new DeleteVolumeRequest();
+        req.setVolumeId(volumeId);
+        DeleteVolumeResult result = amazonEC2Client.deleteVolume(req);
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    
     /**
      * Describe Subnet.
      *
      * @return Subnet
      */
     protected final Subnet getSubnet() {
-    	Subnet subnet = null;
+        Subnet subnet = null;
 
         DescribeSubnetsRequest req = new DescribeSubnetsRequest();
         DescribeSubnetsResult result = amazonEC2Client.describeSubnets(req);
         if (result != null && !result.getSubnets().isEmpty()) {
-        	subnet = result.getSubnets().get(0);
+            subnet = result.getSubnets().get(0);
+        }
+
+        return subnet;
+    }
+
+    /**
+     * Describe Subnets.
+     * @return List of Subnet
+     */
+    protected final List<Subnet> getSubnets() {
+        List<Subnet> subnets = null;
+
+        DescribeSubnetsRequest req = new DescribeSubnetsRequest();
+        DescribeSubnetsResult result = amazonEC2Client.describeSubnets(req);
+        if (result != null && !result.getSubnets().isEmpty()) {
+            subnets = result.getSubnets();
+        }
+
+         return subnets;
+      }
+
+    /**
+     * Create Subnet.
+     *
+     * @param cidrBlock the cidr block
+     * @param vpcId the vpc id
+     * @return Subnet
+     */
+    protected final Subnet createSubnet(final String cidrBlock, final String vpcId) {
+        Subnet subnet = null;
+
+        CreateSubnetRequest req = new CreateSubnetRequest();
+        req.setCidrBlock(cidrBlock);
+        req.setVpcId(vpcId);
+        CreateSubnetResult result = amazonEC2Client.createSubnet(req);
+        if (result != null) {
+            subnet = result.getSubnet();
         }
 
         return subnet;
     }
     
+    /**
+     * Create Security Group.
+     *
+     * @param groupName the group Name
+     * @param groupDescription the group Description
+     * @param vpcId vpcId for Sg
+     * @return Security Group Id
+     */
+    protected final String createSecurityGroup(final String groupName, final String groupDescription, final String vpcId) {
+        String groupId = null;
+
+        CreateSecurityGroupRequest req = new CreateSecurityGroupRequest();
+        req.setGroupName(groupName);
+        req.setDescription(groupDescription);
+        req.setVpcId(vpcId);
+        CreateSecurityGroupResult result = amazonEC2Client.createSecurityGroup(req);
+        if (result != null) {
+        	groupId = result.getGroupId();
+        }
+
+        return groupId;
+    }
+
+    /**
+     * Delete Subnet.
+     *
+     * @param subnetId the subnet id
+     * @return true if deleted, otherwise false.
+     */
+    protected final boolean deleteSubnet(final String subnetId) {
+        DeleteSubnetRequest req = new DeleteSubnetRequest();
+        req.setSubnetId(subnetId);
+        DeleteSubnetResult result = amazonEC2Client.deleteSubnet(req);
+        if (result != null) {
+            return true;
+        }
+        return false;
+     }
+
+    /**
+     * Delete SecurityGroup.
+     *
+     * @param groupId the group id
+     * @return true if deleted, otherwise false.
+     */
+    protected final boolean deleteSecurityGroup(final String groupId) {
+        DeleteSecurityGroupRequest req = new DeleteSecurityGroupRequest();
+        req.setGroupId(groupId);
+        DeleteSecurityGroupResult result = amazonEC2Client.deleteSecurityGroup(req);
+        if (result != null) {
+            return true;
+        }
+
+        /*CreateSecurityGroupRequest createSecurityGroupRequest = new CreateSecurityGroupRequest();
+        AuthorizeSecurityGroupEgressRequest authorizeSecurityGroupEgressRequest = new AuthorizeSecurityGroupEgressRequest();
+        authorizeSecurityGroupEgressRequest.setIpProtocol(ipProtocol);
+        CreateSecurityGroupResult result = amazonEC2Client.authorizeSecurityGroupEgress(authorizeSecurityGroupEgressRequest);*/
+        return false;
+    }
+
+    /**
+     * Authorize SecurityGroup Ingress.
+     * @param groupId the group id
+     * @param ipProtocol ipProtocol for Ingress.
+     * @param port portRange for Ingress.
+     * @param cidrIp cidr Ip for Ingress
+     * @return true if deleted, otherwise false.
+     */
+    protected final boolean authorizeSecurityGroupIngress(final String groupId, final String ipProtocol, final Integer port, final String cidrIp) {
+    	AuthorizeSecurityGroupIngressRequest req = new AuthorizeSecurityGroupIngressRequest();
+        req.setGroupId(groupId);
+        req.setCidrIp(cidrIp);
+        req.setFromPort(port);
+        req.setToPort(port);
+        req.setIpProtocol(ipProtocol);
+        AuthorizeSecurityGroupIngressResult result = amazonEC2Client.authorizeSecurityGroupIngress(req);
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Authorize SecurityGroup Egress.
+     * @param groupId the group id
+     * @param ipProtocol ipProtocol for Egress.
+     * @param port portRange for Egress.
+     * @param cidrIp cidr Ip for Egress
+     * @return true if deleted, otherwise false.
+     */
+    protected final boolean authorizeSecurityGroupEgress(final String groupId, final String ipProtocol, final Integer port, final String cidrIp) {
+    	AuthorizeSecurityGroupEgressRequest req = new AuthorizeSecurityGroupEgressRequest();
+        req.setGroupId(groupId);
+        req.setCidrIp(cidrIp);
+        req.setFromPort(port);
+        req.setToPort(port);
+        req.setIpProtocol(ipProtocol);
+        AuthorizeSecurityGroupEgressResult result = amazonEC2Client.authorizeSecurityGroupEgress(req);
+        if (result != null) {
+            return true;
+        }
+
+        return false;
+    }
+
     /**
      * Wait an instance reaching target {@link InstanceState} by describing the instance every second until it reach
      * target state.
@@ -566,7 +1058,6 @@ public class BaseTest {
         // pass Lone.MAX_VALUE to waitForState make it never time out.
         waitForState(instanceId, state, Long.MAX_VALUE);
     }
-
 
     /**
      * Wait an instance reaching target {@link InstanceState} by describing the instance every second until it reach
@@ -600,7 +1091,6 @@ public class BaseTest {
             }
         }
     }
-
 
     /**
      * Convert a collection of instance IDS into a whitespace-separated String.

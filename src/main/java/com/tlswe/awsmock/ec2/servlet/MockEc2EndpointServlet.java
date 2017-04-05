@@ -23,7 +23,6 @@ public class MockEc2EndpointServlet extends HttpServlet {
      */
     private static final long serialVersionUID = 1L;
 
-
     /**
      * Pass the query parameters from client to {@link MockEC2QueryHandler} and write response to client.
      *
@@ -36,8 +35,7 @@ public class MockEc2EndpointServlet extends HttpServlet {
      */
     @Override
     protected final void doGet(final HttpServletRequest request,
-            final HttpServletResponse response) throws
-            IOException {
+            final HttpServletResponse response) throws IOException {
 
         @SuppressWarnings("unchecked")
         /*-
@@ -54,7 +52,6 @@ public class MockEc2EndpointServlet extends HttpServlet {
 
     }
 
-
     /**
      * Refer to {@link MockEc2EndpointServlet#doGet}.
      *
@@ -67,8 +64,7 @@ public class MockEc2EndpointServlet extends HttpServlet {
      */
     @Override
     protected final void doPost(final HttpServletRequest request,
-            final HttpServletResponse response) throws
-            IOException {
+            final HttpServletResponse response) throws IOException {
         doGet(request, response);
     }
 
