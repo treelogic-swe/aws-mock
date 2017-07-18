@@ -48,7 +48,9 @@ public class MockEc2EndpointServlet extends HttpServlet {
                 .getParameterMap();
         Map<String, String> headers = new HashMap<String, String>();
 
+        // To make sure, No response data impacted by others subsequent and concurrent request.
         synchronized (this) {
+             //Getting request headers to filter the region name.
              Enumeration headerNames = request.getHeaderNames();
              if (headerNames != null) {
                  while (headerNames.hasMoreElements()) {
