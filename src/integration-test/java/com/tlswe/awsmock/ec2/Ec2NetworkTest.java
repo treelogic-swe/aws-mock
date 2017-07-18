@@ -376,7 +376,7 @@ public class Ec2NetworkTest extends BaseTest {
      */
     @Test(timeout = TIMEOUT_LEVEL1)
     public final void createVolumes100Test() {
-        for(int i=0 ; i< 10; i++)
+        for(int i=0 ; i< 500; i++)
         {
             createVolumesTest();
         }

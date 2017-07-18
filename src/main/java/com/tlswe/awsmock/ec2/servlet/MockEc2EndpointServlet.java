@@ -2,6 +2,8 @@ package com.tlswe.awsmock.ec2.servlet;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
@@ -44,12 +46,24 @@ public class MockEc2EndpointServlet extends HttpServlet {
          */
         Map<String, String[]> queryParams = (Map<String, String[]>) request
                 .getParameterMap();
+        Map<String, String> headers = new HashMap<String, String>();
 
-        response.setContentType("text/xml");
-        response.setCharacterEncoding("UTF-8");
+        synchronized (this) {
+             Enumeration headerNames = request.getHeaderNames();
+             if (headerNames != null) {
+                 while (headerNames.hasMoreElements()) {
+                    String key = (String) headerNames.nextElement();
+                    String value = request.getHeader(key);
+                    headers.put(key, value);
+                 }
+             }
 
-        MockEC2QueryHandler.getInstance().handle(queryParams, response);
+             response.setContentType("text/xml");
+             response.setCharacterEncoding("UTF-8");
 
+             MockEC2QueryHandler.getInstance().handle(queryParams, headers, response);
+             System.out.println(response.toString());
+        }
     }
 
     /**

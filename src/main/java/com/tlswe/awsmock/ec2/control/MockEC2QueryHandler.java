@@ -1,7 +1,9 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -17,6 +19,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.joda.time.DateTime;
+import org.omg.CORBA.SystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,6 +149,11 @@ public final class MockEC2QueryHandler {
      * The xml template filename for error response body.
      */
     private static final String ERROR_RESPONSE_TEMPLATE = "error.xml.ftl";
+
+    /**
+     * The xml template filename for blank response body.
+     */
+    private static final String BLANK_RESPONSE_TEMPLATE = "blank.xml.ftl";
 
     /**
      * Description for the link to AWS QUERY API reference.
@@ -307,6 +316,13 @@ public final class MockEC2QueryHandler {
             new ConcurrentHashMap<String, Set<String>>();
 
     /**
+     * API End points that has to return the values regardless of the region.
+     */
+    private static List<String> regionsSafeAPIEndpoints =
+             new ArrayList<String>(Arrays.asList("DescribeAvailabilityZones", "DescribeVpcs", "DescribeSubnets",
+             "DescribeRouteTables", "DescribeInternetGateways", "DescribeSecurityGroups"));
+
+    /**
     /**
      * A common random generator.
      */
@@ -371,6 +387,12 @@ public final class MockEC2QueryHandler {
     }
 
     /**
+    /**
+     * CurrentRegion of request.
+     */
+    private String currentRegion = "";
+
+    /**
      * Constructor of MockEC2QueryHandler is made private and only called once by {@link #getInstance()}.
      */
     private MockEC2QueryHandler() {
@@ -397,19 +419,39 @@ public final class MockEC2QueryHandler {
      *
      * @param queryParams
      *            map of query parameters from http request, which is from standard AWS Query API
+     * @param requestHeaders
+     *            map of Headers from http request, which is from standard AWS Query API
      * @param response
      *            http servlet response to handle with
      * @throws IOException
      *             in case of failure of getting response's writer
      *
      */
-    public void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
+    public void handle(final Map<String, String[]> queryParams,
+                       final Map<String, String> requestHeaders, final HttpServletResponse response)
             throws IOException {
         if (null == response) {
             // do nothing in case null is passed in
             return;
         }
+
         String responseXml = null;
+
+        if (null != requestHeaders  && !regionsSafeAPIEndpoints.contains(queryParams.get("Action")[0])
+            && requestHeaders.size() > 0) {
+            if (requestHeaders.containsKey("region")
+                && !DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(requestHeaders.get("region").toLowerCase())) {
+                response.getWriter().write(getBlankResponseXml());
+                response.getWriter().flush();
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.addHeader("Vary", "Accept-Encoding");
+                response.addDateHeader("Date", DateTime.now().getMillis());
+                return;
+            }
+        } else if (null != requestHeaders && requestHeaders.size() > 0 && requestHeaders.containsKey("region")) {
+            currentRegion = requestHeaders.get("region").toLowerCase();
+        }
+
         if (null == queryParams || queryParams.size() == 0) {
             // no params found at all - write an error xml response
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -918,9 +960,8 @@ public final class MockEC2QueryHandler {
         AvailabilityZoneSetType info = new AvailabilityZoneSetType();
 
         AvailabilityZoneItemType item = new AvailabilityZoneItemType();
-        item.setRegionName(DEFAULT_MOCK_PLACEMENT.getAvailabilityZone());
-        item.setZoneName(DEFAULT_MOCK_PLACEMENT.getAvailabilityZone());
-
+        item.setRegionName(currentRegion);
+        item.setZoneName(currentRegion);
         info.getItem().add(item);
         ret.setAvailabilityZoneInfo(info);
         return ret;
@@ -1258,8 +1299,13 @@ public final class MockEC2QueryHandler {
             MockRouteTable item = mockRouteTable.next();
 
             RouteTableType routeTable = new RouteTableType();
-            routeTable.setVpcId(item.getVpcId());
-            routeTable.setRouteTableId(item.getRouteTableId());
+            if (!DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(currentRegion)) {
+                routeTable.setVpcId(currentRegion + "_" + item.getVpcId());
+                routeTable.setRouteTableId(currentRegion + "_" + item.getRouteTableId());
+            } else {
+                routeTable.setVpcId(item.getVpcId());
+                routeTable.setRouteTableId(item.getRouteTableId());
+            }
 
             RouteTableAssociationSetType associationSet = new RouteTableAssociationSetType();
             routeTable.setAssociationSet(associationSet);
@@ -1369,8 +1415,8 @@ public final class MockEC2QueryHandler {
         final String groupDescription, final String vpcId) {
         CreateSecurityGroupResponseType ret = new CreateSecurityGroupResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
-        MockSecurityGroup mockSecurityGroup = mockSecurityGroupController.createSecurityGroup(groupName
-              , groupDescription, vpcId);
+        MockSecurityGroup mockSecurityGroup = mockSecurityGroupController.createSecurityGroup(groupName,
+            groupDescription, vpcId);
         ret.setGroupId(mockSecurityGroup.getGroupId());
         return ret;
     }
@@ -1621,19 +1667,24 @@ public final class MockEC2QueryHandler {
     private DescribeSubnetsResponseType describeSubnets() {
         DescribeSubnetsResponseType ret = new DescribeSubnetsResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
-
         SubnetSetType subnetSetType = new SubnetSetType();
 
         for (Iterator<MockSubnet> mockSubnet = mockSubnetController.describeSubnets()
                 .iterator(); mockSubnet.hasNext();) {
             MockSubnet item = mockSubnet.next();
             SubnetType subnetType = new SubnetType();
+            if (!DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(currentRegion)) {
+                subnetType.setVpcId(currentRegion + "_" + item.getVpcId());
+                subnetType.setSubnetId(currentRegion + "_" + item.getSubnetId());
+            } else {
+                subnetType.setVpcId(item.getVpcId());
+                subnetType.setSubnetId(item.getSubnetId());
+            }
             subnetType.setSubnetId(item.getSubnetId());
             subnetType.setState("available");
-            subnetType.setVpcId(item.getVpcId());
             subnetType.setCidrBlock(item.getCidrBlock());
             subnetType.setAvailableIpAddressCount(item.getAvailableIpAddressCount());
-            subnetType.setAvailabilityZone(DEFAULT_MOCK_PLACEMENT.getAvailabilityZone());
+            subnetType.setAvailabilityZone(currentRegion);
             subnetType.setDefaultForAz(false);
             subnetType.setMapPublicIpOnLaunch(false);
 
@@ -1658,14 +1709,24 @@ public final class MockEC2QueryHandler {
             MockInternetGateway item = mockInternetGateway.next();
 
             InternetGatewayType internetGateway = new InternetGatewayType();
-            internetGateway.setInternetGatewayId(item.getInternetGatewayId());
+            if (!DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(currentRegion)) {
+                internetGateway.setInternetGatewayId(currentRegion + "_" + item.getInternetGatewayId());
+             } else {
+                internetGateway.setInternetGatewayId(item.getInternetGatewayId());
+             }
+
             InternetGatewayAttachmentSetType internetGatewayAttachmentSetType = new InternetGatewayAttachmentSetType();
             if (item.getAttachmentSet() != null && item.getAttachmentSet().size() > 0) {
                 for (MockInternetGatewayAttachmentType mockInternetGatewayAttachementType : item
                         .getAttachmentSet()) {
                     InternetGatewayAttachmentType internetGatewayAttachmentType = new InternetGatewayAttachmentType();
-                    internetGatewayAttachmentType
+                    if (!DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(currentRegion)) {
+                       internetGatewayAttachmentType
+                            .setVpcId(currentRegion + "_" + mockInternetGatewayAttachementType.getVpcId());
+                    } else {
+                       internetGatewayAttachmentType
                             .setVpcId(mockInternetGatewayAttachementType.getVpcId());
+                    }
                     internetGatewayAttachmentType
                             .setState(mockInternetGatewayAttachementType.getState());
                     internetGatewayAttachmentSetType.getItem().add(internetGatewayAttachmentType);
@@ -1701,8 +1762,14 @@ public final class MockEC2QueryHandler {
             SecurityGroupItemType securityGroupItem = new SecurityGroupItemType();
             securityGroupItem.setOwnerId(MOCK_SECURITY_OWNER_ID);
             securityGroupItem.setGroupName(item.getGroupName());
-            securityGroupItem.setGroupId(item.getGroupId());
-            securityGroupItem.setVpcId(item.getVpcId());
+            if (!DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(currentRegion)) {
+                 securityGroupItem.setGroupId(currentRegion + "_" + item.getGroupId());
+                securityGroupItem.setVpcId(currentRegion + "_" + item.getVpcId());
+             } else {
+                 securityGroupItem.setGroupId(item.getGroupId());
+                 securityGroupItem.setVpcId(item.getVpcId());
+            }
+
             securityGroupItem.setGroupDescription(item.getGroupDescription());
             IpPermissionSetType ipPermissionSet = new IpPermissionSetType();
 
@@ -1729,7 +1796,6 @@ public final class MockEC2QueryHandler {
             securityGroupSet.getItem().add(securityGroupItem);
         }
         ret.setSecurityGroupInfo(securityGroupSet);
-
         return ret;
     }
 
@@ -1742,14 +1808,19 @@ public final class MockEC2QueryHandler {
     private DescribeVpcsResponseType describeVpcs() {
         DescribeVpcsResponseType ret = new DescribeVpcsResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
-
+        System.out.println("Vpc Count: " + mockVpcController.describeVpcs().size());
         VpcSetType vpcSet = new VpcSetType();
         for (Iterator<MockVpc> mockVpc = mockVpcController.describeVpcs().iterator(); mockVpc
                 .hasNext();) {
             MockVpc item = mockVpc.next();
 
             VpcType vpcType = new VpcType();
-            vpcType.setVpcId(item.getVpcId());
+            if (!DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(currentRegion)) {
+                vpcType.setVpcId(currentRegion + "_" + item.getVpcId());
+            } else {
+                vpcType.setVpcId(item.getVpcId());
+            }
+
             vpcType.setState(item.getState());
             vpcType.setCidrBlock(item.getCidrBlock());
             vpcType.setIsDefault(item.getIsDefault());
@@ -1879,4 +1950,23 @@ public final class MockEC2QueryHandler {
         return ret;
     }
 
+    /**
+     * Generate blank response body in xml and write it with writer.
+     *
+     * @return xml body blank response which can be recognized by AWS clients
+     */
+    private String getBlankResponseXml() {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("requestID", UUID.randomUUID().toString());
+
+        String ret = null;
+
+        try {
+            ret = TemplateUtils.get(BLANK_RESPONSE_TEMPLATE, data);
+        } catch (AwsMockException e) {
+            log.error("fatal exception caught: {}", e.getMessage());
+            e.printStackTrace();
+        }
+        return ret;
+    }
 }
