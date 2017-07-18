@@ -1,4 +1,4 @@
-FROM frekele/gradle
+FROM frekele/gradle:3.4-jdk8u91
 
 WORKDIR /project
 

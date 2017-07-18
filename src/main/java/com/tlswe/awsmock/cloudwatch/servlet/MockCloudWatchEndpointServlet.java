@@ -66,8 +66,7 @@ public class MockCloudWatchEndpointServlet extends HttpServlet {
             response.setCharacterEncoding("UTF-8");
 
             MockCloudWatchQueryHandler.getInstance().handle(queryParams, headers, response);
-            System.out.println(response.toString());
-       }
+        }
     }
 
     /**

@@ -64,7 +64,6 @@ public class MockEc2EndpointServlet extends HttpServlet {
              response.setCharacterEncoding("UTF-8");
 
              MockEC2QueryHandler.getInstance().handle(queryParams, headers, response);
-             System.out.println(response.toString());
         }
     }
 
