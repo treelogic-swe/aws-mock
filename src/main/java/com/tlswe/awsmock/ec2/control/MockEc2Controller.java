@@ -45,6 +45,11 @@ public final class MockEc2Controller {
      */
     private static final int MAX_RUN_INSTANCE_COUNT_AT_A_TIME = 10000;
 
+    /**
+     * Max allowed number of mock instances to run at a time (a single request).
+     */
+    private static final int TIME_FOR_TERMINATION = 10;
+
     // private static final Random _random = new Random();
 
     /**
@@ -321,6 +326,8 @@ public final class MockEc2Controller {
             }
         }
 
+        // To Clean up the objects
+        cleanupTerminatedInstances(TIME_FOR_TERMINATION);
         return ret;
 
     }

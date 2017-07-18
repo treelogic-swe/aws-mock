@@ -83,7 +83,7 @@ public class AppServletContextListener implements ServletContextListener {
             }
 
          // Load Vpc
-            MockVpc [] vpcArray = (MockVpc[]) PersistenceUtils
+            MockVpc[] vpcArray = (MockVpc[]) PersistenceUtils
                     .loadAll(PersistenceStoreType.VPC);
             if (null != vpcArray) {
                 MockVpcController.getInstance()
@@ -91,7 +91,7 @@ public class AppServletContextListener implements ServletContextListener {
             }
 
             // Load Volume
-            MockVolume [] volumeArray = (MockVolume[]) PersistenceUtils
+            MockVolume[] volumeArray = (MockVolume[]) PersistenceUtils
                     .loadAll(PersistenceStoreType.VOLUME);
             if (null != volumeArray) {
                 MockVolumeController.getInstance()
@@ -99,7 +99,7 @@ public class AppServletContextListener implements ServletContextListener {
             }
 
             // Load Tags
-            MockTags [] tagsArray = (MockTags[]) PersistenceUtils
+            MockTags[] tagsArray = (MockTags[]) PersistenceUtils
                     .loadAll(PersistenceStoreType.TAGS);
             if (null != tagsArray) {
                 MockTagsController.getInstance()
@@ -107,7 +107,7 @@ public class AppServletContextListener implements ServletContextListener {
             }
 
             // Load Subnet
-            MockSubnet [] subnetArray = (MockSubnet[]) PersistenceUtils
+            MockSubnet[] subnetArray = (MockSubnet[]) PersistenceUtils
                     .loadAll(PersistenceStoreType.SUBNET);
             if (null != subnetArray) {
                 MockSubnetController.getInstance()
@@ -115,7 +115,7 @@ public class AppServletContextListener implements ServletContextListener {
             }
 
             // Load RouteTable
-            MockRouteTable [] routetableArray = (MockRouteTable[]) PersistenceUtils
+            MockRouteTable[] routetableArray = (MockRouteTable[]) PersistenceUtils
                     .loadAll(PersistenceStoreType.ROUTETABLE);
             if (null != routetableArray) {
                 MockRouteTableController.getInstance()
@@ -123,7 +123,7 @@ public class AppServletContextListener implements ServletContextListener {
             }
 
             // Load Internet Gateway
-            MockInternetGateway [] internetgatewayArray = (MockInternetGateway[]) PersistenceUtils
+            MockInternetGateway[] internetgatewayArray = (MockInternetGateway[]) PersistenceUtils
                     .loadAll(PersistenceStoreType.INTERNETGATEWAY);
             if (null != internetgatewayArray) {
                 MockInternetGatewayController.getInstance()

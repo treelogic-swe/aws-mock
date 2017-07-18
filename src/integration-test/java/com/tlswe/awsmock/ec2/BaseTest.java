@@ -16,8 +16,11 @@ import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.AttachInternetGatewayRequest;
 import com.amazonaws.services.ec2.model.AttachInternetGatewayResult;
@@ -192,7 +195,10 @@ public class BaseTest {
             AWSCredentials credentials = new BasicAWSCredentials(
                     testProperties.getProperty(PROPERTY_ACCESS_KEY),
                     testProperties.getProperty(PROPERTY_SECRET_KEY));
-            amazonEC2Client = new AmazonEC2Client(credentials);
+            ClientConfiguration clientConfig = new ClientConfiguration();
+            clientConfig.addHeader("region", Regions.US_EAST_1.getName());
+
+            amazonEC2Client = new AmazonEC2Client(credentials, clientConfig);
             amazonEC2Client.setEndpoint(testProperties
                     .getProperty(PROPERTY_ENDPOINT));
         }
@@ -390,7 +396,7 @@ public class BaseTest {
       * @return list of instances
      */
     protected final List<Instance> describeInstances() {
-      
+
         DescribeInstancesRequest request = new DescribeInstancesRequest();
         DescribeInstancesResult result = amazonEC2Client
                 .describeInstances(request);

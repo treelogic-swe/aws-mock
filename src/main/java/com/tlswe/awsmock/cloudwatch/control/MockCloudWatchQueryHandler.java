@@ -37,6 +37,7 @@ import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.common.util.TemplateUtils;
+import com.tlswe.awsmock.ec2.cxf_generated.PlacementResponseType;
 import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
 
 /**
@@ -64,10 +65,21 @@ public final class MockCloudWatchQueryHandler {
     private static final String ERROR_RESPONSE_TEMPLATE = "error.xml.ftl";
 
     /**
+     * The xml template filename for blank response body.
+     */
+    private static final String BLANK_RESPONSE_TEMPLATE = "blank.xml.ftl";
+
+    /**
      * Description for the link to AWS QUERY API reference.
      */
     private static final String REF_CLOUDWATCH_QUERY_API_DESC = "See http://docs.aws.amazon.com/AmazonCloudWatch/"
             + "latest/monitoring/WhatIsCloudWatch.html for building a valid query.";
+
+    /**
+     * Default placement for this aws-mock, defined in aws-mock.properties (or if not overridden, as defined in
+     * aws-mock-default.properties).
+     */
+    private static final PlacementResponseType DEFAULT_MOCK_PLACEMENT = new PlacementResponseType();
 
     /**
      * Predefined AMIs, as properties of predefined.mock.ami.X in
@@ -123,7 +135,7 @@ public final class MockCloudWatchQueryHandler {
     protected static final int MAX_RESULTS_DEFAULT = 1000;
 
     static {
-        // DEFAULT_MOCK_PLACEMENT.setAvailabilityZone(PropertiesUtils.getProperty(Constants.PROP_NAME_EC2_PLACEMENT));
+        DEFAULT_MOCK_PLACEMENT.setAvailabilityZone(PropertiesUtils.getProperty(Constants.PROP_NAME_EC2_PLACEMENT));
         MOCK_AMIS.addAll(PropertiesUtils.getPropertiesByPrefix("predefined.mock.ami."));
 
         /*
@@ -174,13 +186,16 @@ public final class MockCloudWatchQueryHandler {
      * @param queryParams
      *            map of query parameters from http request, which is from
      *            standard AWS Query API
+     * @param requestHeaders
+     *            map of Headers from http request, which is from standard AWS Query API
      * @param response
      *            http servlet response to handle with
      * @throws IOException
      *             in case of failure of getting response's writer
      *
      */
-    public void handle(final Map<String, String[]> queryParams, final HttpServletResponse response)
+     public void handle(final Map<String, String[]> queryParams,
+                       final Map<String, String> requestHeaders, final HttpServletResponse response)
             throws IOException {
         if (null == response) {
             // do nothing in case null is passed in
@@ -188,6 +203,16 @@ public final class MockCloudWatchQueryHandler {
         }
 
         String responseXml = null;
+
+        if (null != requestHeaders && requestHeaders.size() > 0) {
+            if (requestHeaders.containsKey("region")
+                && !DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(requestHeaders.get("region").toLowerCase())) {
+                response.getWriter().write(getBlankResponseXml());
+                response.getWriter().flush();
+                response.setStatus(HttpServletResponse.SC_OK);
+                return;
+            }
+        }
 
         if (null == queryParams || queryParams.size() == 0) {
             // no params found at all - write an error xml response
@@ -690,6 +715,26 @@ public final class MockCloudWatchQueryHandler {
 
         try {
             ret = TemplateUtils.get(ERROR_RESPONSE_TEMPLATE, data);
+        } catch (AwsMockException e) {
+            log.error("fatal exception caught: {}", e.getMessage());
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    /**
+     * Generate blank response body in xml and write it with writer.
+     *
+     * @return xml body blank response which can be recognized by AWS clients
+     */
+    private String getBlankResponseXml() {
+        Map<String, Object> data = new HashMap<String, Object>();
+        data.put("requestID", UUID.randomUUID().toString());
+
+        String ret = null;
+
+        try {
+            ret = TemplateUtils.get(BLANK_RESPONSE_TEMPLATE, data);
         } catch (AwsMockException e) {
             log.error("fatal exception caught: {}", e.getMessage());
             e.printStackTrace();

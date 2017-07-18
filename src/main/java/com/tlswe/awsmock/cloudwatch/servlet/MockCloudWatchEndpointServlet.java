@@ -2,6 +2,8 @@ package com.tlswe.awsmock.cloudwatch.servlet;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServlet;
@@ -46,11 +48,26 @@ public class MockCloudWatchEndpointServlet extends HttpServlet {
          */
         Map<String, String[]> queryParams = (Map<String, String[]>) request
                 .getParameterMap();
+        Map<String, String> headers = new HashMap<String, String>();
 
-        response.setContentType("text/xml");
-        response.setCharacterEncoding("UTF-8");
+        // To make sure, No response data impacted by others subsequent and concurrent request.
+        synchronized (this) {
+            //Getting request headers to filter the region name.
+            Enumeration headerNames = request.getHeaderNames();
+            if (headerNames != null) {
+                while (headerNames.hasMoreElements()) {
+                   String key = (String) headerNames.nextElement();
+                   String value = request.getHeader(key);
+                   headers.put(key, value);
+                }
+            }
 
-        MockCloudWatchQueryHandler.getInstance().handle(queryParams, response);
+            response.setContentType("text/xml");
+            response.setCharacterEncoding("UTF-8");
+
+            MockCloudWatchQueryHandler.getInstance().handle(queryParams, headers, response);
+            System.out.println(response.toString());
+       }
     }
 
     /**
