@@ -48,7 +48,7 @@ public final class MockEc2Controller {
     /**
      * Max allowed number of mock instances to run at a time (a single request).
      */
-    private static final int TIME_FOR_TERMINATION = 10;
+    private static final int TIME_FOR_TERMINATION = 100;
 
     // private static final Random _random = new Random();
 
