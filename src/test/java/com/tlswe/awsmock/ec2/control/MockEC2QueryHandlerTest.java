@@ -337,7 +337,7 @@ public class MockEC2QueryHandlerTest {
     }
 
     @Test
-    public void Test_describeImages() throws Exception {
+    public void Test_describeImagesWithParams() throws Exception {
 
         Set<String> MOCK_AMIS = new TreeSet<String>();
         MOCK_AMIS.add("ami-1");
@@ -352,9 +352,9 @@ public class MockEC2QueryHandlerTest {
         Field f = MockEC2QueryHandler.class.getDeclaredField("MOCK_AMIS");
         f.setAccessible(true);
         f.set(MockEC2QueryHandler.class, MOCK_AMIS);
-
+        
         DescribeImagesResponseType describeImagesResponseType = Whitebox.invokeMethod(handler,
-                "describeImages");
+                "describeImages", new TreeSet<String>());
         Assert.assertTrue(describeImagesResponseType != null);
 
         DescribeImagesResponseInfoType describeImagesResponseInfoType = describeImagesResponseType
@@ -380,6 +380,49 @@ public class MockEC2QueryHandlerTest {
 
     }
 
+    @Test
+    public void Test_describeImages() throws Exception {
+
+        Set<String> MOCK_AMIS = new TreeSet<String>();
+        MOCK_AMIS.add("ami-1");
+        MOCK_AMIS.add("ami-2");
+
+        DescribeImagesResponseItemType item1 = new DescribeImagesResponseItemType();
+        item1.setImageId("ami-1");
+
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        // Use reflection to attach a fake set of AMIs to the private static final variable
+        Field f = MockEC2QueryHandler.class.getDeclaredField("MOCK_AMIS");
+        f.setAccessible(true);
+        f.set(MockEC2QueryHandler.class, MOCK_AMIS);
+
+        DescribeImagesResponseType describeImagesResponseType = Whitebox.invokeMethod(handler,
+                "describeImages", MOCK_AMIS);
+        Assert.assertTrue(describeImagesResponseType != null);
+
+        DescribeImagesResponseInfoType describeImagesResponseInfoType = describeImagesResponseType
+                .getImagesSet();
+
+        Assert.assertTrue(describeImagesResponseInfoType.getItem().size() == 2);
+
+        boolean hasAMI1 = false, hasAMI2 = false;
+
+        for (DescribeImagesResponseItemType item : describeImagesResponseInfoType.getItem()) {
+            if ("ami-1".equals(item.getImageId())) {
+                hasAMI1 = true;
+            }
+            if ("ami-2".equals(item.getImageId())) {
+                hasAMI2 = true;
+            }
+        }
+
+        Assert.assertTrue(hasAMI1 && hasAMI2);
+
+        // reset the value of this field
+        f.set(MockEC2QueryHandler.class, new TreeSet<String>());
+
+    }
     @Test
     public void Test_termianteInstances() throws Exception {
 
@@ -959,6 +1002,30 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.contains("NotImplementedAction"));
 
     }
+    
+    @Test
+    public void Test_handleBadQueryRequest() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, null);
+
+        handler.handle(queryParams, null, response);
+
+        String responseString = sw.toString();
+
+        Assert.assertTrue(responseString.contains("InvalidQuery"));
+
+    }
 
     @Test
     public void Test_handleDescribeInstances() throws IOException {
@@ -1004,7 +1071,7 @@ public class MockEC2QueryHandlerTest {
 
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "DescribeImages" });
-
+        queryParams.put("ImageId.1", new String[] { "ami-12345678" });
         handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
@@ -1140,6 +1207,32 @@ public class MockEC2QueryHandlerTest {
     }
 
     @Test
+    public void Test_handleDescribeVpcs_WithOtherRegion() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeVpcsResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeVpcs" });
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-east-2");
+        handler.handle(queryParams, headers, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+    
+    @Test
     public void Test_handleDescribeSecurityGroups() throws IOException {
 
         HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
@@ -1186,6 +1279,34 @@ public class MockEC2QueryHandlerTest {
         queryParams.put(ACTION_KEY, new String[] { "DescribeInternetGateways" });
 
         handler.handle(queryParams, null, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleDescribeInternetGateways_WithOtherRegion() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(
+                JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeInternetGatewaysResponse"),
+                        Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeInternetGateways" });
+
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-east-2");
+        handler.handle(queryParams, headers, response);
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
@@ -1267,6 +1388,32 @@ public class MockEC2QueryHandlerTest {
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
     }
 
+    @Test
+    public void Test_handleDescribeSubnets_WithOtherRegion() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeSubnetsResponseType"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeSubnets" });
+
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-east-2");
+        handler.handle(queryParams, headers, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
     @Test
     public void Test_handleCreateSubnets() throws IOException {
 
@@ -1603,9 +1750,9 @@ public class MockEC2QueryHandlerTest {
 
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "CreateRoute" });
-        queryParams.put("RouteTableId", null);
-        queryParams.put("InternetGatewayId", null);
-        queryParams.put("DestinationCidrBlock", null);
+        //queryParams.put("RouteTableId", null);
+        //queryParams.put("InternetGatewayId", null);
+        //queryParams.put("DestinationCidrBlock", null);
 
         handler.handle(queryParams, null, response);
 
@@ -2113,5 +2260,59 @@ public class MockEC2QueryHandlerTest {
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleSafeAPI_DescribeAvailabilityZones() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(),
+                Mockito.eq("DescribeAvailabilityZonesResponseType"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-east-1");
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeAvailabilityZones" });
+       
+        handler.handle(queryParams, headers, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleNonSafeAPI_DescribeVolumes() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("DescribeVolumesResponseType"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "DescribeVolumes" });
+        queryParams.put("MaxResults", new String[] { "50"});
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-east-2");
+        handler.handle(queryParams, headers, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.contains("Response"));
     }
 }

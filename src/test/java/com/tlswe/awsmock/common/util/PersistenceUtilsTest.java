@@ -252,6 +252,12 @@ public class PersistenceUtilsTest {
     }
     
     @Test
+    public void Test_getPersistenceStore() throws Exception {
+    	PersistenceStoreType persistenceStoreType = PersistenceStoreType.VPC;
+    	Assert.assertTrue( persistenceStoreType.getStore() !=null);
+    }
+    
+    @Test
     public void Test_containPersistenceStoreType() throws Exception {
     	
     	Assert.assertTrue("VPC Type exists", PersistenceStoreType.containsByName("VPC") == true);

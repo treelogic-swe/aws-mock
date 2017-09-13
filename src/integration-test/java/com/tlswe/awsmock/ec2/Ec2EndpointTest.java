@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.services.ec2.model.Image;
 import com.amazonaws.services.ec2.model.Instance;
 import com.amazonaws.services.ec2.model.InstanceStateChange;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
@@ -220,6 +221,28 @@ public class Ec2EndpointTest extends BaseTest {
         	log.info("Count :" + 0);
         }
     }
+    
+    /**
+     * Test describing instances with states filter.
+     */
+    @Test(timeout = TIMEOUT_LEVEL2)
+    public final void describeImagesAllTest() {
+        log.info("Start describing Images with states filter test");
+
+        List<Image> instances = describeImages();
+        if(instances != null)
+        {
+           for (Image i : instances) {
+             log.info(i.getImageId());
+           }
+        }
+        else
+        {
+        	log.info("Count :" + 0);
+        }
+    }
+
+
     /**
      * Test describing instances with states filter.
      */

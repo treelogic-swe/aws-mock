@@ -35,6 +35,8 @@ import com.tlswe.awsmock.ec2.cxf_generated.AuthorizeSecurityGroupEgressResponseT
 import com.tlswe.awsmock.ec2.cxf_generated.AuthorizeSecurityGroupIngressResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneSetType;
+import com.tlswe.awsmock.ec2.cxf_generated.BlockDeviceMappingItemType;
+import com.tlswe.awsmock.ec2.cxf_generated.BlockDeviceMappingType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateInternetGatewayResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateRouteResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.CreateRouteTableResponseType;
@@ -64,6 +66,7 @@ import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesSetItemResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesSetResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.DescribeVpcsResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.EbsBlockDeviceType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.GroupSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.InstanceStateChangeSetType;
@@ -87,6 +90,7 @@ import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
+import com.tlswe.awsmock.ec2.cxf_generated.StateReasonType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.SubnetSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.SubnetType;
@@ -499,7 +503,8 @@ public final class MockEC2QueryHandler {
                                     "RunInstancesResponse", version);
 
                         } else if ("DescribeImages".equals(action)) {
-                            responseXml = JAXBUtil.marshall(describeImages(),
+                            Set<String> imageIDs = parseImageIDs(queryParams);
+                            responseXml = JAXBUtil.marshall(describeImages(imageIDs),
                                     "DescribeImagesResponse", version);
                         } else {
 
@@ -990,6 +995,28 @@ public final class MockEC2QueryHandler {
     }
 
     /**
+     * Parse Image IDs from query parameters.
+     *
+     * @param queryParams
+     *            map of query parameters in http request
+     * @return a set of Images IDs in the parameter map
+     */
+    private Set<String> parseImageIDs(final Map<String, String[]> queryParams) {
+        Set<String> ret = new TreeSet<String>();
+
+        Set<Map.Entry<String, String[]>> entries = queryParams.entrySet();
+        for (Map.Entry<String, String[]> entry : entries) {
+            if (null != entry && null != entry.getKey()
+                    && entry.getKey().matches("ImageId\\.(\\d)+")) {
+                if (null != entry.getValue() && entry.getValue().length > 0) {
+                    ret.add(entry.getValue()[0]);
+                }
+            }
+        }
+        return ret;
+    }
+
+    /**
      * Handles "describeInstances" request, with filters of instanceIDs and instanceStates, and returns response with
      * all mock ec2 instances if no instance IDs specified.
      *
@@ -1265,18 +1292,68 @@ public final class MockEC2QueryHandler {
 
     /**
      * Handles "describeImages" request, as simple as without any filters to use.
-     *
+     * @param imageId : Set of imgaesId.
      * @return a DescribeImagesResponse with our predefined AMIs in aws-mock.properties (or if not overridden, as
      *         defined in aws-mock-default.properties)
      */
-    private DescribeImagesResponseType describeImages() {
+    private DescribeImagesResponseType describeImages(final Set<String> imageId) {
         DescribeImagesResponseType ret = new DescribeImagesResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
         DescribeImagesResponseInfoType info = new DescribeImagesResponseInfoType();
         for (String ami : MOCK_AMIS) {
-            DescribeImagesResponseItemType item = new DescribeImagesResponseItemType();
-            item.setImageId(ami);
-            info.getItem().add(item);
+            if (imageId == null || imageId.isEmpty()) {
+                DescribeImagesResponseItemType item = new DescribeImagesResponseItemType();
+                item.setImageId(ami);
+                item.setArchitecture("x86_64");
+                item.setVirtualizationType("paravirtual");
+                item.setName("My server");
+                item.setHypervisor("xen");
+                item.setRootDeviceType("ebs");
+                item.setImageLocation("123456789012/My server");
+                item.setKernelId("aki-88aa75e1");
+                item.setImageOwnerId("123456789012");
+                item.setRootDeviceName("/dev/sda1");
+                item.setIsPublic(false);
+                item.setImageType("machine");
+                BlockDeviceMappingType blockDeviceMappingType = new BlockDeviceMappingType();
+                BlockDeviceMappingItemType blockDeviceMapping = new BlockDeviceMappingItemType();
+                blockDeviceMapping.setDeviceName("/dev/sda1");
+                EbsBlockDeviceType ebs = new EbsBlockDeviceType();
+                ebs.setDeleteOnTermination(true);
+                ebs.setSnapshotId("snap-1234567890abcdef0");
+                ebs.setVolumeSize(1);
+                ebs.setVolumeType("standard");
+                blockDeviceMapping.setEbs(ebs);
+                blockDeviceMappingType.getItem().add(blockDeviceMapping);
+                item.setBlockDeviceMapping(blockDeviceMappingType);
+                info.getItem().add(item);
+            } else if (imageId.contains(ami)) {
+                DescribeImagesResponseItemType item = new DescribeImagesResponseItemType();
+                item.setImageId(ami);
+                item.setArchitecture("x86_64");
+                item.setVirtualizationType("paravirtual");
+                item.setName("My server");
+                item.setHypervisor("xen");
+                item.setRootDeviceType("ebs");
+                item.setImageLocation("123456789012/My server");
+                item.setKernelId("aki-88aa75e1");
+                item.setImageOwnerId("123456789012");
+                item.setRootDeviceName("/dev/sda1");
+                item.setIsPublic(false);
+                item.setImageType("machine");
+                BlockDeviceMappingType blockDeviceMappingType = new BlockDeviceMappingType();
+                BlockDeviceMappingItemType blockDeviceMapping = new BlockDeviceMappingItemType();
+                blockDeviceMapping.setDeviceName("/dev/sda1");
+                EbsBlockDeviceType ebs = new EbsBlockDeviceType();
+                ebs.setDeleteOnTermination(true);
+                ebs.setSnapshotId("snap-1234567890abcdef0");
+                ebs.setVolumeSize(1);
+                ebs.setVolumeType("standard");
+                blockDeviceMapping.setEbs(ebs);
+                blockDeviceMappingType.getItem().add(blockDeviceMapping);
+                item.setBlockDeviceMapping(blockDeviceMappingType);
+                info.getItem().add(item);
+            }
         }
         ret.setImagesSet(info);
 
@@ -1808,7 +1885,6 @@ public final class MockEC2QueryHandler {
     private DescribeVpcsResponseType describeVpcs() {
         DescribeVpcsResponseType ret = new DescribeVpcsResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
-        System.out.println("Vpc Count: " + mockVpcController.describeVpcs().size());
         VpcSetType vpcSet = new VpcSetType();
         for (Iterator<MockVpc> mockVpc = mockVpcController.describeVpcs().iterator(); mockVpc
                 .hasNext();) {

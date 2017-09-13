@@ -111,4 +111,21 @@ public class MockTagsControllerTest {
         Assert.assertTrue("Internet gateway deleted.", mockTagsController.deleteTags(resources));
     }
 
+    @Test
+    public void Test_restoreTags() throws Exception {
+        
+    	 List<MockTags> allMockTags = new ArrayList<MockTags>();
+         MockTags mockTags = new MockTags();
+         List<String> resources = new ArrayList<String>();
+         resources.add("resource1");
+         resources.add("resource2");
+         mockTags.setResourcesSet(resources);
+         allMockTags.add(mockTags);
+         MockTags mockTags1 = new MockTags();
+         mockTags1.setResourcesSet(resources);
+         allMockTags.add(mockTags1);
+       
+         MockTagsController.getInstance()
+               .restoreAllMockTags(allMockTags);
+    }
 }

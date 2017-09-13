@@ -37,18 +37,6 @@ public class JAXBUtilCWTest {
         Assert.assertTrue(xml.contains("<Label>CPUUtilization</Label>"));
     }
 
-    @Test(expected = AwsMockException.class)
-    public void Test_marshallFailed() throws Exception {
-
-        // A class not made to be marshaled
-        class Person {
-
-            String name;
-        }
-
-        JAXBUtil.marshall(new Person(), "Person", "2012-02-10");
-    }
-
     @Test
     public void Test_mashallNotElasticFox() throws Exception {
 

@@ -29,6 +29,8 @@ import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
+import com.tlswe.awsmock.ec2.util.JAXBUtil;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, JAXBUtilCW.class })
@@ -817,5 +819,83 @@ public class MockCloudWatchQueryHandlerTest {
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+    
+    @Test
+    public void Test_handleSafeAPI_DescribeAvailabilityZones() throws IOException {
+
+    	HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtilCW.marshall(Mockito.any(GetMetricStatisticsResponse.class),
+                Mockito.eq("GetMetricStatistics"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-east-1");
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "GetMetricStatistics" });
+       
+        handler.handle(queryParams, headers, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.contains("InternalError"));
+    }
+    
+    @Test
+    public void Test_handleSafeAPI_Region() throws IOException {
+
+    	HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtilCW.marshall(Mockito.any(GetMetricStatisticsResponse.class),
+                Mockito.eq("GetMetricStatistics"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-Mock-1");
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "GetMetricStatistics" });
+       
+        handler.handle(queryParams, headers, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.contains("Response"));
+    }
+    
+    @Test
+    public void Test_handleBadQueryRequest() throws IOException {
+
+    	HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, null);
+
+        handler.handle(queryParams, null, response);
+
+        String responseString = sw.toString();
+
+        Assert.assertTrue(responseString.contains("InvalidQuery"));
+
     }
 }

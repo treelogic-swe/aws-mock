@@ -3,6 +3,7 @@ package com.tlswe.awsmock.cloudwatch.servlet;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +19,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
 import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
+import com.tlswe.awsmock.ec2.servlet.MockEc2EndpointServlet;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, HttpServletRequest.class,
@@ -51,7 +53,17 @@ public class MockCloudWatchEndpointServletTest {
     @Test
     public void Test_doGet() throws IOException {
         MockCloudWatchEndpointServlet mockCloudWatchEndpointServlet = new MockCloudWatchEndpointServlet();
-        mockCloudWatchEndpointServlet.doPost(request, response);
+        mockCloudWatchEndpointServlet.doGet(request, response);
     }
 
+    @Test
+    public void Test_doGetWithHeaders() throws IOException {
+        HttpServletRequest  mockedRequest = Mockito.mock(HttpServletRequest.class);
+        Vector headers = new Vector();
+        headers.add("header1");
+        Mockito.when(mockedRequest.getHeaderNames()).thenReturn(headers.elements());
+        Mockito.when(mockedRequest.getHeader("header1")).thenReturn("header1value");
+        MockCloudWatchEndpointServlet mockCloudWatchEndpointServlet = new MockCloudWatchEndpointServlet();
+        mockCloudWatchEndpointServlet.doPost(mockedRequest, response);
+    }
 }
