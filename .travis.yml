@@ -15,7 +15,7 @@ before_script:
     - node example/nodejs/LocalProxy.js &
 
 script: 
-    - gradle clean coberturaCheck Javadoc check
+    - ./gradlew clean coberturaCheck Javadoc check
 
 after_success: .utility/push-to-gh-pages.sh
 
