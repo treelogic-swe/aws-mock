@@ -13,7 +13,6 @@ before_script:
     - cd build-copy/aws-mock-copy
     - cd ../..
     - node example/nodejs/LocalProxy.js &
-    - sleep 5
 
 script: 
     - gradle clean coberturaCheck Javadoc check
