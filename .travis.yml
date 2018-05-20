@@ -11,13 +11,13 @@ before_script:
     - shopt -s extglob
     - cp ./!(build-copy) build-copy/aws-mock-copy/ -r
     - cd build-copy/aws-mock-copy
-    - nohup gradle jettyRun &
     - cd ../..
-    - node example/nodejs/LocalProxy.js &
-    - sleep 5
 
 script: 
     - gradle clean coberturaCheck Javadoc check
+    - nohup gradle appStart &
+    - node example/nodejs/LocalProxy.js &
+    - sleep 5
     - npm test
 
 after_success: .utility/push-to-gh-pages.sh
