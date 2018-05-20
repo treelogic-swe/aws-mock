@@ -99,6 +99,11 @@ configurations {
 task integrationTest(type: Test) {
    testClassesDir = sourceSets.integrationTest.output.classesDir
    classpath = sourceSets.integrationTest.runtimeClasspath
+   doLast{
+	exec {
+		commandLine 'sh', '-c', 'npm test'
+	}
+   }
 }
 
 check.dependsOn integrationTest

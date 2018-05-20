@@ -12,12 +12,11 @@ before_script:
     - cp ./!(build-copy) build-copy/aws-mock-copy/ -r
     - cd build-copy/aws-mock-copy
     - cd ../..
+    - node example/nodejs/LocalProxy.js &
+    - sleep 5
 
 script: 
-    - nohup gradle appStart &
-    - node example/nodejs/LocalProxy.js &
-    - sleep 10
-    - npm test
+    - gradle clean coberturaCheck Javadoc check
 
 after_success: .utility/push-to-gh-pages.sh
 
