@@ -1369,8 +1369,8 @@ public final class MockEC2QueryHandler {
         final String groupDescription, final String vpcId) {
         CreateSecurityGroupResponseType ret = new CreateSecurityGroupResponseType();
         ret.setRequestId(UUID.randomUUID().toString());
-        MockSecurityGroup mockSecurityGroup = mockSecurityGroupController.createSecurityGroup(groupName
-              , groupDescription, vpcId);
+        MockSecurityGroup mockSecurityGroup = mockSecurityGroupController.createSecurityGroup(groupName,
+groupDescription, vpcId);
         ret.setGroupId(mockSecurityGroup.getGroupId());
         return ret;
     }
