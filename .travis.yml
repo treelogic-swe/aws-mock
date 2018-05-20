@@ -17,7 +17,7 @@ script:
     - gradle clean coberturaCheck Javadoc check
     - nohup gradle appStart &
     - node example/nodejs/LocalProxy.js &
-    - sleep 5
+    - sleep 10
     - npm test
 
 after_success: .utility/push-to-gh-pages.sh
