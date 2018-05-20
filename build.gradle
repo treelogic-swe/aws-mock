@@ -113,6 +113,11 @@ checkstyle {
     toolVersion = "7.6.1"
 }
 
+// Running 'gradle wrapper' will generate gradlew - Getting gradle wrapper working and using it will save you a lot of pain.
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.7' 
+}
+
 task checkstylejs (type: Checkstyle) {
     source 'example/nodejs'
     include '**/*.js'
