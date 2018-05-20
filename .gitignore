@@ -33,5 +33,3 @@ src/main/java/com/tlswe/awsmock/ec2/cxf_generated/*.java
 # IntelliJ files
 .idea/
 *.iml
-gradle
-gradlew*
