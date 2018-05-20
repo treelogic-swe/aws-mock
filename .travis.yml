@@ -14,7 +14,6 @@ before_script:
     - cd ../..
 
 script: 
-    - gradle clean coberturaCheck Javadoc check
     - nohup gradle appStart &
     - node example/nodejs/LocalProxy.js &
     - sleep 10
@@ -25,7 +24,6 @@ after_success: .utility/push-to-gh-pages.sh
 after_script:
     - ps axu|grep example/nodejs/LocalProxy.js|grep -v grep|awk '{print $2}'|xargs kill -9
     - cd build-copy/aws-mock-copy
-    - gradle jettyStop
     - cd ../..
     - rm -rf build-copy/aws-mock-copy
 
