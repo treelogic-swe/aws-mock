@@ -21,9 +21,9 @@
     },
     "keywords": [
         "aws",
-    "mock",
-    "ec2"
-        ],
+        "mock",
+        "ec2"
+    ],
     "author": {
         "name": "treelogic-swe.com"
     },

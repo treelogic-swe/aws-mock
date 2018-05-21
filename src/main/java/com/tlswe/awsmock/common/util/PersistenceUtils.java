@@ -22,10 +22,10 @@ public final class PersistenceUtils {
     /**
      * The Enum PersistenceStoreType.
      */
-    public static enum PersistenceStoreType {
+    public enum PersistenceStoreType {
 
         /** The ec2. */
-        EC2 ("ec2.save"),
+        EC2("ec2.save"),
 
         /** The vpc. */
         VPC("vpc.save"),
@@ -55,7 +55,7 @@ public final class PersistenceUtils {
          *
          * @param storeName the store name
          */
-        private PersistenceStoreType(final String storeName) {
+        PersistenceStoreType(final String storeName) {
             this.store = storeName;
         }
 

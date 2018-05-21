@@ -123,8 +123,7 @@ public final class MockInternetGatewayController {
      * @return Mock InternetGateway.
      */
     public MockInternetGateway deleteInternetGateway(final String internetgatewayId) {
-        if (internetgatewayId != null && allMockInternetGateways.containsKey(internetgatewayId))
-        {
+        if (internetgatewayId != null && allMockInternetGateways.containsKey(internetgatewayId)) {
             return allMockInternetGateways.remove(internetgatewayId);
         }
 

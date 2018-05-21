@@ -54,7 +54,7 @@ public abstract class AbstractMockEc2Instance implements Serializable {
      * @author xma
      *
      */
-    public static enum InstanceType {
+    public enum InstanceType {
         /**
          * t1.micro.
          */
@@ -288,7 +288,7 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          *            name of instance type
          *
          */
-        private InstanceType(final String typeName) {
+        InstanceType(final String typeName) {
             this.name = typeName;
         }
 
@@ -343,7 +343,7 @@ public abstract class AbstractMockEc2Instance implements Serializable {
      * @author xma
      *
      */
-    public static enum InstanceState {
+    public enum InstanceState {
 
         /**
          * pending.
@@ -388,7 +388,7 @@ public abstract class AbstractMockEc2Instance implements Serializable {
          * @param stateName
          *            name of instance stateO
          */
-        private InstanceState(final int stateCode, final String stateName) {
+        InstanceState(final int stateCode, final String stateName) {
             this.code = stateCode;
             this.name = stateName;
         }

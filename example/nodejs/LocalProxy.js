@@ -7,7 +7,7 @@ This script runs a reverse proxy on http://localhost:9090/ to the actual backend
 var httpProxy = require('http-proxy'),
 options = {
     router: {
-        'localhost/': 'http://localhost:8000/aws-mock/ec2-endpoint/'
+        'localhost/': 'http://localhost:8001/aws-mock/ec2-endpoint/'
     }
 },
 proxyServer = httpProxy.createServer(options);

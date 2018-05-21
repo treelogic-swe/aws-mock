@@ -10,13 +10,14 @@ buildscript {
     }
     dependencies {
         classpath "net.saliman:gradle-cobertura-plugin:2.3.2"
+        classpath 'org.akhikhl.gretty:gretty:+'
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'eclipse-wtp'
-apply plugin: 'jetty'
+apply plugin: 'org.akhikhl.gretty'
 apply plugin: 'checkstyle'
 apply plugin: 'maven'
 apply plugin: 'signing'
@@ -29,18 +30,10 @@ ext.packaging = 'jar'
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 
-[jettyRun,jettyRunWar]*.daemon = false
-[jettyRun,jettyRunWar]*.httpPort = 8000
-[jettyRun,jettyRunWar,jettyStop]*.stopPort = 38091   // Port for stop signal
-[jettyRun,jettyRunWar,jettyStop]*.stopKey = 'foo'
-
-// fix the issue that jetty not stops in daemon mode
-import org.gradle.api.plugins.jetty.internal.Monitor
-[jettyRun, jettyRunWar]*.doLast {
-   if (getStopPort() != null && getStopPort() > 0 && getStopKey() != null) {
-      Monitor monitor = new Monitor(getStopPort(), getStopKey(), server.getProxiedObject());
-      monitor.start();
-   }
+gretty {
+    httpPort = 8001
+    servletContainer = 'jetty9'
+    integrationTestTask = 'integrationTest'
 }
 
 dependencies {
@@ -106,15 +99,10 @@ configurations {
 task integrationTest(type: Test) {
    testClassesDir = sourceSets.integrationTest.output.classesDir
    classpath = sourceSets.integrationTest.runtimeClasspath
-   doFirst {
-       jettyRun.daemon = true
-       jettyRun.httpPort = 8001
-       [jettyRun,jettyStop]*.stopPort = 38092
-       [jettyRun,jettyStop]*.stopKey = 'bar'
-       jettyRun.execute()
-   }
-   doLast {
-       jettyStop.execute()
+   doLast{
+	exec {
+		commandLine 'sh', '-c', 'npm test'
+	}
    }
 }
 
@@ -122,6 +110,12 @@ check.dependsOn integrationTest
 
 checkstyle {
     sourceSets = [ sourceSets.main, sourceSets.examples ]
+    toolVersion = "7.6.1"
+}
+
+// Running 'gradle wrapper' will generate gradlew - Getting gradle wrapper working and using it will save you a lot of pain.
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.7' 
 }
 
 task checkstylejs (type: Checkstyle) {
@@ -139,11 +133,6 @@ task sourcesJar(type:Jar, dependsOn: classes){
 task javadocJar(type: Jar) {
     classifier = "javadoc"
     from javadoc
-}
-
-
-task run(dependsOn: jettyRun) {
-
 }
 
 test {
