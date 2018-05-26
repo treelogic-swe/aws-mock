@@ -116,7 +116,7 @@ public final class MockSecurityGroupController {
      * @return mock Security Group.
      */
      public MockSecurityGroup authorizeSecurityGroupIngress(final String groupId, final String ipProtocol,
-         final Integer fromPort, final Integer toPort, final String cidrIp) {
+final Integer fromPort, final Integer toPort, final String cidrIp) {
          if (groupId == null) {
              return null;
          }
