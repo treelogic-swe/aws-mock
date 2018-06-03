@@ -7,6 +7,7 @@ package com.tlswe.awsmock.ec2;
 import java.util.List;
 import java.util.Random;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -46,11 +47,16 @@ public class Ec2EndpointTest extends BaseTest {
      */
     private static Logger log = LoggerFactory.getLogger(Ec2EndpointTest.class);
 
+    private static Ec2EndpointTest context = null;
+
     /**
      * Test one instance by run->stop.
      */
     @Test(timeout = TIMEOUT_LEVEL1)
     public final void sequenceRunStopTest() {
+
+	context = this;
+
         log.info("Start simple run -> stop test");
 
         // run
@@ -191,14 +197,11 @@ public class Ec2EndpointTest extends BaseTest {
             }
             
            
-            // wait for running
-            /* for (Instance i : instances) {
-                waitForState(i.getInstanceId(),
-                        AbstractMockEc2Instance.InstanceState.TERMINATED);
-            }*/
-   
-         //   log.info("Created : " + 5000);
+            // terminate to avoid memory leak
+            //terminateInstances(instances);
         }
+
+        
     }
 
     /**
@@ -288,5 +291,17 @@ public class Ec2EndpointTest extends BaseTest {
 
         Assert.assertTrue("number of non terminated instances should be 3",
                 instances.size() == nonTerminatedCount);
+    }
+
+    @AfterClass
+    public static void cleanUp(){
+	List<Instance>  instances = context.describeInstances();
+        instances = context.describeNonTerminatedInstances(instances);
+        context.terminateInstances(instances);
+
+        for (Instance i : instances) {
+            context.waitForState(i.getInstanceId(),
+                    AbstractMockEc2Instance.InstanceState.TERMINATED);
+        }
     }
 }

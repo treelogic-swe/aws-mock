@@ -407,6 +407,8 @@ public final class MockEc2Controller {
                 for (AbstractMockEc2Instance instance : allMockEc2Instances.values()) {
                     if (terminatedState.equals(instance.getInstanceState().getName())) {
                         allMockEc2Instances.remove(instance.getInstanceID());
+                        // destroy instance's internal timer
+                        instance.destroyInternalTimer();
                     }
                 }
             }
