@@ -359,9 +359,15 @@ public class MockEc2ControllerTest {
         controller.terminateInstances(instanceIDs); // instances should now be in terminated state excepting the last one added
 
         controller.cleanupTerminatedInstances(1);
-        Thread.sleep(1000); // delay needed to ensure thread gets executed
-        controller.destroyCleanupTerminatedInstanceTimer(); // need to stop the timer
+        
+        Thread.sleep(1000); // delay needed to ensure the cleanup thread gets executed
+
         Assert.assertTrue(controller.getAllMockEc2Instances().size() == 1); // as ec2Mocked3 is not terminated and is returned
+        Assert.assertTrue(ec2Mocked1.isTerminated() == true);
+        Assert.assertTrue(ec2Mocked2.isTerminated() == true);
+        Assert.assertTrue(ec2Mocked3.isTerminated() == false);
+        
+        controller.destroyCleanupTerminatedInstanceTimer(); // cleanup the controller timer
 
     }
 
