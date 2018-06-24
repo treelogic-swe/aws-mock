@@ -198,7 +198,7 @@ public class Ec2EndpointTest extends BaseTest {
             
            
             // terminate to avoid memory leak
-            //terminateInstances(instances);
+            terminateInstances(instances);
         }
 
         
