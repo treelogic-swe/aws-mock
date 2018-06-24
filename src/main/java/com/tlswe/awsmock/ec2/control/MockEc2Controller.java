@@ -242,6 +242,7 @@ public final class MockEc2Controller {
                 stateChange.setPreviousState(previousState);
 
                 instance.start();
+                instance.initializeInternalTimer();
 
                 InstanceStateType newState = new InstanceStateType();
                 newState.setCode(instance.getInstanceState().getCode());
@@ -326,8 +327,6 @@ public final class MockEc2Controller {
             }
         }
 
-        // To Clean up the objects
-        cleanupTerminatedInstances(TIME_FOR_TERMINATION);
         return ret;
 
     }
@@ -393,31 +392,39 @@ public final class MockEc2Controller {
      */
     public void cleanupTerminatedInstances(final long period) {
 
-        Runnable cleanupTerminatedInstancesTask = new Runnable() {
+        if (null == cleanupTerminatedInstancesTimer) {
+            // "double checked locking" for the cleanup timer
+            synchronized (this) {
+                if (null == cleanupTerminatedInstancesTimer) {
 
-            /**
-             * this method is triggered every pre-defined period
-             */
-            private String terminatedState = AbstractMockEc2Instance.InstanceState.TERMINATED
-                    .getName();
+                    Runnable cleanupTerminatedInstancesTask = new Runnable() {
 
-            @Override
-            public void run() {
-                // traverse the map allMockEc2Instances and clean up the terminated ones
-                for (AbstractMockEc2Instance instance : allMockEc2Instances.values()) {
-                    if (terminatedState.equals(instance.getInstanceState().getName())) {
-                        allMockEc2Instances.remove(instance.getInstanceID());
-                        // destroy instance's internal timer
-                        instance.destroyInternalTimer();
-                    }
+                        /**
+                         * this method is triggered every pre-defined period
+                         */
+                        private String terminatedState = AbstractMockEc2Instance.InstanceState.TERMINATED
+                                .getName();
+
+
+                        @Override
+                        public void run() {
+                            // traverse the map allMockEc2Instances and clean up the terminated ones
+                            for (AbstractMockEc2Instance instance : allMockEc2Instances.values()) {
+                                if (terminatedState.equals(instance.getInstanceState().getName())) {
+                                    allMockEc2Instances.remove(instance.getInstanceID());
+                                    instance.destroyInternalTimer();
+                                }
+                            }
+                        }
+
+                    };
+
+                    cleanupTerminatedInstancesTimer = Executors.newSingleThreadScheduledExecutor();
+                    cleanupTerminatedInstancesScheduledFuture = cleanupTerminatedInstancesTimer
+                            .scheduleAtFixedRate(cleanupTerminatedInstancesTask, 0L, period, TimeUnit.SECONDS);
                 }
             }
-
-        };
-
-        cleanupTerminatedInstancesTimer = Executors.newSingleThreadScheduledExecutor();
-        cleanupTerminatedInstancesScheduledFuture = cleanupTerminatedInstancesTimer
-                .scheduleAtFixedRate(cleanupTerminatedInstancesTask, 0L, period, TimeUnit.SECONDS);
+        }
     }
 
     /**
