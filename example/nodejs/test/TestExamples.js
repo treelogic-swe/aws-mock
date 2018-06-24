@@ -13,6 +13,7 @@ AWS,
 ec2,
 maxBootSeconds = 30,
 maxShutdownSeconds = 20,
+maxTerminateSeconds = 30,
 exampleImageID = null,
 instanceType = 'm1.small',
 runCount = 10,
@@ -149,12 +150,16 @@ describe('Test Examples -> ', function() {
     });
 
     describe('Describe No Instances Test -> ', function() {
-        it('should return nothing', function(done) {
-            describeInstancesExample.describeInstances(null, ec2, function getInstances(instances) {
-                expect(instances).to.have.length(0);
-                done();
-            });
-
+        var delayTime = getDelayTime(maxTerminateSeconds);
+        this.timeout(delayTime + FIVE_SECONDS_IN_MILLSECOND);
+        it('should return no instances after '+ delayTime + ' millsecs', function(done) {
+            setTimeout(function() {
+                describeInstancesExample.describeInstances(null, ec2, function getInstances(instances) {
+                    expect(instances).to.have.length(0);
+                    done();
+                });
+            },
+            delayTime);
         });
     });
 });
