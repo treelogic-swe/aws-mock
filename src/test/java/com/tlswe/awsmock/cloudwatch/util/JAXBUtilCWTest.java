@@ -1,5 +1,7 @@
 package com.tlswe.awsmock.cloudwatch.util;
 
+import javax.xml.bind.JAXBException;
+
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -128,5 +130,40 @@ public class JAXBUtilCWTest {
                 .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL));
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
+    }
+
+    @Test
+    public void Test_mashallDescribeAlaramsElasticFoxFalse() throws Exception {
+
+        PowerMockito.spy(PropertiesUtils.class);
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_ELASTICFOX_COMPATIBLE))
+                .thenReturn("false");
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_EC2_API_VERSION_ELASTICFOX))
+                .thenReturn("2010-08-01");
+
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+        DescribeAlarmsResponse alarms = Whitebox.invokeMethod(handler,
+                "describeAlarms");
+
+        String xml = JAXBUtilCW.marshall(alarms, "describeAlarms", PropertiesUtils
+                .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL));
+
+        Assert.assertTrue(xml != null && !xml.isEmpty());
+    }
+
+    @Test(expected = AwsMockException.class)
+    public void Test_marshallGetMetricStatisticsFailed() throws Exception {
+        PowerMockito.spy(PropertiesUtils.class);
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT))
+                .thenThrow(JAXBException.class);
+        JAXBUtilCW.marshall(new GetMetricStatisticsResponse(), "Test", "2012-02-10");
+    }
+
+    @Test(expected = AwsMockException.class)
+    public void Test_marshallDescribeAlarmsFailed() throws Exception {
+        PowerMockito.spy(PropertiesUtils.class);
+        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT))
+                .thenThrow(JAXBException.class);
+        JAXBUtilCW.marshall(new DescribeAlarmsResponse(), "Test", "2012-02-10");
     }
 }
