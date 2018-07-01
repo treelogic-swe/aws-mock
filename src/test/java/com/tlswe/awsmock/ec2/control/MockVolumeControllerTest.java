@@ -3,12 +3,8 @@ package com.tlswe.awsmock.ec2.control;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

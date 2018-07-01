@@ -98,5 +98,21 @@ public class MockInternetGatewayControllerTest {
     
         Assert.assertNotNull("Internet gateway deleted.", mockInternetGatewayDelete.getInternetGatewayId());
     }
+    
+    @Test
+    public void Test_restoreInternetGateway() throws Exception {
+        
+        Map<String, MockInternetGateway> allMockInternetGateway = new ConcurrentHashMap<String, MockInternetGateway>();
+        MockInternetGateway mockInternetGateway = new MockInternetGateway();
+        mockInternetGateway.setInternetGatewayId("i-werewrw");
+        allMockInternetGateway.put("i-2323", mockInternetGateway);
+        MockInternetGateway mockInternetGateway1 = new MockInternetGateway();
+        mockInternetGateway1.setInternetGatewayId("i-2323wrw");
+        allMockInternetGateway.put("i-23223233", mockInternetGateway1);
+       
+        MockInternetGatewayController
+               .getInstance()
+               .restoreAllInternetGateway(allMockInternetGateway.values());
+    }
 
 }

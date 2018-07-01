@@ -29,6 +29,8 @@ import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
+import com.tlswe.awsmock.ec2.util.JAXBUtil;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, JAXBUtilCW.class })
@@ -492,9 +494,9 @@ public class MockCloudWatchQueryHandlerTest {
 
         Mockito.when(response.getWriter()).thenReturn(pw);
 
-        handler.handle(null, null); // does nothing
+        handler.handle(null, null, null); // does nothing
 
-        handler.handle(null, response); // no query params
+        handler.handle(null, null, response); // no query params
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.contains(INVALID_QUERY));
@@ -504,7 +506,7 @@ public class MockCloudWatchQueryHandlerTest {
         pw = new PrintWriter(sw);
 
         Mockito.when(response.getWriter()).thenReturn(pw);
-        handler.handle(new HashMap<String, String[]>(), response); // no query
+        handler.handle(new HashMap<String, String[]>(), null, response); // no query
                                                                    // params
 
         responseString = sw.toString();
@@ -528,7 +530,7 @@ public class MockCloudWatchQueryHandlerTest {
         // no version key here
         queryParams.put("someKey", new String[] { "someValue" });
 
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
 
@@ -543,7 +545,7 @@ public class MockCloudWatchQueryHandlerTest {
 
         Mockito.when(response.getWriter()).thenReturn(pw);
 
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         Assert.assertTrue(responseString.contains(INVALID_QUERY));
         Assert.assertTrue(responseString.contains(NO_VERSION_IN_QUERY));
@@ -566,7 +568,7 @@ public class MockCloudWatchQueryHandlerTest {
         // no action key provided
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
 
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
 
@@ -581,7 +583,7 @@ public class MockCloudWatchQueryHandlerTest {
 
         Mockito.when(response.getWriter()).thenReturn(pw);
 
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         Assert.assertTrue(responseString.contains(INVALID_QUERY));
         Assert.assertTrue(responseString.contains(NO_ACTION_IN_QUERY));
@@ -603,7 +605,7 @@ public class MockCloudWatchQueryHandlerTest {
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "unsupportedAction" });
 
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
 
@@ -627,7 +629,7 @@ public class MockCloudWatchQueryHandlerTest {
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "GetMetricStatistics" });
         queryParams.put("Period22", new String[] { "3600" });
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
 
@@ -661,7 +663,7 @@ public class MockCloudWatchQueryHandlerTest {
         queryParams.put("Period", new String[] { "3600" });
         queryParams.put("Statistics.member.1", new String[] { "Average" });
         queryParams.put("Statistics.member.2", new String[] { "SampleCount" });
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
@@ -686,7 +688,7 @@ public class MockCloudWatchQueryHandlerTest {
         queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
         queryParams.put(ACTION_KEY, new String[] { "DescribeAlarms" });
         
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
@@ -717,7 +719,7 @@ public class MockCloudWatchQueryHandlerTest {
         queryParams.put("Period", new String[] { "3600" });
         queryParams.put("Statistics.member.1", new String[] { "Average" });
         queryParams.put("Statistics.member.2", new String[] { "SampleCount" });
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
@@ -749,7 +751,7 @@ public class MockCloudWatchQueryHandlerTest {
         queryParams.put("Period", new String[] { "3600" });
         queryParams.put("Statistics.member.1", new String[] { "Average" });
         queryParams.put("Statistics.member.2", new String[] { "SampleCount" });
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
@@ -781,7 +783,7 @@ public class MockCloudWatchQueryHandlerTest {
         queryParams.put("Period", new String[] { "3600" });
         queryParams.put("Statistics.member.1", new String[] { "Average" });
         queryParams.put("Statistics.member.2", new String[] { "SampleCount" });
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
@@ -813,9 +815,87 @@ public class MockCloudWatchQueryHandlerTest {
         queryParams.put("Period", new String[] { "3600" });
         queryParams.put("Statistics.member.1", new String[] { "Average" });
         queryParams.put("Statistics.member.2", new String[] { "SampleCount" });
-        handler.handle(queryParams, response);
+        handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();
         Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+    
+    @Test
+    public void Test_handleSafeAPI_DescribeAvailabilityZones() throws IOException {
+
+    	HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtilCW.marshall(Mockito.any(GetMetricStatisticsResponse.class),
+                Mockito.eq("GetMetricStatistics"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-east-1");
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "GetMetricStatistics" });
+       
+        handler.handle(queryParams, headers, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.contains("InternalError"));
+    }
+    
+    @Test
+    public void Test_handleSafeAPI_Region() throws IOException {
+
+    	HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtilCW.marshall(Mockito.any(GetMetricStatisticsResponse.class),
+                Mockito.eq("GetMetricStatistics"), Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("region", "us-Mock-1");
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "GetMetricStatistics" });
+       
+        handler.handle(queryParams, headers, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.contains("Response"));
+    }
+    
+    @Test
+    public void Test_handleBadQueryRequest() throws IOException {
+
+    	HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockCloudWatchQueryHandler handler = MockCloudWatchQueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, null);
+
+        handler.handle(queryParams, null, response);
+
+        String responseString = sw.toString();
+
+        Assert.assertTrue(responseString.contains("InvalidQuery"));
+
     }
 }

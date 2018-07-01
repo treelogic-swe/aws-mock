@@ -10,14 +10,14 @@ buildscript {
     }
     dependencies {
         classpath "net.saliman:gradle-cobertura-plugin:2.3.2"
-        classpath 'org.akhikhl.gretty:gretty:+'
+        classpath "com.bmuschko:gradle-tomcat-plugin:2.5"
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'eclipse-wtp'
-apply plugin: 'org.akhikhl.gretty'
+apply plugin: 'com.bmuschko.tomcat-base'
 apply plugin: 'checkstyle'
 apply plugin: 'maven'
 apply plugin: 'signing'
@@ -29,12 +29,6 @@ ext.packaging = 'jar'
 
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
-
-gretty {
-    httpPort = 8001
-    servletContainer = 'jetty9'
-    integrationTestTask = 'integrationTest'
-}
 
 dependencies {
     providedCompile 'javax.servlet:servlet-api:2.5'
@@ -50,6 +44,11 @@ dependencies {
     testCompile "org.powermock:powermock:1.6.5"
     testCompile "org.powermock:powermock-module-junit4:1.6.5"
     testCompile "org.powermock:powermock-api-mockito:1.6.5"
+
+    def tomcatVersion = '7.0.76'
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+           "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+           "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
 }
 
 // fix the issue that in eclipse workspace source/javadoc of dependency libs don't show correctly
@@ -96,14 +95,35 @@ configurations {
     integrationTestRuntime.extendsFrom testRuntime
 }
 
+ext {
+    tomcatStopPort = 8081
+    tomcatStopKey = 'stopKey'
+}
+
+task integrationTomcatRun(type: com.bmuschko.gradle.tomcat.tasks.TomcatRun) {
+    stopPort = tomcatStopPort
+    stopKey = tomcatStopKey
+    daemon = true
+    httpPort = 8001
+}
+
+task integrationTomcatStop(type: com.bmuschko.gradle.tomcat.tasks.TomcatStop) {
+    stopPort = tomcatStopPort
+    stopKey = tomcatStopKey
+}
+
 task integrationTest(type: Test) {
    testClassesDir = sourceSets.integrationTest.output.classesDir
    classpath = sourceSets.integrationTest.runtimeClasspath
+   dependsOn integrationTomcatRun
+  
    doLast{
 	exec {
 		commandLine 'sh', '-c', 'npm test'
 	}
    }
+
+   finalizedBy integrationTomcatStop
 }
 
 check.dependsOn integrationTest

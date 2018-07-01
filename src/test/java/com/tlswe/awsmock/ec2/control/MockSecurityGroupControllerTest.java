@@ -14,6 +14,7 @@ import org.powermock.api.support.membermodification.MemberModifier;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.tlswe.awsmock.ec2.model.MockRouteTable;
 import com.tlswe.awsmock.ec2.model.MockSecurityGroup;
 
 @RunWith(PowerMockRunner.class)
@@ -91,6 +92,21 @@ public class MockSecurityGroupControllerTest {
                .deleteSecurityGroup(mockSecurityGroup.getGroupId());
 
         Assert.assertNotNull("Internet gateway deleted.", mockSubnetDelete.getGroupId());
+    }
+    
+    @Test
+    public void Test_restoreSecurityGroup() throws Exception {
+        
+    	 Map<String, MockSecurityGroup> allMockMockSecurityGroup = new ConcurrentHashMap<String, MockSecurityGroup>();
+         MockSecurityGroup mockSecurityGroup = new MockSecurityGroup();
+         mockSecurityGroup.setGroupId("s-wewe");
+         allMockMockSecurityGroup.put("s-2323", mockSecurityGroup);
+         MockSecurityGroup mockSecurityGroup1 = new MockSecurityGroup();
+         mockSecurityGroup1.setGroupId("s-asdasdasd");
+         allMockMockSecurityGroup.put("s-23223233", mockSecurityGroup1);
+       
+         MockSecurityGroupController.getInstance()
+               .restoreAllMockSecurityGroup(allMockMockSecurityGroup.values());
     }
 
 }

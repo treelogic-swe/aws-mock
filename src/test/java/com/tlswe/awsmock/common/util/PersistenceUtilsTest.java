@@ -26,7 +26,7 @@ import com.tlswe.awsmock.common.util.PersistenceUtils.PersistenceStoreType;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ File.class, PersistenceUtils.class, ObjectInputStream.class,
-        FileInputStream.class, ObjectOutputStream.class, FileOutputStream.class })
+        FileInputStream.class, ObjectOutputStream.class, FileOutputStream.class, PersistenceStoreType.class })
 public class PersistenceUtilsTest {
 
     @Mock
@@ -142,10 +142,19 @@ public class PersistenceUtilsTest {
     }
 
     @Test
-    public void Test_saveAllForVolume() {
+    public void Test_saveAllForVolumeDirectoryExists() {
 
         Mockito.when(mockedFile.getParentFile()).thenReturn(mockedFile);
-        Mockito.when(mockedFile.exists()).thenReturn(false);
+        Mockito.when(mockedFile.exists()).thenReturn(true); // directory exists
+
+        PersistenceUtils.saveAll(null, PersistenceStoreType.VOLUME);
+    }
+
+    @Test
+    public void Test_saveAllForVolumeDirectoryDoesNotExist() {
+
+        Mockito.when(mockedFile.getParentFile()).thenReturn(mockedFile);
+        Mockito.when(mockedFile.exists()).thenReturn(false); // directory does not exist
 
         PersistenceUtils.saveAll(null, PersistenceStoreType.VOLUME);
     }
@@ -164,6 +173,16 @@ public class PersistenceUtilsTest {
     public void Test_saveAllForVolumeIOException() throws Exception {
 
         Mockito.when(mockedFile.getParentFile()).thenReturn(mockedFile);
+        Mockito.when(mockedFile.exists()).thenReturn(false);
+        PowerMockito.whenNew(ObjectOutputStream.class).withAnyArguments()
+                .thenThrow(new IOException("Forced IOException"));
+        PersistenceUtils.saveAll(null, PersistenceStoreType.VOLUME);
+    }
+
+    @Test
+    public void Test_saveAllForVolumeIOExceptionNullDirectory() throws Exception {
+
+        Mockito.when(mockedFile.getParentFile()).thenReturn(null); // return null directory
         Mockito.when(mockedFile.exists()).thenReturn(false);
         PowerMockito.whenNew(ObjectOutputStream.class).withAnyArguments()
                 .thenThrow(new IOException("Forced IOException"));
@@ -252,8 +271,22 @@ public class PersistenceUtilsTest {
     }
     
     @Test
+    public void Test_getPersistenceStore() throws Exception {
+    	PersistenceStoreType persistenceStoreType = PersistenceStoreType.VPC;
+    	Assert.assertTrue( persistenceStoreType.getStore() !=null);
+    }
+    
+    @Test
     public void Test_containPersistenceStoreType() throws Exception {
     	
     	Assert.assertTrue("VPC Type exists", PersistenceStoreType.containsByName("VPC") == true);
+    }
+
+    @Test
+    public void Test_noPersistenceStoreTypeAvailable() throws Exception {
+    	PowerMockito.spy(PersistenceStoreType.class);
+        Mockito.when(PersistenceStoreType.values()).thenReturn(new PersistenceStoreType[0]);
+    	Assert.assertFalse("No values exist", PersistenceStoreType.containsByName("VPC") == true);
+        Assert.assertTrue("No values exist", PersistenceStoreType.getByName("VPC") == null);
     }
 }

@@ -147,15 +147,17 @@ public class AppServletContextListener implements ServletContextListener {
     @Override
     public final void contextDestroyed(final ServletContextEvent sce) {
 
-        if (persistenceEnabled) {
-            Collection<AbstractMockEc2Instance> instances = MockEc2Controller.getInstance()
+        Collection<AbstractMockEc2Instance> instances = MockEc2Controller.getInstance()
                     .getAllMockEc2Instances();
 
-            for (AbstractMockEc2Instance instance : instances) {
+        for (AbstractMockEc2Instance instance : instances) {
                 // cancel and destroy the internal timers for all instances on
                 // web app stopping
-                instance.destroyInternalTimer();
-            }
+            instance.destroyInternalTimer();
+        }
+
+        if (persistenceEnabled) {
+
             // put all instances into an array which is serializable and type-cast safe for persistence
             AbstractMockEc2Instance[] array = new AbstractMockEc2Instance[instances.size()];
             instances.toArray(array);

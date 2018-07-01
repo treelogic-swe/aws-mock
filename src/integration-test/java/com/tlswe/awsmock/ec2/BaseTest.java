@@ -16,8 +16,11 @@ import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.ec2.AmazonEC2Client;
 import com.amazonaws.services.ec2.model.AttachInternetGatewayRequest;
 import com.amazonaws.services.ec2.model.AttachInternetGatewayResult;
@@ -57,6 +60,8 @@ import com.amazonaws.services.ec2.model.DeleteVolumeResult;
 import com.amazonaws.services.ec2.model.DeleteVpcRequest;
 import com.amazonaws.services.ec2.model.DeleteVpcResult;
 import com.amazonaws.services.ec2.model.DescribeAvailabilityZonesResult;
+import com.amazonaws.services.ec2.model.DescribeImagesRequest;
+import com.amazonaws.services.ec2.model.DescribeImagesResult;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesResult;
 import com.amazonaws.services.ec2.model.DescribeInternetGatewaysRequest;
@@ -73,6 +78,7 @@ import com.amazonaws.services.ec2.model.DescribeVolumesResult;
 import com.amazonaws.services.ec2.model.DescribeVpcsRequest;
 import com.amazonaws.services.ec2.model.DescribeVpcsResult;
 import com.amazonaws.services.ec2.model.Filter;
+import com.amazonaws.services.ec2.model.Image;
 import com.amazonaws.services.ec2.model.Tag;
 import com.amazonaws.services.ec2.model.TagDescription;
 import com.amazonaws.services.ec2.model.Instance;
@@ -192,7 +198,10 @@ public class BaseTest {
             AWSCredentials credentials = new BasicAWSCredentials(
                     testProperties.getProperty(PROPERTY_ACCESS_KEY),
                     testProperties.getProperty(PROPERTY_SECRET_KEY));
-            amazonEC2Client = new AmazonEC2Client(credentials);
+            ClientConfiguration clientConfig = new ClientConfiguration();
+            clientConfig.addHeader("region", Regions.US_EAST_1.getName());
+
+            amazonEC2Client = new AmazonEC2Client(credentials, clientConfig);
             amazonEC2Client.setEndpoint(testProperties
                     .getProperty(PROPERTY_ENDPOINT));
         }
@@ -390,7 +399,7 @@ public class BaseTest {
       * @return list of instances
      */
     protected final List<Instance> describeInstances() {
-      
+
         DescribeInstancesRequest request = new DescribeInstancesRequest();
         DescribeInstancesResult result = amazonEC2Client
                 .describeInstances(request);
@@ -406,6 +415,30 @@ public class BaseTest {
 	                    instanceList.add(i);
 	                }
 	            }
+	        }
+        }
+        return instanceList;
+    }
+    
+    /**
+     * Describe Images.
+     *
+      * @return list of Images
+     */
+    protected final List<Image> describeImages() {
+
+        DescribeImagesRequest request = new DescribeImagesRequest();
+        request.withImageIds("ami-12345678");
+        DescribeImagesResult result = amazonEC2Client
+                .describeImages(request);
+        List<Image> instanceList = new ArrayList<Image>();
+        if (result.getImages().size() > 0) {
+	        Assert.assertTrue(result.getImages().size() > 0);
+
+	        for (Image reservation : result.getImages()) {
+	        	instanceList.add(reservation);
+	
+	          
 	        }
         }
         return instanceList;

@@ -1,10 +1,14 @@
 package com.tlswe.awsmock.ec2.servlet;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
@@ -15,6 +19,7 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
 
@@ -49,7 +54,19 @@ public class MockEc2EndpointServletTest {
     @Test
     public void Test_doGet() throws IOException {
         MockEc2EndpointServlet mockEc2EndpointServlet = new MockEc2EndpointServlet();
-        mockEc2EndpointServlet.doPost(request, response);
+        mockEc2EndpointServlet.doGet(request, response);
     }
+
+    @Test
+    public void Test_doGetWithHeaders() throws IOException {
+        HttpServletRequest  mockedRequest = Mockito.mock(HttpServletRequest.class);
+        Vector headers = new Vector();
+        headers.add("header1");
+        Mockito.when(mockedRequest.getHeaderNames()).thenReturn(headers.elements());
+        Mockito.when(mockedRequest.getHeader("header1")).thenReturn("header1value");
+        MockEc2EndpointServlet mockEc2EndpointServlet = new MockEc2EndpointServlet();
+        mockEc2EndpointServlet.doPost(mockedRequest, response);
+    }
+    
 
 }

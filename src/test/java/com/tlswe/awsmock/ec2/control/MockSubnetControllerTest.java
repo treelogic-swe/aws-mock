@@ -14,6 +14,7 @@ import org.powermock.api.support.membermodification.MemberModifier;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.tlswe.awsmock.ec2.model.MockSecurityGroup;
 import com.tlswe.awsmock.ec2.model.MockSubnet;
 import com.tlswe.awsmock.ec2.model.MockVpc;
 
@@ -96,6 +97,21 @@ public class MockSubnetControllerTest {
                .deleteSubnet(mockSubnet.getSubnetId());
     
         Assert.assertNotNull("Internet gateway deleted.", mockSubnetDelete.getSubnetId());
+    }
+    
+    @Test
+    public void Test_restoreSubnet() throws Exception {
+        
+    	Map<String, MockSubnet> allMockSubnet = new ConcurrentHashMap<String, MockSubnet>();
+        MockSubnet mockSubnet = new MockSubnet();
+        mockSubnet.setSubnetId("s-wewe");
+        allMockSubnet.put("s-2323", mockSubnet);
+        MockSubnet mockSubnet1 = new MockSubnet();
+        mockSubnet1.setSubnetId("s-asdasdasd");
+        allMockSubnet.put("s-23223233", mockSubnet1);
+       
+        MockSubnetController.getInstance()
+               .restoreAllMockSubnet(allMockSubnet.values());
     }
 
 }

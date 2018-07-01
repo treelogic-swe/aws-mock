@@ -14,6 +14,7 @@ import org.powermock.api.support.membermodification.MemberModifier;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import com.tlswe.awsmock.ec2.model.MockInternetGateway;
 import com.tlswe.awsmock.ec2.model.MockRouteTable;
 import com.tlswe.awsmock.ec2.model.MockVpc;
 
@@ -96,6 +97,21 @@ public class MockRouteTableControllerTest {
                .deleteRouteTable(mockRouteTable.getRouteTableId());
     
         Assert.assertNotNull("Internet gateway deleted.", mockRouteTableDelete.getRouteTableId());
+    }
+
+    @Test
+    public void Test_restoreRouteTable() throws Exception {
+        
+    	 Map<String, MockRouteTable> allMockRouteTable = new ConcurrentHashMap<String, MockRouteTable>();
+         MockRouteTable mockRouteTable = new MockRouteTable();
+         mockRouteTable.setRouteTableId("rt-324324");
+         allMockRouteTable.put("i-2323", mockRouteTable);
+         MockRouteTable mockRouteTable1 = new MockRouteTable();
+         mockRouteTable1.setRouteTableId("rt-32sdadasd");
+         allMockRouteTable.put("i-23223233", mockRouteTable1);
+       
+         MockRouteTableController.getInstance()
+               .restoreAllMockRouteTable(allMockRouteTable.values());
     }
 
 }

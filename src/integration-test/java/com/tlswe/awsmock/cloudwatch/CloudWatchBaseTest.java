@@ -15,8 +15,10 @@ import org.junit.BeforeClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.cloudwatch.model.Datapoint;
 import com.amazonaws.services.cloudwatch.model.DescribeAlarmsRequest;
@@ -109,7 +111,9 @@ public class CloudWatchBaseTest {
             AWSCredentials credentials = new BasicAWSCredentials(
                     testProperties.getProperty(PROPERTY_ACCESS_KEY),
                     testProperties.getProperty(PROPERTY_SECRET_KEY));
-            amazonCloudWatchClient = new AmazonCloudWatchClient(credentials);
+            ClientConfiguration clientConfig = new ClientConfiguration();
+            clientConfig.addHeader("region", Regions.US_EAST_1.getName());
+            amazonCloudWatchClient = new AmazonCloudWatchClient(credentials, clientConfig);
             amazonCloudWatchClient.setEndpoint(testProperties
                     .getProperty(PROPERTY_ENDPOINT));
         }

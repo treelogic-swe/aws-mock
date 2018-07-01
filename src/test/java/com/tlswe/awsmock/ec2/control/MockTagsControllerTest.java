@@ -111,4 +111,67 @@ public class MockTagsControllerTest {
         Assert.assertTrue("Internet gateway deleted.", mockTagsController.deleteTags(resources));
     }
 
+   @Test
+    public void Test_deleteNoTagsCreated() throws Exception {
+     
+        MockTagsController.getInstance()
+               .restoreAllMockTags(null); // to empty the tags list
+
+        List<String> resources = new ArrayList<String>();
+        resources.add("resource1");
+        resources.add("resource2");
+        
+        Map<String, String> tags = new HashMap<String, String>();
+        tags.put("key", "value");
+        MockTagsController mockTagsController = MockTagsController.getInstance();
+
+        Assert.assertTrue("Empty list. Cannot delete.", mockTagsController.deleteTags(resources)==false);
+    }
+
+    @Test
+    public void Test_deleteTagsResourcesNotFound() throws Exception {
+
+        MockTagsController.getInstance()
+               .restoreAllMockTags(null); // to empty the tags list
+
+        List<String> resources = new ArrayList<String>();
+        resources.add("resource1");
+        resources.add("resource2");
+
+        // Resources not passed to controller
+        List<String> resourcesNotAttached = new ArrayList<String>();
+        resourcesNotAttached.add("resource3");
+        resourcesNotAttached.add("resource4");
+        
+        Map<String, String> tags = new HashMap<String, String>();
+        tags.put("key", "value");
+        MockTagsController mockTagsController = MockTagsController.getInstance();
+        MockTags mockTags = mockTagsController.createTags(resources, tags);
+        Assert.assertTrue("Empty list. Cannot delete.", mockTagsController.deleteTags(resourcesNotAttached)==false);
+    }
+
+    @Test
+    public void Test_restoreTags() throws Exception {
+        
+    	 List<MockTags> allMockTags = new ArrayList<MockTags>();
+         MockTags mockTags = new MockTags();
+         List<String> resources = new ArrayList<String>();
+         resources.add("resource1");
+         resources.add("resource2");
+         mockTags.setResourcesSet(resources);
+         allMockTags.add(mockTags);
+         MockTags mockTags1 = new MockTags();
+         mockTags1.setResourcesSet(resources);
+         allMockTags.add(mockTags1);
+       
+         MockTagsController.getInstance()
+               .restoreAllMockTags(allMockTags);
+    }
+
+    @Test
+    public void Test_restoreTagsNull() throws Exception {
+         MockTagsController.getInstance()
+               .restoreAllMockTags(null);
+         Assert.assertTrue("No tags restored", MockTagsController.getInstance().describeTags().size()==0);
+    }
 }
