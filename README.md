@@ -56,7 +56,7 @@ For more information, please refer to the [Technical Specifications](https://git
 ```
 git clone https://github.com/treelogic-swe/aws-mock.git
 cd aws-mock
-gradle jettyRun
+./gradlew integrationTomcatRun
 ```
 That's all.
 
@@ -67,12 +67,16 @@ Now you are able to interact with your local, mock version of Amazon Web Service
 You can use [AWS-SDK](http://aws.amazon.com/tools/), or a number of other third-party client tools such as elasticfox.
 
 To manage instances on mock EC2, just point to the custom EC2 endpoint as follows:
-http://localhost:8000/aws-mock/ec2-endpoint/ (equivalent to the official endpoint url https://ec2.us-west-1.amazonaws.com/)
+http://localhost:8001/aws-mock/ec2-endpoint/ (equivalent to the official endpoint url https://ec2.us-west-1.amazonaws.com/)
 
 For more usage instructions including how to extend aws-mock, please look into our full [User's Guide](https://github.com/treelogic-swe/aws-mock/wiki/User's-Guide).
 
 For detailed specification and reference for those interfaces already available in aws-mock, here is a list of them: [Implemented Requests and Responses](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications#implemented-requests-and-responses-ec2).
 
+To stop the mock server:
+```
+./gradlew integrationTomcatStop
+```
 
 ### API Documentation
 Please find API documentation for all currently implemented interfaces at the link below. Don't worry about the word 'javadoc' – you don't have to write any Java, just pick your favorite JVM-targeting language (Clojure, Scala, JRuby, Jython, Groovy, etc.) and off you go. The aws-mock contributors commit to supporting [Literate Programming](http://en.wikipedia.org/wiki/Literate_programming) in any JVM-targeting language you choose to use.
