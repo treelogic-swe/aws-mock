@@ -441,7 +441,10 @@ public final class MockEC2QueryHandler {
 
         String responseXml = null;
 
-        if (null != requestHeaders  && !regionsSafeAPIEndpoints.contains(queryParams.get("Action")[0])
+        if (null != requestHeaders
+            && null != queryParams.get("Action")
+            && queryParams.get("Action").length > 0
+            && !regionsSafeAPIEndpoints.contains(queryParams.get("Action")[0])
             && requestHeaders.size() > 0) {
             if (requestHeaders.containsKey("region")
                 && !DEFAULT_MOCK_PLACEMENT.getAvailabilityZone().equals(requestHeaders.get("region").toLowerCase())) {
