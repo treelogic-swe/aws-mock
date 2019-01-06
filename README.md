@@ -56,8 +56,10 @@ For more information, please refer to the [Technical Specifications](https://git
 ```
 git clone https://github.com/treelogic-swe/aws-mock.git
 cd aws-mock
-./gradlew integrationTomcatRun
+make start
 ```
+(If you are not in a *nix environment, you may run `./gradlew integrationTomcatRun` instead of `make start`)
+
 That's all.
 
 This will run a build that automatically downloads all dependencies and prepares the code for use, and then it will start a jetty server that runs aws-mock locally on your computer.
@@ -75,8 +77,9 @@ For detailed specification and reference for those interfaces already available 
 
 To stop the mock server:
 ```
-./gradlew integrationTomcatStop
+make stop
 ```
+(If you are not in a *nix environment, you may run `./gradlew integrationTomcatStop` instead of `make stop`)
 
 ### API Documentation
 Please find API documentation for all currently implemented interfaces at the link below. Don't worry about the word 'javadoc' – you don't have to write any Java, just pick your favorite JVM-targeting language (Clojure, Scala, JRuby, Jython, Groovy, etc.) and off you go. The aws-mock contributors commit to supporting [Literate Programming](http://en.wikipedia.org/wiki/Literate_programming) in any JVM-targeting language you choose to use.
@@ -85,11 +88,11 @@ http://treelogic-swe.github.io/aws-mock/javadoc/
 
 
 ### Tips
-- To build a war file for deployment, run `gradle war`.
+- To build a war file for deployment, simply run `make` or `./gradlew war`.
 - Initially there are no mock instances in mock EC2, so you need to run one or more new instances first.
 - Your client doesn't need to provide valid credentials since aws-mock skips the `secretKey`/`accessKey` check.
 - There are a few options in `src/main/resources/aws-mock.properties` to tune.
-- For Eclipse users, `gradle clean Eclipse eclipse` will initialize the ready-to-import eclipse wtp project facets.
+- For Eclipse users, `make eclipse-init` or `./gradlew clean Eclipse eclipse` will initialize the ready-to-import eclipse wtp project facets.
 
 
 ### Your Contribution, in Any JVM-Targeting Language
