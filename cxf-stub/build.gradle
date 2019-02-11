@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 group = 'com.treelogic-swe'
-version = '1.0.3'
+version = '1.0.5'
 ext.packaging = 'jar'
 
 def ec2ApiVersion = "ec2-2014-02-01"
