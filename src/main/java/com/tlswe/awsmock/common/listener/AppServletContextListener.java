@@ -174,7 +174,7 @@ public class AppServletContextListener implements ServletContextListener {
                     .describeVolumes();
             MockVolume[] volumeArray = new MockVolume[volumes.size()];
             volumes.toArray(volumeArray);
-            PersistenceUtils.saveAll(volumeArray, PersistenceStoreType.VPC);
+            PersistenceUtils.saveAll(volumeArray, PersistenceStoreType.VOLUME);
 
             Collection<MockTags> tags = MockTagsController.getInstance().describeTags();
 
