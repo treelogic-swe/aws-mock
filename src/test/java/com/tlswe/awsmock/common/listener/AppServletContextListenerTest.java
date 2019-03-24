@@ -32,6 +32,10 @@ import com.tlswe.awsmock.ec2.model.MockTags;
 import com.tlswe.awsmock.ec2.model.MockVolume;
 import com.tlswe.awsmock.ec2.model.MockVpc;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.powermock.api.mockito.PowerMockito.verifyStatic;
+
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockEc2Controller.class, MockVpcController.class, MockVolumeController.class, 
 	MockTagsController.class, MockSubnetController.class, MockRouteTableController.class
@@ -222,6 +226,23 @@ public class AppServletContextListenerTest {
     public void Test_contextDestroyedPersistenceEnabled() {
         Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", true);
         acl.contextDestroyed(sce);
+
+        verifyStatic();
+        PersistenceUtils.saveAll(isA((new AbstractMockEc2Instance[1]).getClass()), eq(PersistenceStoreType.EC2));
+        verifyStatic();
+        PersistenceUtils.saveAll(isA((new MockVpc[1]).getClass()), eq(PersistenceStoreType.VPC));
+        verifyStatic();
+        PersistenceUtils.saveAll(isA((new MockVolume[1]).getClass()), eq(PersistenceStoreType.VOLUME));
+        verifyStatic();
+        PersistenceUtils.saveAll(isA((new MockTags[1]).getClass()), eq(PersistenceStoreType.TAGS));
+        verifyStatic();
+        PersistenceUtils.saveAll(isA((new MockSubnet[1]).getClass()), eq(PersistenceStoreType.SUBNET));
+        verifyStatic();
+        PersistenceUtils.saveAll(isA((new MockRouteTable[1]).getClass()), eq(PersistenceStoreType.ROUTETABLE));
+        verifyStatic();
+        PersistenceUtils.saveAll(isA((new MockInternetGateway[1]).getClass()), eq(PersistenceStoreType.INTERNETGATEWAY));
+        PowerMockito.verifyNoMoreInteractions(PersistenceUtils.class);
+        
         Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", false);
     }
 
