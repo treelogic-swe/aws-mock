@@ -105,6 +105,7 @@ task integrationTomcatRun(type: com.bmuschko.gradle.tomcat.tasks.TomcatRun) {
     stopKey = tomcatStopKey
     daemon = true
     httpPort = 8001
+    outputFile = file('logs/tomcat.log')
     doLast{
       String urlPrefix = 'http://localhost:' + httpPort + '/' + contextPath
       println 'EC2 endpoint available is at ' + urlPrefix + '/ec2-endpoint'
