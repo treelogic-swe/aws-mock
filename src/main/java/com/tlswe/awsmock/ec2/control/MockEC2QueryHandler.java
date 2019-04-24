@@ -1237,7 +1237,6 @@ public final class MockEC2QueryHandler {
             instItem.setSubnetId(subnetId);
             instItem.setVpcId(getFirstVpcForSubnetId(subnetId));
             instItem.setPrivateIpAddress(MOCK_PRIVATE_IP_ADDRESS);
-            instItem.setSubnetId(subnetId);
 
             instSet.getItem().add(instItem);
 
