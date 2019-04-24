@@ -2057,7 +2057,7 @@ groupDescription, vpcId);
      * Gets the first VPC for a given subnetId.
      *
      * @param subnetId The subnet id.
-     * @return The VPC id. Returns null, ff no matching subnet is found.
+     * @return The VPC id. Returns null, if no matching subnet is found.
      */
     private String getFirstVpcForSubnetId(final String subnetId) {
         for (MockSubnet subnet : mockSubnetController.describeSubnets()) {
