@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.tlswe.awsmock.ec2.model.MockSubnet;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,6 +88,8 @@ public class MockEC2QueryHandlerTest {
     private static final String ACTION_KEY = "Action";
     private static final String VERSION_KEY = "Version";
     private static final String VERSION_1 = "version1";
+    private static final String SUBNET_ID = "subnetId";
+    private static final String VPC_ID = "vpcId";
 
     static {
         InputStream inputStream = null;
@@ -510,17 +514,23 @@ public class MockEC2QueryHandlerTest {
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
         Whitebox.setInternalState(handler, "mockEc2Controller", controller);
 
+        MockSubnet subnet = new MockSubnet();
+        subnet.setSubnetId(SUBNET_ID);
+        subnet.setVpcId(VPC_ID);
+        MockSubnetController subnetController = Mockito.spy(MockSubnetController.class);
+        Mockito.when(subnetController.describeSubnets()).thenReturn(Collections.singletonList(subnet));
+        Whitebox.setInternalState(handler, "mockSubnetController", subnetController);
+
         RunInstancesResponseType ret = Whitebox.invokeMethod(handler, "runInstances", "ami-1",
-                InstanceType.C1_MEDIUM.getName(), 1, 1);
+                InstanceType.C1_MEDIUM.getName(), 1, 1, subnet.getSubnetId());
 
         Assert.assertTrue(ret != null);
         Assert.assertTrue(ret.getInstancesSet().getItem().size() == 1);
 
         RunningInstancesItemType instItem = ret.getInstancesSet().getItem().get(0);
-        Assert.assertTrue(instItem.getVpcId().equals(properties.get(Constants.PROP_NAME_VPC_ID))); // from
-                                                                                                   // aws.mock-default.properties
+        Assert.assertTrue(instItem.getVpcId().equals(VPC_ID));
         Assert.assertTrue(
-                instItem.getSubnetId().equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
+                instItem.getSubnetId().equals(SUBNET_ID));
         Assert.assertTrue(instItem.getPrivateIpAddress()
                 .equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
         Assert.assertTrue(instItem.getImageId().equals("ami-1"));
@@ -713,15 +723,24 @@ public class MockEC2QueryHandlerTest {
 
         CustomMockEc2Instance ec2Mocked1 = new CustomMockEc2Instance();
         ec2Mocked1.setInstanceType(InstanceType.C1_MEDIUM);
+        ec2Mocked1.setSubnetId(SUBNET_ID);
 
         CustomMockEc2Instance ec2Mocked2 = new CustomMockEc2Instance();
         ec2Mocked2.setInstanceType(InstanceType.C3_8XLARGE);
+        ec2Mocked2.setSubnetId(SUBNET_ID);
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
 
         Map<String, AbstractMockEc2Instance> allMockEc2Instances = new ConcurrentHashMap<String, AbstractMockEc2Instance>();
         allMockEc2Instances.put(ec2Mocked1.getInstanceID(), ec2Mocked1);
         allMockEc2Instances.put(ec2Mocked2.getInstanceID(), ec2Mocked2);
+
+        MockSubnet subnet = new MockSubnet();
+        subnet.setSubnetId(SUBNET_ID);
+        subnet.setVpcId(VPC_ID);
+        MockSubnetController subnetController = Mockito.spy(MockSubnetController.class);
+        Mockito.when(subnetController.describeSubnets()).thenReturn(Collections.singletonList(subnet));
+        Whitebox.setInternalState(handler, "mockSubnetController", subnetController);
 
         Set<String> instanceIDs = new HashSet<String>();
         instanceIDs.add(ec2Mocked1.getInstanceID());
@@ -758,13 +777,15 @@ public class MockEC2QueryHandlerTest {
 
         String instanceId1 = runningSetType.getItem().get(0).getInstanceId();
 
-        // check if default params were applied
+        // check if network params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getVpcId()
-                .equals(properties.get(Constants.PROP_NAME_VPC_ID)));
+                .equals(VPC_ID));
+        Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId()
+                .equals(SUBNET_ID));
+
+        // check if default params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getPrivateIpAddress()
                 .equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
-        Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId()
-                .equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
         Assert.assertTrue(runningSetType.getItem().get(0).getInstanceState().getName()
                 .equals(InstanceState.STOPPED.getName()));
 
@@ -772,13 +793,15 @@ public class MockEC2QueryHandlerTest {
 
         String instanceId2 = runningSetType.getItem().get(0).getInstanceId();
 
-        // check if default params were applied
+        // check if network params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getVpcId()
-                .equals(properties.get(Constants.PROP_NAME_VPC_ID)));
+                .equals(VPC_ID));
+        Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId()
+                .equals(SUBNET_ID));
+
+        // check if default params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getPrivateIpAddress()
                 .equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
-        Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId()
-                .equals(properties.get(Constants.PROP_NAME_SUBNET_ID)));
         Assert.assertTrue(runningSetType.getItem().get(0).getInstanceState().getName()
                 .equals(InstanceState.STOPPED.getName()));
 
@@ -1100,6 +1123,35 @@ public class MockEC2QueryHandlerTest {
         queryParams.put("MinCount", new String[] { "2" });
         queryParams.put("MaxCount", new String[] { "5" });
         queryParams.put("InstanceType", new String[] { "m1.small" });
+        handler.handle(queryParams, null, response);
+
+        String responseString = sw.toString();
+        Assert.assertTrue(responseString.equals(DUMMY_XML_RESPONSE));
+    }
+
+    @Test
+    public void Test_handleRunInstancesWithSubnetId() throws IOException {
+
+        HttpServletResponse response = Mockito.spy(HttpServletResponse.class);
+        MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+
+        Mockito.when(response.getWriter()).thenReturn(pw);
+        Mockito.when(JAXBUtil.marshall(Mockito.any(), Mockito.eq("RunInstancesResponse"),
+                Mockito.eq(VERSION_1)))
+                .thenReturn(DUMMY_XML_RESPONSE);
+
+        Map<String, String[]> queryParams = new HashMap<String, String[]>();
+
+        queryParams.put(VERSION_KEY, new String[] { VERSION_1 });
+        queryParams.put(ACTION_KEY, new String[] { "RunInstances" });
+        queryParams.put("ImageId", new String[] { "img-1" });
+        queryParams.put("MinCount", new String[] { "2" });
+        queryParams.put("MaxCount", new String[] { "5" });
+        queryParams.put("InstanceType", new String[] { "m1.small" });
+        queryParams.put("SubnetId", new String[] { "subnetId" });
         handler.handle(queryParams, null, response);
 
         String responseString = sw.toString();

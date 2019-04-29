@@ -1,7 +1,6 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,7 +19,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
-import org.omg.CORBA.SystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +88,6 @@ import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.StateReasonType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.SubnetSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.SubnetType;
@@ -500,7 +497,12 @@ public final class MockEC2QueryHandler {
                             String instanceType = queryParams.get("InstanceType")[0];
                             int minCount = Integer.parseInt(queryParams.get("MinCount")[0]);
                             int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
-                            String subnetId = queryParams.get("SubnetId")[0];
+
+                            String[] subnetIdArray = queryParams.get("SubnetId");
+                            String subnetId = null;
+                            if (subnetIdArray != null) {
+                                subnetId = subnetIdArray[0];
+                            }
 
                             responseXml = JAXBUtil.marshall(
                                     runInstances(imageID, instanceType, minCount, maxCount, subnetId),
@@ -1140,7 +1142,7 @@ public final class MockEC2QueryHandler {
                 instItem.setDnsName(instance.getPubDns());
 
                 // set network information
-                instItem.setVpcId(getFirstVpcForSubnetId(instance.getSubnetId()));
+                instItem.setVpcId(getVpcForSubnetId(instance.getSubnetId()));
                 instItem.setPrivateIpAddress(MOCK_PRIVATE_IP_ADDRESS);
                 instItem.setSubnetId(instance.getSubnetId());
 
@@ -1235,7 +1237,7 @@ public final class MockEC2QueryHandler {
 
             // set network information
             instItem.setSubnetId(subnetId);
-            instItem.setVpcId(getFirstVpcForSubnetId(subnetId));
+            instItem.setVpcId(getVpcForSubnetId(subnetId));
             instItem.setPrivateIpAddress(MOCK_PRIVATE_IP_ADDRESS);
 
             instSet.getItem().add(instItem);
@@ -2054,12 +2056,12 @@ groupDescription, vpcId);
     }
 
     /**
-     * Gets the first VPC for a given subnetId.
+     * Gets the VPC for a given subnetId.
      *
      * @param subnetId The subnet id.
      * @return The VPC id. Returns null, if no matching subnet is found.
      */
-    private String getFirstVpcForSubnetId(final String subnetId) {
+    private String getVpcForSubnetId(final String subnetId) {
         for (MockSubnet subnet : mockSubnetController.describeSubnets()) {
             if (subnet.getSubnetId().equals(subnetId)) {
                 return subnet.getVpcId();
