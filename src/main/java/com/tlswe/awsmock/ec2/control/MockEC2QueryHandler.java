@@ -1,7 +1,6 @@
 package com.tlswe.awsmock.ec2.control;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,7 +19,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.joda.time.DateTime;
-import org.omg.CORBA.SystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +88,6 @@ import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
 import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.StartInstancesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.StateReasonType;
 import com.tlswe.awsmock.ec2.cxf_generated.StopInstancesResponseType;
 import com.tlswe.awsmock.ec2.cxf_generated.SubnetSetType;
 import com.tlswe.awsmock.ec2.cxf_generated.SubnetType;
@@ -501,8 +498,14 @@ public final class MockEC2QueryHandler {
                             int minCount = Integer.parseInt(queryParams.get("MinCount")[0]);
                             int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
 
+                            final String[] subnetIdArray = queryParams.get("SubnetId");
+                            String subnetId = null;
+                            if (subnetIdArray != null) {
+                                subnetId = subnetIdArray[0];
+                            }
+
                             responseXml = JAXBUtil.marshall(
-                                    runInstances(imageID, instanceType, minCount, maxCount),
+                                    runInstances(imageID, instanceType, minCount, maxCount, subnetId),
                                     "RunInstancesResponse", version);
 
                         } else if ("DescribeImages".equals(action)) {
@@ -1139,9 +1142,9 @@ public final class MockEC2QueryHandler {
                 instItem.setDnsName(instance.getPubDns());
 
                 // set network information
-                instItem.setVpcId(MOCK_VPC_ID);
+                instItem.setVpcId(getVpcForSubnetId(instance.getSubnetId()));
                 instItem.setPrivateIpAddress(MOCK_PRIVATE_IP_ADDRESS);
-                instItem.setSubnetId(MOCK_SUBNET_ID);
+                instItem.setSubnetId(instance.getSubnetId());
 
                 instsSet.getItem().add(instItem);
 
@@ -1180,7 +1183,8 @@ public final class MockEC2QueryHandler {
     }
 
     /**
-     * Handles "runInstances" request, with only simplified filters of imageId, instanceType, minCount and maxCount.
+     * Handles "runInstances" request, with only simplified filters of imageId, instanceType, minCount, maxCount
+     * and subnetId.
      *
      * @param imageId
      *            AMI of new mock ec2 instance(s)
@@ -1190,10 +1194,12 @@ public final class MockEC2QueryHandler {
      *            max count of instances to run
      * @param maxCount
      *            min count of instances to run
+     * @param subnetId
+     *            subnet ID of new mock ec2 instance(s).
      * @return a RunInstancesResponse that includes all information for the started new mock ec2 instances
      */
     private RunInstancesResponseType runInstances(final String imageId, final String instanceType,
-            final int minCount, final int maxCount) {
+            final int minCount, final int maxCount, final String subnetId) {
 
         RunInstancesResponseType ret = new RunInstancesResponseType();
 
@@ -1215,7 +1221,7 @@ public final class MockEC2QueryHandler {
         List<AbstractMockEc2Instance> newInstances = null;
 
         newInstances = mockEc2Controller
-                .runInstances(clazzOfMockEc2Instance, imageId, instanceType, minCount, maxCount);
+                .runInstances(clazzOfMockEc2Instance, imageId, instanceType, minCount, maxCount, subnetId);
 
         for (AbstractMockEc2Instance i : newInstances) {
             RunningInstancesItemType instItem = new RunningInstancesItemType();
@@ -1230,9 +1236,9 @@ public final class MockEC2QueryHandler {
             instItem.setPlacement(DEFAULT_MOCK_PLACEMENT);
 
             // set network information
-            instItem.setVpcId(MOCK_VPC_ID);
+            instItem.setSubnetId(subnetId);
+            instItem.setVpcId(getVpcForSubnetId(subnetId));
             instItem.setPrivateIpAddress(MOCK_PRIVATE_IP_ADDRESS);
-            instItem.setSubnetId(MOCK_SUBNET_ID);
 
             instSet.getItem().add(instItem);
 
@@ -2047,5 +2053,20 @@ groupDescription, vpcId);
             e.printStackTrace();
         }
         return ret;
+    }
+
+    /**
+     * Gets the VPC id for a given subnetId.
+     *
+     * @param subnetId The subnet id.
+     * @return The VPC id. Returns null, if no matching subnet is found.
+     */
+    private String getVpcForSubnetId(final String subnetId) {
+        for (MockSubnet subnet : mockSubnetController.describeSubnets()) {
+            if (subnet.getSubnetId().equals(subnetId)) {
+                return subnet.getVpcId();
+            }
+        }
+        return null;
     }
 }

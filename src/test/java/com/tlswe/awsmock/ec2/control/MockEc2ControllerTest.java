@@ -27,6 +27,7 @@ import com.tlswe.awsmock.ec2.model.DefaultMockEc2Instance;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockEc2Controller.class, DefaultMockEc2Instance.class })
 public class MockEc2ControllerTest {
+    private static final String SUBNET_ID = "SubnetId";
 
     @Test
     public void Test_getInstance() {
@@ -375,7 +376,7 @@ public class MockEc2ControllerTest {
     public void Test_runInstancesBadRequestInstanceType() throws Exception {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
-        controller.runInstances(DefaultMockEc2Instance.class, "ImageName", "InvalidName", 10, 1);
+        controller.runInstances(DefaultMockEc2Instance.class, "ImageName", "InvalidName", 10, 1, SUBNET_ID);
     }
 
     @Test(expected = BadEc2RequestException.class)
@@ -383,7 +384,7 @@ public class MockEc2ControllerTest {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
         controller.runInstances(DefaultMockEc2Instance.class, "ImageName",
-                InstanceType.C1_MEDIUM.getName(), 1, 10001);
+                InstanceType.C1_MEDIUM.getName(), 1, 10001, SUBNET_ID);
     }
 
     @Test(expected = BadEc2RequestException.class)
@@ -391,7 +392,7 @@ public class MockEc2ControllerTest {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
         controller.runInstances(DefaultMockEc2Instance.class, "ImageName",
-                InstanceType.C1_MEDIUM.getName(), 0, 10);
+                InstanceType.C1_MEDIUM.getName(), 0, 10, SUBNET_ID);
     }
 
     @Test(expected = BadEc2RequestException.class)
@@ -399,7 +400,7 @@ public class MockEc2ControllerTest {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
         controller.runInstances(DefaultMockEc2Instance.class, "ImageName",
-                InstanceType.C1_MEDIUM.getName(), 11, 10);
+                InstanceType.C1_MEDIUM.getName(), 11, 10, SUBNET_ID);
     }
 
     @Test(expected = AwsMockException.class)
@@ -409,7 +410,7 @@ public class MockEc2ControllerTest {
 
         // shouldn't be able to start abstract class
         controller.runInstances(AbstractMockEc2Instance.class, "ImageName",
-                InstanceType.C1_MEDIUM.getName(), 1, 1);
+                InstanceType.C1_MEDIUM.getName(), 1, 1, SUBNET_ID);
     }
 
     @Test
@@ -417,7 +418,7 @@ public class MockEc2ControllerTest {
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
         controller.runInstances(DefaultMockEc2Instance.class, "ImageName",
-                InstanceType.C1_MEDIUM.getName(), 1, 1);
+                InstanceType.C1_MEDIUM.getName(), 1, 1, SUBNET_ID);
     }
 
 }

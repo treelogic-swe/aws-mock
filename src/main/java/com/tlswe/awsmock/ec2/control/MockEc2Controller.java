@@ -146,12 +146,15 @@ public final class MockEc2Controller {
      *            max count of instances to run (but limited to {@link #MAX_RUN_INSTANCE_COUNT_AT_A_TIME})
      * @param maxCount
      *            min count of instances to run (should larger than 0)
+     * @param subnetId
+     *            The subnet id of new mock ec2 instance(s). May be null.
+     *
      * @return a list of objects of clazz as started new mock ec2 instances
      *
      */
     public <T extends AbstractMockEc2Instance> List<T> runInstances(final Class<? extends T> clazz,
             final String imageId, final String instanceTypeName,
-            final int minCount, final int maxCount) {
+            final int minCount, final int maxCount, final String subnetId) {
 
         // EC2 Query Request action name
         final String action = "runInstances";
@@ -202,6 +205,7 @@ public final class MockEc2Controller {
             inst.setImageId(imageId);
             inst.setInstanceType(instanceType);
             // inst.setSecurityGroups(securityGroups);
+            inst.setSubnetId(subnetId);
 
             inst.start();
 
