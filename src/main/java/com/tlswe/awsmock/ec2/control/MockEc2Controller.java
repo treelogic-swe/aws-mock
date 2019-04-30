@@ -147,7 +147,7 @@ public final class MockEc2Controller {
      * @param maxCount
      *            min count of instances to run (should larger than 0)
      * @param subnetId
-     *            The subnet id of new mock ec2 instance(s)
+     *            The subnet id of new mock ec2 instance(s). May be null.
      *
      * @return a list of objects of clazz as started new mock ec2 instances
      *

@@ -498,7 +498,7 @@ public final class MockEC2QueryHandler {
                             int minCount = Integer.parseInt(queryParams.get("MinCount")[0]);
                             int maxCount = Integer.parseInt(queryParams.get("MaxCount")[0]);
 
-                            String[] subnetIdArray = queryParams.get("SubnetId");
+                            final String[] subnetIdArray = queryParams.get("SubnetId");
                             String subnetId = null;
                             if (subnetIdArray != null) {
                                 subnetId = subnetIdArray[0];
@@ -2056,7 +2056,7 @@ groupDescription, vpcId);
     }
 
     /**
-     * Gets the VPC for a given subnetId.
+     * Gets the VPC id for a given subnetId.
      *
      * @param subnetId The subnet id.
      * @return The VPC id. Returns null, if no matching subnet is found.

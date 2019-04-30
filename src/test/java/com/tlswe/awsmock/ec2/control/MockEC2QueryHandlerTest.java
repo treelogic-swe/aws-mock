@@ -90,6 +90,8 @@ public class MockEC2QueryHandlerTest {
     private static final String VERSION_1 = "version1";
     private static final String SUBNET_ID = "subnetId";
     private static final String VPC_ID = "vpcId";
+    private static final MockSubnet SUBNET = new MockSubnet();
+
 
     static {
         InputStream inputStream = null;
@@ -119,6 +121,9 @@ public class MockEC2QueryHandlerTest {
                 e.printStackTrace();
             }
         }
+
+        SUBNET.setSubnetId(SUBNET_ID);
+        SUBNET.setVpcId(VPC_ID);
     }
 
     @Before
@@ -514,23 +519,20 @@ public class MockEC2QueryHandlerTest {
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
         Whitebox.setInternalState(handler, "mockEc2Controller", controller);
 
-        MockSubnet subnet = new MockSubnet();
-        subnet.setSubnetId(SUBNET_ID);
-        subnet.setVpcId(VPC_ID);
-        MockSubnetController subnetController = Mockito.spy(MockSubnetController.class);
-        Mockito.when(subnetController.describeSubnets()).thenReturn(Collections.singletonList(subnet));
-        Whitebox.setInternalState(handler, "mockSubnetController", subnetController);
+        MockSubnetController subnetControllerMock = Mockito.spy(MockSubnetController.class);
+        Mockito.when(subnetControllerMock.describeSubnets()).thenReturn(Collections.singletonList(SUBNET));
+        Whitebox.setInternalState(handler, "mockSubnetController", subnetControllerMock);
 
         RunInstancesResponseType ret = Whitebox.invokeMethod(handler, "runInstances", "ami-1",
-                InstanceType.C1_MEDIUM.getName(), 1, 1, subnet.getSubnetId());
+                InstanceType.C1_MEDIUM.getName(), 1, 1, SUBNET.getSubnetId());
 
         Assert.assertTrue(ret != null);
         Assert.assertTrue(ret.getInstancesSet().getItem().size() == 1);
 
         RunningInstancesItemType instItem = ret.getInstancesSet().getItem().get(0);
-        Assert.assertTrue(instItem.getVpcId().equals(VPC_ID));
+        Assert.assertTrue(instItem.getVpcId().equals(SUBNET.getVpcId()));
         Assert.assertTrue(
-                instItem.getSubnetId().equals(SUBNET_ID));
+                instItem.getSubnetId().equals(SUBNET.getSubnetId()));
         Assert.assertTrue(instItem.getPrivateIpAddress()
                 .equals(properties.get(Constants.PROP_NAME_PRIVATE_IP_ADDRESS)));
         Assert.assertTrue(instItem.getImageId().equals("ami-1"));
@@ -723,11 +725,11 @@ public class MockEC2QueryHandlerTest {
 
         CustomMockEc2Instance ec2Mocked1 = new CustomMockEc2Instance();
         ec2Mocked1.setInstanceType(InstanceType.C1_MEDIUM);
-        ec2Mocked1.setSubnetId(SUBNET_ID);
+        ec2Mocked1.setSubnetId(SUBNET.getSubnetId());
 
         CustomMockEc2Instance ec2Mocked2 = new CustomMockEc2Instance();
         ec2Mocked2.setInstanceType(InstanceType.C3_8XLARGE);
-        ec2Mocked2.setSubnetId(SUBNET_ID);
+        ec2Mocked2.setSubnetId(SUBNET.getSubnetId());
 
         MockEc2Controller controller = Mockito.spy(MockEc2Controller.class);
 
@@ -735,12 +737,9 @@ public class MockEC2QueryHandlerTest {
         allMockEc2Instances.put(ec2Mocked1.getInstanceID(), ec2Mocked1);
         allMockEc2Instances.put(ec2Mocked2.getInstanceID(), ec2Mocked2);
 
-        MockSubnet subnet = new MockSubnet();
-        subnet.setSubnetId(SUBNET_ID);
-        subnet.setVpcId(VPC_ID);
-        MockSubnetController subnetController = Mockito.spy(MockSubnetController.class);
-        Mockito.when(subnetController.describeSubnets()).thenReturn(Collections.singletonList(subnet));
-        Whitebox.setInternalState(handler, "mockSubnetController", subnetController);
+        MockSubnetController subnetControllerMock = Mockito.spy(MockSubnetController.class);
+        Mockito.when(subnetControllerMock.describeSubnets()).thenReturn(Collections.singletonList(SUBNET));
+        Whitebox.setInternalState(handler, "mockSubnetController", subnetControllerMock);
 
         Set<String> instanceIDs = new HashSet<String>();
         instanceIDs.add(ec2Mocked1.getInstanceID());
@@ -779,9 +778,9 @@ public class MockEC2QueryHandlerTest {
 
         // check if network params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getVpcId()
-                .equals(VPC_ID));
+                .equals(SUBNET.getVpcId()));
         Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId()
-                .equals(SUBNET_ID));
+                .equals(SUBNET.getSubnetId()));
 
         // check if default params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getPrivateIpAddress()
@@ -795,9 +794,9 @@ public class MockEC2QueryHandlerTest {
 
         // check if network params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getVpcId()
-                .equals(VPC_ID));
+                .equals(SUBNET.getVpcId()));
         Assert.assertTrue(runningSetType.getItem().get(0).getSubnetId()
-                .equals(SUBNET_ID));
+                .equals(SUBNET.getSubnetId()));
 
         // check if default params were applied
         Assert.assertTrue(runningSetType.getItem().get(0).getPrivateIpAddress()
