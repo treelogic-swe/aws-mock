@@ -46,7 +46,7 @@ dependencies {
     testCompile "org.powermock:powermock-module-junit4:1.6.5"
     testCompile "org.powermock:powermock-api-mockito:1.6.5"
 
-    def tomcatVersion = '7.0.76'
+    def tomcatVersion = '7.0.92'
     tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
            "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
            "org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
