@@ -6,11 +6,11 @@
     "devDependencies": {
         "aws-sdk": "~2.0.0",
         "chai": "~1.8.1",
-        "yahoo-arrow": "~0.2.0",
-        "http-proxy": "~0.10.3",
-        "grunt": "~0.4.2",
-        "grunt-cli": "~0.1.13",
-        "grunt-contrib-jshint": "~0.8.0"
+        "grunt": "^1.3.0",
+        "grunt-cli": "^1.3.2",
+        "grunt-contrib-jshint": "^3.0.0",
+        "http-proxy": ">=1.18.1",
+        "yahoo-arrow": "^0.0.58"
     },
     "scripts": {
         "test": "grunt jshint && ./node_modules/yahoo-arrow/node_modules/.bin/istanbul cover ./node_modules/yahoo-arrow/node_modules/.bin/_mocha ./example/nodejs/test/TestExamples.js -- -R spec && ./node_modules/yahoo-arrow/node_modules/.bin/istanbul check-coverage --statements 85 --functions 85 --branches 60 --lines 85"
@@ -29,6 +29,5 @@
     },
     "license": "MIT",
     "readmeFilename": "README.md",
-    "_id": "aws-mock@1.1.1",
     "_from": "aws-mock@"
 }
