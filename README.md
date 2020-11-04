@@ -49,6 +49,10 @@ Inside aws-mock, the mock EC2 instances can work in their own program threads an
 
 For more information, please refer to the [Technical Specifications](https://github.com/treelogic-swe/aws-mock/wiki/Technical-Specifications).
 
+## Prerequisites
+
+Java 8 . For example: `export JAVA_HOME=$(/usr/libexec/java_home -v1.8)`
+
 ## Quick Start
 
 ```bash
