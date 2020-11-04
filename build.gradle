@@ -1,12 +1,12 @@
 allprojects {
     repositories {
-        maven { url 'http://repo2.maven.org/maven2/' }
+        maven { url 'https://repo1.maven.org/maven2/' }
     }
 }
 
 buildscript {
     repositories {
-        maven { url 'http://repo2.maven.org/maven2/' }
+        maven { url 'https://repo1.maven.org/maven2/' }
     }
     dependencies {
         classpath "net.saliman:gradle-cobertura-plugin:2.3.2"
