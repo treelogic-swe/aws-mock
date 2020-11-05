@@ -19,6 +19,7 @@ import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockEC2QueryHandler.class, PropertiesUtils.class })
 public class JAXBUtilTest {
+    private static final String SUBNET_ID = "subnetId";
 
     @Test
     public void Test_marshall() throws Exception {
@@ -31,7 +32,7 @@ public class JAXBUtilTest {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
         RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler,
                 "runInstances", imageID,
-                instanceType, minCount, maxCount);
+                instanceType, minCount, maxCount, SUBNET_ID);
 
         String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse",
                 "2012-02-10");
@@ -65,7 +66,7 @@ public class JAXBUtilTest {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
         RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler,
                 "runInstances", imageID,
-                instanceType, minCount, maxCount);
+                instanceType, minCount, maxCount, SUBNET_ID);
 
         String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse", null);
 
@@ -89,7 +90,7 @@ public class JAXBUtilTest {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
         RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler,
                 "runInstances", imageID,
-                instanceType, minCount, maxCount);
+                instanceType, minCount, maxCount, SUBNET_ID);
 
         String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse", null);
 
@@ -109,7 +110,7 @@ public class JAXBUtilTest {
         MockEC2QueryHandler handler = MockEC2QueryHandler.getInstance();
         RunInstancesResponseType runInstancesResponseType = Whitebox.invokeMethod(handler,
                 "runInstances", imageID,
-                instanceType, minCount, maxCount);
+                instanceType, minCount, maxCount, SUBNET_ID);
 
         String xml = JAXBUtil.marshall(runInstancesResponseType, "RunInstancesResponse",
                 PropertiesUtils

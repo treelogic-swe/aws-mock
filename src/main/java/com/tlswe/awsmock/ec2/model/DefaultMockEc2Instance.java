@@ -15,7 +15,7 @@ public class DefaultMockEc2Instance extends AbstractMockEc2Instance {
      *
      * @see Serializable
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     @Override
     public void onStarted() {
