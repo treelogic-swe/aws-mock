@@ -10,7 +10,6 @@ def ec2ApiVersion = "ec2-2014-02-01"
 def stubJarFilename = "cxf-stub-" + ec2ApiVersion + ".jar"
 
 def cloudwatchApiVersion = "cloudwatch-2010-08-01"
-//def stubCWJarFilename = "cxf-stub-" + cloudwatchApiVersion + ".jar"
 
 configurations.all {
     // check for updates every build
@@ -31,14 +30,15 @@ ext {
 
 dependencies {
     cxfArtifacts.each { artifact -> cxf "org.apache.cxf:$artifact:$cxfVersion" }
+    runtime "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
+    runtime "org.glassfish.jaxb:jaxb-runtime:2.3.2"
 }
 
 task wsdl2java (type: JavaExec) {
     inputs.file file('ec2-2014-02-01.wsdl')
     outputs.dir new File('build', 'stub_src')
-
-	main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
-    //classpath = sourceSets.main.runtimeClasspath
+    
+    main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
     classpath = configurations.cxf
     args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.ec2.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", ec2ApiVersion+".wsdl" ]
 }
@@ -47,8 +47,7 @@ task cloudwatchwsdl2java (type: JavaExec) {
     inputs.file file('cloudwatch-2010-08-01.wsdl')
     outputs.dir new File('build', 'stub_src')
 
-	main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
-    //classpath = sourceSets.main.runtimeClasspath
+    main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
     classpath = configurations.cxf
     args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.cloudwatch.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", cloudwatchApiVersion+".wsdl" ]
 }
@@ -70,11 +69,8 @@ compileJava {
 
 jar {
     inputs.dir new File('build', 'stub_classes')
-    //outputs.file file('../libs/' + stubJarFilename)
-    //archiveName = stubJarFilename
     manifest.attributes provider: 'tlswe'
     from 'build/stub_classes' // ,'build/stub_src'
-    //destinationDir = file('../libs')
 }
 
 javadoc {
@@ -82,9 +78,6 @@ javadoc {
     // source 'build/stub_src'
 }
 
-//task cxfStubJarClean (type: Delete) {
-//    delete '../libs/' + stubJarFilename
-//}
 
 task sourcesJar(type:Jar){
     classifier = 'sources'
