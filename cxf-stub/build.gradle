@@ -48,7 +48,7 @@ task cloudwatchwsdl2java (type: JavaExec) {
     outputs.dir new File('build', 'stub_src')
 
     main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
-    classpath = configurations.cxf
+    classpath = configurations.cxf + configurations.runtimeClasspath
     args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.cloudwatch.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", cloudwatchApiVersion+".wsdl" ]
 }
 
