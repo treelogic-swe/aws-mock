@@ -18,6 +18,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import java.io.Writer;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, PropertiesUtils.class })
@@ -155,16 +157,25 @@ public class JAXBUtilCWTest {
     @Test(expected = AwsMockException.class)
     public void Test_marshallGetMetricStatisticsFailed() throws Exception {
         PowerMockito.spy(PropertiesUtils.class);
-        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT))
-                .thenThrow(JAXBException.class);
-        JAXBUtilCW.marshall(new GetMetricStatisticsResponse(), "Test", "2012-02-10");
+        GetMetricStatisticsResponse getMetricStatisticsResponse = new GetMetricStatisticsResponse();
+
+        Marshaller jaxbMarshaller = Mockito.mock(Marshaller.class);
+        Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", jaxbMarshaller);
+
+        Mockito.doThrow(new JAXBException("")).when(jaxbMarshaller).marshal(Mockito.any(), Mockito.any(Writer.class));
+
+        JAXBUtilCW.marshall(getMetricStatisticsResponse, "Test", "2012-02-10");
     }
 
     @Test(expected = AwsMockException.class)
     public void Test_marshallDescribeAlarmsFailed() throws Exception {
         PowerMockito.spy(PropertiesUtils.class);
-        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT))
-                .thenThrow(JAXBException.class);
+
+        Marshaller jaxbMarshaller = Mockito.mock(Marshaller.class);
+        Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", jaxbMarshaller);
+
+        Mockito.doThrow(new JAXBException("")).when(jaxbMarshaller).marshal(Mockito.any(), Mockito.any(Writer.class));
+
         JAXBUtilCW.marshall(new DescribeAlarmsResponse(), "Test", "2012-02-10");
     }
 }
