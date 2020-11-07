@@ -17,6 +17,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import java.io.Writer;
@@ -156,7 +157,7 @@ public class JAXBUtilCWTest {
 
     @Test(expected = AwsMockException.class)
     public void Test_marshallGetMetricStatisticsFailed() throws Exception {
-        PowerMockito.spy(PropertiesUtils.class);
+
         GetMetricStatisticsResponse getMetricStatisticsResponse = new GetMetricStatisticsResponse();
 
         Marshaller jaxbMarshaller = Mockito.mock(Marshaller.class);
@@ -165,11 +166,11 @@ public class JAXBUtilCWTest {
         Mockito.doThrow(new JAXBException("")).when(jaxbMarshaller).marshal(Mockito.any(), Mockito.any(Writer.class));
 
         JAXBUtilCW.marshall(getMetricStatisticsResponse, "Test", "2012-02-10");
+        Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", getMarshaller());
     }
 
     @Test(expected = AwsMockException.class)
     public void Test_marshallDescribeAlarmsFailed() throws Exception {
-        PowerMockito.spy(PropertiesUtils.class);
 
         Marshaller jaxbMarshaller = Mockito.mock(Marshaller.class);
         Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", jaxbMarshaller);
@@ -177,5 +178,16 @@ public class JAXBUtilCWTest {
         Mockito.doThrow(new JAXBException("")).when(jaxbMarshaller).marshal(Mockito.any(), Mockito.any(Writer.class));
 
         JAXBUtilCW.marshall(new DescribeAlarmsResponse(), "Test", "2012-02-10");
+        Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", getMarshaller());
+    }
+
+    public Marshaller getMarshaller() throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance("com.tlswe.awsmock.cloudwatch.cxf_generated");
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+
+        return jaxbMarshaller;
     }
 }
