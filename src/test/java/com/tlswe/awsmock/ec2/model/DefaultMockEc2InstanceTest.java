@@ -11,8 +11,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -126,7 +124,8 @@ public class DefaultMockEc2InstanceTest {
     @Test
     public void Test_timerInstanceStartedMaxBoot0() throws Exception {
 
-        setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_BOOT_TIME_MILLS), 0);
+        Whitebox.setInternalState(AbstractMockEc2Instance.class, "MAX_BOOT_TIME_MILLS", 0);
+
         AbstractMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
 
         defaultMockEc2Instance.setInstanceType(InstanceType.C1_MEDIUM);
@@ -144,8 +143,7 @@ public class DefaultMockEc2InstanceTest {
                 Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME,
                 Constants.PROP_NAME_INSTANCE_MAX_BOOT_TIME_SECONDS);
 
-        setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_BOOT_TIME_MILLS),
-                resetValue);
+        Whitebox.setInternalState(AbstractMockEc2Instance.class, "MAX_BOOT_TIME_MILLS", resetValue);
 
         Assert.assertFalse(defaultMockEc2Instance.isBooting());
         Assert.assertNotNull(defaultMockEc2Instance.getPubDns());
@@ -170,7 +168,8 @@ public class DefaultMockEc2InstanceTest {
     @Test
     public void Test_timerInstanceStoppedMaxShutdown0() throws Exception {
 
-        setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_SHUTDOWN_TIME_MILLS), 0);
+        Whitebox.setInternalState(AbstractMockEc2Instance.class, "MAX_SHUTDOWN_TIME_MILLS", 0);
+
         AbstractMockEc2Instance defaultMockEc2Instance = new DefaultMockEc2Instance();
 
         defaultMockEc2Instance.setInstanceType(InstanceType.C1_MEDIUM);
@@ -189,8 +188,7 @@ public class DefaultMockEc2InstanceTest {
                 Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME,
                 Constants.PROP_NAME_INSTANCE_MAX_SHUTDOWN_TIME_SECONDS);
 
-        setFinalStatic(AbstractMockEc2Instance.class.getDeclaredField(MAX_SHUTDOWN_TIME_MILLS),
-                resetValue);
+        Whitebox.setInternalState(AbstractMockEc2Instance.class, "MAX_SHUTDOWN_TIME_MILLS", resetValue);
 
         Assert.assertFalse(defaultMockEc2Instance.isStopping());
         Assert.assertFalse(defaultMockEc2Instance.isRunning());
@@ -210,14 +208,6 @@ public class DefaultMockEc2InstanceTest {
         defaultMockEc2Instance.setSecurityGroups(securityGroups);
 
         Assert.assertTrue(defaultMockEc2Instance.getSecurityGroups() == securityGroups);
-    }
-
-    static void setFinalStatic(Field field, Object newValue) throws Exception {
-        field.setAccessible(true);
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-        field.set(null, newValue);
     }
 
 }
