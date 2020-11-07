@@ -1,23 +1,25 @@
 package com.tlswe.awsmock.ec2.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
 import com.tlswe.awsmock.ec2.cxf_generated.RunInstancesResponseType;
 import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockEC2QueryHandler.class, PropertiesUtils.class })
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class JAXBUtilTest {
 
     @Test

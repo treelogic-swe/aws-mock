@@ -1,10 +1,9 @@
 package com.tlswe.awsmock.common.listener;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.ServletContextEvent;
-
+import com.tlswe.awsmock.common.util.PersistenceUtils;
+import com.tlswe.awsmock.common.util.PersistenceUtils.PersistenceStoreType;
+import com.tlswe.awsmock.ec2.control.*;
+import com.tlswe.awsmock.ec2.model.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,22 +14,9 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.tlswe.awsmock.common.util.PersistenceUtils;
-import com.tlswe.awsmock.common.util.PersistenceUtils.PersistenceStoreType;
-import com.tlswe.awsmock.ec2.control.MockEc2Controller;
-import com.tlswe.awsmock.ec2.control.MockInternetGatewayController;
-import com.tlswe.awsmock.ec2.control.MockRouteTableController;
-import com.tlswe.awsmock.ec2.control.MockSubnetController;
-import com.tlswe.awsmock.ec2.control.MockTagsController;
-import com.tlswe.awsmock.ec2.control.MockVolumeController;
-import com.tlswe.awsmock.ec2.control.MockVpcController;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
-import com.tlswe.awsmock.ec2.model.MockInternetGateway;
-import com.tlswe.awsmock.ec2.model.MockRouteTable;
-import com.tlswe.awsmock.ec2.model.MockSubnet;
-import com.tlswe.awsmock.ec2.model.MockTags;
-import com.tlswe.awsmock.ec2.model.MockVolume;
-import com.tlswe.awsmock.ec2.model.MockVpc;
+import javax.servlet.ServletContextEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -227,19 +213,19 @@ public class AppServletContextListenerTest {
         Whitebox.setInternalState(AppServletContextListener.class, "persistenceEnabled", true);
         acl.contextDestroyed(sce);
 
-        verifyStatic();
+        verifyStatic(PersistenceUtils.class);
         PersistenceUtils.saveAll(isA((new AbstractMockEc2Instance[1]).getClass()), eq(PersistenceStoreType.EC2));
-        verifyStatic();
+        verifyStatic(PersistenceUtils.class);
         PersistenceUtils.saveAll(isA((new MockVpc[1]).getClass()), eq(PersistenceStoreType.VPC));
-        verifyStatic();
+        verifyStatic(PersistenceUtils.class);
         PersistenceUtils.saveAll(isA((new MockVolume[1]).getClass()), eq(PersistenceStoreType.VOLUME));
-        verifyStatic();
+        verifyStatic(PersistenceUtils.class);
         PersistenceUtils.saveAll(isA((new MockTags[1]).getClass()), eq(PersistenceStoreType.TAGS));
-        verifyStatic();
+        verifyStatic(PersistenceUtils.class);
         PersistenceUtils.saveAll(isA((new MockSubnet[1]).getClass()), eq(PersistenceStoreType.SUBNET));
-        verifyStatic();
+        verifyStatic(PersistenceUtils.class);
         PersistenceUtils.saveAll(isA((new MockRouteTable[1]).getClass()), eq(PersistenceStoreType.ROUTETABLE));
-        verifyStatic();
+        verifyStatic(PersistenceUtils.class);
         PersistenceUtils.saveAll(isA((new MockInternetGateway[1]).getClass()), eq(PersistenceStoreType.INTERNETGATEWAY));
         PowerMockito.verifyNoMoreInteractions(PersistenceUtils.class);
         

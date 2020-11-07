@@ -1,22 +1,25 @@
 package com.tlswe.awsmock.ec2.control;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import com.tlswe.awsmock.ec2.model.MockVolume;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.support.membermodification.MemberModifier;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.tlswe.awsmock.ec2.model.MockVolume;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockVolumeController.class})
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class MockVolumeControllerTest {
 
     @Test

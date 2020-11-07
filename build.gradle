@@ -42,9 +42,9 @@ dependencies {
     compile "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2"
     compile "org.glassfish.jaxb:jaxb-runtime:2.3.2"
     testCompile "com.amazonaws:aws-java-sdk:1.11.52"
-    testCompile "org.powermock:powermock:1.6.5"
-    testCompile "org.powermock:powermock-module-junit4:1.6.5"
-    testCompile "org.powermock:powermock-api-mockito:1.6.5"
+    testCompile "org.powermock:powermock-core:2.0.9"
+    testCompile "org.powermock:powermock-module-junit4:2.0.9"
+    testCompile "org.powermock:powermock-api-mockito2:2.0.9"
 
     def tomcatVersion = '7.0.92'
     tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",

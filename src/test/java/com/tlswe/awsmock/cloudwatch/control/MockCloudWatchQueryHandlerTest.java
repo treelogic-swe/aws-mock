@@ -1,16 +1,11 @@
 package com.tlswe.awsmock.cloudwatch.control;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.datatype.XMLGregorianCalendar;
-
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.StandardUnit;
+import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
+import com.tlswe.awsmock.common.util.Constants;
+import com.tlswe.awsmock.common.util.PropertiesUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.junit.Assert;
@@ -19,21 +14,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.tlswe.awsmock.cloudwatch.cxf_generated.StandardUnit;
-import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
-import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
-import com.tlswe.awsmock.cloudwatch.util.JAXBUtilCW;
-import com.tlswe.awsmock.common.util.Constants;
-import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
-import com.tlswe.awsmock.ec2.util.JAXBUtil;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, JAXBUtilCW.class })
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class MockCloudWatchQueryHandlerTest {
 
     private static Properties properties = new Properties();

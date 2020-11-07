@@ -1,27 +1,25 @@
 package com.tlswe.awsmock.cloudwatch.util;
 
-import javax.xml.bind.JAXBException;
-
+import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
+import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
+import com.tlswe.awsmock.common.util.Constants;
+import com.tlswe.awsmock.common.util.PropertiesUtils;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
-import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
-import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
-import com.tlswe.awsmock.common.exception.AwsMockException;
-import com.tlswe.awsmock.common.util.Constants;
-import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.util.JAXBUtil;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, PropertiesUtils.class })
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class JAXBUtilCWTest {
 
     @Test
@@ -149,21 +147,5 @@ public class JAXBUtilCWTest {
                 .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL));
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
-    }
-
-    @Test(expected = AwsMockException.class)
-    public void Test_marshallGetMetricStatisticsFailed() throws Exception {
-        PowerMockito.spy(PropertiesUtils.class);
-        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT))
-                .thenThrow(JAXBException.class);
-        JAXBUtilCW.marshall(new GetMetricStatisticsResponse(), "Test", "2012-02-10");
-    }
-
-    @Test(expected = AwsMockException.class)
-    public void Test_marshallDescribeAlarmsFailed() throws Exception {
-        PowerMockito.spy(PropertiesUtils.class);
-        Mockito.when(PropertiesUtils.getProperty(Constants.PROP_NAME_CLOUDWATCH_XMLNS_CURRENT))
-                .thenThrow(JAXBException.class);
-        JAXBUtilCW.marshall(new DescribeAlarmsResponse(), "Test", "2012-02-10");
     }
 }

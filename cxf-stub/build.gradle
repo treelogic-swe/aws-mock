@@ -10,7 +10,6 @@ def ec2ApiVersion = "ec2-2014-02-01"
 def stubJarFilename = "cxf-stub-" + ec2ApiVersion + ".jar"
 
 def cloudwatchApiVersion = "cloudwatch-2010-08-01"
-//def stubCWJarFilename = "cxf-stub-" + cloudwatchApiVersion + ".jar"
 
 configurations.all {
     // check for updates every build
@@ -31,15 +30,15 @@ ext {
 
 dependencies {
     cxfArtifacts.each { artifact -> cxf "org.apache.cxf:$artifact:$cxfVersion" }
+    runtime 'javax.xml.ws:jaxws-api:2.2.6'
 }
 
 task wsdl2java (type: JavaExec) {
     inputs.file file('ec2-2014-02-01.wsdl')
     outputs.dir new File('build', 'stub_src')
-
-	main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
-    //classpath = sourceSets.main.runtimeClasspath
-    classpath = configurations.cxf
+    
+    main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
+    classpath = configurations.cxf + configurations.runtimeClasspath
     args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.ec2.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", ec2ApiVersion+".wsdl" ]
 }
 
@@ -47,9 +46,8 @@ task cloudwatchwsdl2java (type: JavaExec) {
     inputs.file file('cloudwatch-2010-08-01.wsdl')
     outputs.dir new File('build', 'stub_src')
 
-	main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
-    //classpath = sourceSets.main.runtimeClasspath
-    classpath = configurations.cxf
+    main = 'org.apache.cxf.tools.wsdlto.WSDLToJava'
+    classpath = configurations.cxf + configurations.runtimeClasspath
     args = [ "-quiet", "-d", "build/stub_src", "-p", "com.tlswe.awsmock.cloudwatch.cxf_generated", "-autoNameResolution", "-impl", "-server", "-frontend", "jaxws21", cloudwatchApiVersion+".wsdl" ]
 }
 
@@ -61,8 +59,8 @@ compileJava {
     dependsOn wsdl2java, cloudwatchwsdl2java
     inputs.dir new File('build', 'stub_src')
     outputs.dir new File('build', 'stub_classes')
-    sourceCompatibility = '1.6'
-    targetCompatibility = '1.6'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
     classpath = configurations.runtime
     source = file ('build/stub_src')
     destinationDir = file ('build/stub_classes')
@@ -70,11 +68,8 @@ compileJava {
 
 jar {
     inputs.dir new File('build', 'stub_classes')
-    //outputs.file file('../libs/' + stubJarFilename)
-    //archiveName = stubJarFilename
     manifest.attributes provider: 'tlswe'
     from 'build/stub_classes' // ,'build/stub_src'
-    //destinationDir = file('../libs')
 }
 
 javadoc {
@@ -160,12 +155,17 @@ uploadArchives {
                     developer {
                         id 'Jayscrivner'
                         name 'Jay Scrivner'
-			email 'Jayscrivner@gmail.com'
+                        email 'Jayscrivner@gmail.com'
                     }
                     developer {
                         id 'lhcxx'
                         name 'Lu Huichun'
                         email 'lhcxx0508@gmail.com'
+                    }
+                    developer {
+                        id 'zkareem'
+                        name 'Zaki Kareem'
+                        email 'zakimak9@gmail.com'
                     }
                }
             }
