@@ -3,7 +3,6 @@ package com.tlswe.awsmock.cloudwatch.util;
 import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
-import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
 import org.joda.time.DateTime;
@@ -16,11 +15,6 @@ import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import java.io.Writer;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, PropertiesUtils.class })
@@ -153,41 +147,5 @@ public class JAXBUtilCWTest {
                 .getProperty(Constants.PROP_NAME_CLOUDWATCH_API_VERSION_CURRENT_IMPL));
 
         Assert.assertTrue(xml != null && !xml.isEmpty());
-    }
-
-    @Test(expected = AwsMockException.class)
-    public void Test_marshallGetMetricStatisticsFailed() throws Exception {
-
-        GetMetricStatisticsResponse getMetricStatisticsResponse = new GetMetricStatisticsResponse();
-
-        Marshaller jaxbMarshaller = Mockito.mock(Marshaller.class);
-        Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", jaxbMarshaller);
-
-        Mockito.doThrow(new JAXBException("")).when(jaxbMarshaller).marshal(Mockito.any(), Mockito.any(Writer.class));
-
-        JAXBUtilCW.marshall(getMetricStatisticsResponse, "Test", "2012-02-10");
-        Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", getMarshaller());
-    }
-
-    @Test(expected = AwsMockException.class)
-    public void Test_marshallDescribeAlarmsFailed() throws Exception {
-
-        Marshaller jaxbMarshaller = Mockito.mock(Marshaller.class);
-        Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", jaxbMarshaller);
-
-        Mockito.doThrow(new JAXBException("")).when(jaxbMarshaller).marshal(Mockito.any(), Mockito.any(Writer.class));
-
-        JAXBUtilCW.marshall(new DescribeAlarmsResponse(), "Test", "2012-02-10");
-        Whitebox.setInternalState(JAXBUtilCW.class, "jaxbMarshaller", getMarshaller());
-    }
-
-    public Marshaller getMarshaller() throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance("com.tlswe.awsmock.cloudwatch.cxf_generated");
-        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        jaxbMarshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-
-        return jaxbMarshaller;
     }
 }
