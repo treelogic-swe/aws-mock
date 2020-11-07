@@ -1,23 +1,14 @@
 package com.tlswe.awsmock.ec2.control;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.http.HttpServletResponse;
-
+import com.tlswe.awsmock.common.util.Constants;
+import com.tlswe.awsmock.common.util.PropertiesUtils;
+import com.tlswe.awsmock.ec2.cxf_generated.*;
+import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
+import com.tlswe.awsmock.ec2.util.JAXBUtil;
+import com.tlswe.example.CustomMockEc2Instance;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,56 +16,26 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberModifier;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-import com.tlswe.awsmock.common.util.Constants;
-import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.cxf_generated.AvailabilityZoneItemType;
-import com.tlswe.awsmock.ec2.cxf_generated.CreateInternetGatewayResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.CreateRouteTableResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.CreateSecurityGroupResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.CreateSubnetResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.CreateTagsResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.CreateVolumeResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.CreateVpcResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DeleteInternetGatewayResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DeleteRouteTableResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DeleteTagsResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DeleteVolumeResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DeleteVpcResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeAvailabilityZonesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseInfoType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseItemType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeImagesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeInstancesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeInternetGatewaysResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeRouteTablesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeSecurityGroupsResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeSubnetsResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeTagsResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeVolumesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.DescribeVpcsResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.InternetGatewayType;
-import com.tlswe.awsmock.ec2.cxf_generated.IpPermissionType;
-import com.tlswe.awsmock.ec2.cxf_generated.ReservationInfoType;
-import com.tlswe.awsmock.ec2.cxf_generated.RunInstancesResponseType;
-import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesItemType;
-import com.tlswe.awsmock.ec2.cxf_generated.RunningInstancesSetType;
-import com.tlswe.awsmock.ec2.cxf_generated.SecurityGroupItemType;
-import com.tlswe.awsmock.ec2.cxf_generated.VpcType;
-import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
-import com.tlswe.awsmock.ec2.util.JAXBUtil;
-import com.tlswe.example.CustomMockEc2Instance;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockEC2QueryHandler.class, MockEc2Controller.class, MockInternetGatewayController.class, MockRouteTableController.class,
     MockSubnetController.class, MockVolumeController.class, MockVpcController.class, MockTagsController.class, MockSecurityGroupController.class,
     JAXBUtil.class })
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class MockEC2QueryHandlerTest {
 
     private static Properties properties = new Properties();

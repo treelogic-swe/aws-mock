@@ -1,31 +1,27 @@
 package com.tlswe.awsmock.ec2.control;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.tlswe.awsmock.common.exception.AwsMockException;
+import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
+import com.tlswe.awsmock.ec2.model.DefaultMockEc2Instance;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.api.support.membermodification.MemberModifier;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.tlswe.awsmock.common.exception.AwsMockException;
-import com.tlswe.awsmock.ec2.exception.BadEc2RequestException;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
-import com.tlswe.awsmock.ec2.model.DefaultMockEc2Instance;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockEc2Controller.class, DefaultMockEc2Instance.class })
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class MockEc2ControllerTest {
 
     @Test

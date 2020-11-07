@@ -1,23 +1,25 @@
 package com.tlswe.awsmock.ec2.model;
 
+import com.tlswe.awsmock.common.util.Constants;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
+import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-
-import com.tlswe.awsmock.common.util.Constants;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceState;
-import com.tlswe.awsmock.ec2.model.AbstractMockEc2Instance.InstanceType;
-
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ AbstractMockEc2Instance.class })
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class DefaultMockEc2InstanceTest {
 
     private static final String MAX_BOOT_TIME_MILLS = "MAX_BOOT_TIME_MILLS";

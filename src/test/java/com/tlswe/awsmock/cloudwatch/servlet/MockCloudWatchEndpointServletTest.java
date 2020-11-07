@@ -1,29 +1,28 @@
 package com.tlswe.awsmock.cloudwatch.servlet;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
-import com.tlswe.awsmock.ec2.control.MockEC2QueryHandler;
-import com.tlswe.awsmock.ec2.servlet.MockEc2EndpointServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, HttpServletRequest.class,
         HttpServletResponse.class })
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class MockCloudWatchEndpointServletTest {
 
     @Mock

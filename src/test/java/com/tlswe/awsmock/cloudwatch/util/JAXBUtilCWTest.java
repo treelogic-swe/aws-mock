@@ -1,27 +1,28 @@
 package com.tlswe.awsmock.cloudwatch.util;
 
-import javax.xml.bind.JAXBException;
-
-import org.joda.time.DateTime;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-
 import com.tlswe.awsmock.cloudwatch.control.MockCloudWatchQueryHandler;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.DescribeAlarmsResponse;
 import com.tlswe.awsmock.cloudwatch.cxf_generated.GetMetricStatisticsResponse;
 import com.tlswe.awsmock.common.exception.AwsMockException;
 import com.tlswe.awsmock.common.util.Constants;
 import com.tlswe.awsmock.common.util.PropertiesUtils;
-import com.tlswe.awsmock.ec2.util.JAXBUtil;
+import org.joda.time.DateTime;
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.reflect.Whitebox;
+
+import javax.xml.bind.JAXBException;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ MockCloudWatchQueryHandler.class, PropertiesUtils.class })
+@PowerMockIgnore({ "javax.management.*", "com.sun.org.apache.xerces.*", "javax.xml.*",
+        "org.xml.*", "org.w3c.dom.*", "com.sun.org.apache.xalan.*", "javax.activation.*" })
 public class JAXBUtilCWTest {
 
     @Test
