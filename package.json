@@ -1,6 +1,6 @@
 {
     "name": "aws-mock",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "description": "Easily and automatically test essential AWS services with the language-agnostic aws-mock.",
     "main": "build.gradle",
     "devDependencies": {
